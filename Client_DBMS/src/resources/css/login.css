@@ -1,0 +1,22 @@
+#basePane {
+	-fx-background-image: url('../jpg/login.jpg')
+}
+
+#dark-blue {
+    -fx-background-color: 
+        #090a0c,
+        linear-gradient(#4e546d 0%, #4e546d 20%, #4e546d 100%),
+        linear-gradient(#4e546d, #4e546d),
+        radial-gradient(center 50% 0%, radius 100%, rgba(114,131,148,0.9), rgba(255,255,255,0));
+    -fx-background-radius: 5,4,3,5;
+    -fx-background-insets: 0,1,2,0;
+    -fx-text-fill: white;
+    -fx-effect: dropshadow( three-pass-box , rgba(0,0,0,0.6) , 5, 0.0 , 0 , 1 );
+    -fx-font-family: "Arial";
+    -fx-text-fill: linear-gradient(white, #d0d0d0);
+    -fx-font-size: 16px;
+    -fx-padding: 10 20 10 20;
+}
+#dark-blue Text {
+    -fx-effect: dropshadow( one-pass-box , rgba(0,0,0,0.9) , 1, 0.0 , 0 , 1 );
+}
