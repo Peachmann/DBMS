@@ -9,6 +9,8 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 
+import message.Message;
+
 public class Server {
 
 	private static final int PORT = 9001;
@@ -58,6 +60,39 @@ public class Server {
                 	 * 		CREATE_DATABASE:
                 	 * 			DDL.createDatabase(inputMessage.dbname);
                 	 */
+                	
+                	Message inputMessage = new Message(); //MESSAGE FROM CLIENT THROUGH SOCKET
+                	
+                	int statementState;
+                	
+                	/*statementState -> response for the client*/
+                	
+                	switch(inputMessage.getMsType()) {
+                	
+                	case CREATE_DATABASE:
+                		statementState = DDL.createDatabase(inputMessage.getDBname());
+                		break;
+                		
+                	case DROP_DATABASE:
+                		statementState = DDL.dropDatabase(inputMessage.getDBname());
+                		break;
+                		
+                	case CREATE_TABLE:
+                		statementState = DDL.createTable(inputMessage.getDBname(), inputMessage.getTbname(), inputMessage.getColumns());
+                		break;
+                		
+                	case DROP_TABLE:
+                		statementState = DDL.dropTable(inputMessage.getDBname(), inputMessage.getTbname());
+                		break;
+                		
+                	case CREATE_INDEX:
+                		statementState = DDL.createIndex(inputMessage.getDBname(), inputMessage.getTbname(), inputMessage.getColumns().get(0).getName(), inputMessage.getUserGivenName());
+                		break;
+                		
+                	default:
+                		System.out.println("Unrecognized message type.");
+                		break;
+                	}
                 }
                 
             } catch (Exception e){
