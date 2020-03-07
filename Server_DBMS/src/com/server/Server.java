@@ -49,6 +49,17 @@ public class Server {
                 os = socket.getOutputStream();
                 output = new ObjectOutputStream(os);
                 
+                while (socket.isConnected()) {
+                	/*
+                	 * Message inputMessage = ....;
+                	 *
+                	 * 
+                	 * switch:
+                	 * 		CREATE_DATABASE:
+                	 * 			DDL.createDatabase(inputMessage.dbname);
+                	 */
+                }
+                
             } catch (Exception e){
                 System.out.println("Exception!");
             }
