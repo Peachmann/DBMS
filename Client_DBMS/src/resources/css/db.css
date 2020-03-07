@@ -1,0 +1,29 @@
+#basePane {
+	-fx-background-image: url('../jpg/db.jpg')
+}
+
+#minimizeButton, #closeButton {
+	-fx-background:linear-gradient(to bottom, #7d86ab 5%, #7d86ab 100%);
+	-fx-background-color:#7d86ab;
+	-fx-background-radius:6px;
+	-fx-display:inline-block;
+	-fx-cursor:hand;
+	-fx-color:#505739;
+	-fx-font-family:Arial;
+	-fx-font-size:14px;
+	-fx-font-weight:bold;
+	-fx-padding:5px 10px;
+	-fx-text-decoration:none;
+}
+#minimizeButton:hover, #closeButton:hover {
+	-fx-background:linear-gradient(to bottom, #6c7c7c 5%, #768d87 100%);
+	-fx-background-color:#6c7c7c;
+}
+
+.text-area, .text-area .viewport, .text-area .content {
+    -fx-background-color: transparent;
+}
+
+#newDB {
+	-fx-graphic: url('../jpg/icon.jpg');
+}

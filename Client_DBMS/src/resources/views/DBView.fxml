@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TreeView?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane id="basePane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="768.0" prefWidth="1024.0" stylesheets="@../css/db.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.client.db.DBController">
+   <center>
+      <VBox prefHeight="200.0" prefWidth="100.0" BorderPane.alignment="CENTER">
+         <children>
+            <BorderPane prefHeight="61.0" prefWidth="1024.0">
+               <left>
+                  <Label id="userLabel" fx:id="userLabel" alignment="CENTER" prefHeight="34.0" prefWidth="221.0" text="Welcome, %user!" textAlignment="CENTER" textFill="WHITE" BorderPane.alignment="CENTER">
+                     <font>
+                        <Font size="23.0" />
+                     </font>
+                  </Label>
+               </left>
+               <center>
+                  <Label id="nameLabel" text="PhysiaDB" textFill="WHITE" BorderPane.alignment="CENTER">
+                     <font>
+                        <Font size="34.0" />
+                     </font>
+                  </Label>
+               </center>
+               <right>
+                  <HBox alignment="CENTER_RIGHT" prefHeight="100.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+                     <children>
+                        <Button id="minimizeButton" fx:id="minimizeButton" mnemonicParsing="false" text="-" textAlignment="CENTER" textFill="WHITE">
+                           <font>
+                              <Font size="25.0" />
+                           </font>
+                        </Button>
+                        <Button id="closeButton" fx:id="closeButton" mnemonicParsing="false" text="X" textFill="WHITE" />
+                     </children>
+                  </HBox>
+               </right>
+            </BorderPane>
+            <HBox prefHeight="706.0" prefWidth="1024.0">
+               <children>
+                  <BorderPane prefHeight="706.0" prefWidth="341.0">
+                     <top>
+                        <HBox alignment="CENTER_LEFT" prefHeight="38.0" prefWidth="342.0" BorderPane.alignment="CENTER">
+                           <children>
+                              <ImageView id="newDB" fitHeight="25.0" fitWidth="27.0" pickOnBounds="true" preserveRatio="true" style="-fx-translate-y: 3; -fx-translate-x: 5;">
+                                 <image>
+                                    <Image url="@../jpg/icon.png" />
+                                 </image>
+                              </ImageView>
+                           </children>
+                        </HBox>
+                     </top>
+                     <center>
+                        <TreeView prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER" />
+                     </center>
+                  </BorderPane>
+                  <TextArea id="resultTextArea" fx:id="resultTextArea" prefHeight="706.0" prefWidth="682.0" />
+               </children>
+            </HBox>
+         </children>
+      </VBox>
+   </center>
+</BorderPane>
