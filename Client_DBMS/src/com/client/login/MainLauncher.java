@@ -26,6 +26,7 @@ public class MainLauncher extends Application {
         primaryStage.setScene(mainScene);
         primaryStage.show();
         primaryStage.setOnCloseRequest(e -> Platform.exit());
+        //Cigany
     }
 
     public static void main(String[] args) {
