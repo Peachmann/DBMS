@@ -11,7 +11,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane id="basePane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="768.0" prefWidth="1024.0" stylesheets="@../css/db.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.client.db.DBController">
+<BorderPane id="basePane" fx:id="borderPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="768.0" prefWidth="1024.0" stylesheets="@../css/db.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.client.db.DBController">
    <center>
       <VBox prefHeight="200.0" prefWidth="100.0" BorderPane.alignment="CENTER">
          <children>
@@ -33,12 +33,12 @@
                <right>
                   <HBox alignment="CENTER_RIGHT" prefHeight="100.0" prefWidth="200.0" BorderPane.alignment="CENTER">
                      <children>
-                        <Button id="minimizeButton" fx:id="minimizeButton" mnemonicParsing="false" text="-" textAlignment="CENTER" textFill="WHITE">
+                        <Button id="minimizeButton" fx:id="minimizeButton" mnemonicParsing="false" onMouseClicked="#minimizeWindow" text="-" textAlignment="CENTER" textFill="WHITE">
                            <font>
                               <Font size="25.0" />
                            </font>
                         </Button>
-                        <Button id="closeButton" fx:id="closeButton" mnemonicParsing="false" text="X" textFill="WHITE" />
+                        <Button id="closeButton" fx:id="closeButton" mnemonicParsing="false" onAction="#closeWindow" text="X" textFill="WHITE" />
                      </children>
                   </HBox>
                </right>
@@ -49,7 +49,7 @@
                      <top>
                         <HBox alignment="CENTER_LEFT" prefHeight="38.0" prefWidth="342.0" BorderPane.alignment="CENTER">
                            <children>
-                              <ImageView id="newDB" fitHeight="25.0" fitWidth="27.0" pickOnBounds="true" preserveRatio="true" style="-fx-translate-y: 3; -fx-translate-x: 5;">
+                              <ImageView id="newDB" fx:id="newDB" fitHeight="25.0" fitWidth="27.0" onMouseClicked="#createDatabase" pickOnBounds="true" preserveRatio="true" style="-fx-translate-y: 3; -fx-translate-x: 5;">
                                  <image>
                                     <Image url="@../jpg/icon.png" />
                                  </image>
