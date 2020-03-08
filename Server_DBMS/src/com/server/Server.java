@@ -66,27 +66,102 @@ public class Server {
                     	switch(inputMessage.getMsType()) {
                     	
                     	case CONNECTED:
-                    		constructResponse(99);
+                    		constructResponse(99,inputMessage);
                     		break;
                     	
                     	case CREATE_DATABASE:
                     		statementState = DDL.createDatabase(inputMessage.getDBname());
+                    		switch(statementState) {
+                    		
+                    		case 0:
+                    			constructResponse(1,inputMessage);
+                    			break;
+                    		case -1:
+                    			constructResponse(2,inputMessage);
+                    			break;
+                    		case -5:
+                    			constructResponse(3,inputMessage);
+                    			break;
+                    		}
                     		break;
                     		
                     	case DROP_DATABASE:
                     		statementState = DDL.dropDatabase(inputMessage.getDBname());
+                    		switch(statementState) {
+                    		
+                    		case 0:
+                    			constructResponse(4,inputMessage);
+                    			break;
+                    		case -1:
+                    			constructResponse(5,inputMessage);
+                    			break;
+                    		case -2:
+                    			constructResponse(6,inputMessage);
+                    			break;
+                    		}
                     		break;
                     		
                     	case CREATE_TABLE:
                     		statementState = DDL.createTable(inputMessage.getDBname(), inputMessage.getTbname(), inputMessage.getColumns());
+                    		switch(statementState) {
+                    		
+                    		case 0:
+                    			constructResponse(7,inputMessage);
+                    			break;
+                    		case -2:
+                    			constructResponse(8,inputMessage);
+                    			break;
+                    		case -5:
+                    			constructResponse(9,inputMessage);
+                    			break;
+                    		case -7:
+                    			constructResponse(10,inputMessage);
+                    			break;
+                    		case -10:
+                    			constructResponse(11,inputMessage);
+                    			break;
+                    		case -1:
+                    			constructResponse(12,inputMessage);
+                    			break;
+                    		}
                     		break;
                     		
                     	case DROP_TABLE:
                     		statementState = DDL.dropTable(inputMessage.getDBname(), inputMessage.getTbname());
+                    		switch(statementState) {
+                    		
+                    		case 0:
+                    			constructResponse(13,inputMessage);
+                    			break;
+                    		case -2:
+                    			constructResponse(14,inputMessage);
+                    			break;
+                    		case -5:
+                    			constructResponse(15,inputMessage);
+                    			break;
+                    		case -1:
+                    			constructResponse(16,inputMessage);
+                    			break;
+                    		}
                     		break;
                     		
                     	case CREATE_INDEX:
                     		statementState = DDL.createIndex(inputMessage.getDBname(), inputMessage.getTbname(), inputMessage.getColumns().get(0).getName(), inputMessage.getUserGivenName());
+                    		switch(statementState) {
+                    		
+                    		case 0:
+                    			constructResponse(17,inputMessage);
+                    			break;
+                    		case -5:
+                    			constructResponse(18,inputMessage);
+                    			break;
+                    		case -4:
+                    			constructResponse(19,inputMessage);
+                    			break;
+                    		case -1:
+                    			constructResponse(20,inputMessage);
+                    			break;
+                    		}
                     		break;
                     		
                     	default:
@@ -103,17 +178,117 @@ public class Server {
             }
         }
         
-        public void constructResponse(int statementState) throws IOException {
+        public void constructResponse(int statementState, Message inputMessage) throws IOException {
         	
         	Message response = new Message();
         	
         	switch (statementState) {
         	
-        	//User connected, sending paths to DB/Indexes
+        	case 1:
+        		response.setMsType(MessageType.CREATE_DATABASE);
+        		response.setResponse("Database " + inputMessage.getDBname() + " created successfully.");
+        		break;
+        		
+        	case 2:
+        		response.setMsType(MessageType.CREATE_DATABASE);
+        		response.setResponse("An error occured, could not create " + inputMessage.getDBname() + " database.");
+        		break;
+        		
+        	case 3:
+        		response.setMsType(MessageType.CREATE_DATABASE);
+        		response.setResponse("Database " + inputMessage.getDBname() + " already exists!");
+        		break;
+        		
+        	case 4:
+        		response.setMsType(MessageType.DROP_DATABASE);
+        		response.setResponse("Database " + inputMessage.getDBname() + " deleted successfully.");
+    			break;
+        		
+        	case 5:
+        		response.setMsType(MessageType.DROP_DATABASE);
+        		response.setResponse("Database " + inputMessage.getDBname() + " does not exist.");
+    			break;
+        		
+        	case 6:
+        		response.setMsType(MessageType.DROP_DATABASE);
+        		response.setResponse("An error occured, could not drop " + inputMessage.getDBname() + " database.");
+    			break;
+        		
+        	case 7:
+        		response.setMsType(MessageType.CREATE_TABLE);
+        		response.setResponse("Table " + inputMessage.getTbname() + " created successfully in database " + inputMessage.getDBname() + ".");
+    			break;
+        		
+        	case 8:
+        		response.setMsType(MessageType.CREATE_TABLE);
+        		response.setResponse("Table " + inputMessage.getTbname() + " already exists in database " + inputMessage.getDBname() + ".");
+    			break;
+        		
+        	case 9:
+        		response.setMsType(MessageType.CREATE_TABLE);
+        		response.setResponse("Could not create table " + inputMessage.getTbname() + ", the number of Primary Keys in one table must be 1!");
+    			break;
+        		
+        	case 10:
+        		response.setMsType(MessageType.CREATE_TABLE);
+        		response.setResponse("Could not create table " + inputMessage.getTbname() + ", because Foreign Key reference does not exists or the type differs.");
+    			break;
+        		
+        	case 11:
+        		response.setMsType(MessageType.CREATE_TABLE);
+        		response.setResponse("Could not create table " + inputMessage.getTbname() + ", because of unsupported field types!");
+    			break;
+        		
+        	case 12:
+        		response.setMsType(MessageType.CREATE_TABLE);
+        		response.setResponse("An error occured, could not create " + inputMessage.getTbname() + " in database " + inputMessage.getDBname() + ".");
+    			break;
+        		
+        	case 13:
+        		response.setMsType(MessageType.DROP_TABLE);
+        		response.setResponse("Table " + inputMessage.getTbname() + " successfully deleted from database " + inputMessage.getDBname() + ".");
+    			break;
+        		
+        	case 14:
+        		response.setMsType(MessageType.DROP_TABLE);
+        		response.setResponse("Table " + inputMessage.getTbname() + " does not exist in database " + inputMessage.getDBname() + ".");
+    			break;
+        		
+        	case 15:
+        		response.setMsType(MessageType.DROP_TABLE);
+        		response.setResponse("Could not drop table " + inputMessage.getTbname() + " from database " + inputMessage.getDBname() + " because other tables have Foreign Key references.");
+    			break;
+        		
+        	case 16:
+        		response.setMsType(MessageType.DROP_TABLE);
+        		response.setResponse("An error occured, could not drop table " + inputMessage.getTbname() + " from database " + inputMessage.getDBname() + ".");
+    			break;
+        		
+        	case 17:
+        		response.setMsType(MessageType.CREATE_INDEX);
+        		response.setResponse("Index successfully created on " + inputMessage.getColumns().get(0).getName() + " column.");
+    			break;
+        		
+        	case 18:
+        		response.setMsType(MessageType.CREATE_INDEX);
+        		response.setResponse("Index on column " + inputMessage.getColumns().get(0).getName() + " already exists.");
+    			break;
+        		
+        	case 19:
+        		response.setMsType(MessageType.CREATE_INDEX);
+        		response.setResponse("Could not create index on column " + inputMessage.getColumns().get(0).getName() + ", name can not contain _. /\\ characters");
+    			break;
+        		
+        	case 20:
+        		response.setMsType(MessageType.CREATE_INDEX);
+        		response.setResponse("An error occured, could not create index on column " + inputMessage.getColumns().get(0).getName() + ".");
+    			break;
+    			
         	case 99:
         		response.setMsType(MessageType.CONNECTED);
         		response.setDBname(absPath + "\\databases\\");
         		response.setResponse(absPath + "\\indexes\\");
+        		break;
         	}
         	
         	output.writeObject(response);

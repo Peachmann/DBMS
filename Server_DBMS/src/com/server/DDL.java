@@ -30,6 +30,11 @@ public final class DDL {
 	// CREATE DATABASE DDL command, returns 0 if successful, -1 if error
 	public static int createDatabase(String dbname) {
 		
+		File file = new File("databases//" + dbname + ".xml");
+		if(file.exists()) {
+			
+			return -5;
+		}
 		try {
 
             DocumentBuilderFactory documentFactory = DocumentBuilderFactory.newInstance();
