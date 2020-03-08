@@ -69,8 +69,6 @@ public class LoginController implements Initializable {
         int port = Integer.parseInt(portTextField.getText());
         String username = userTextField.getText();
         
-        
-        
         FXMLLoader fmxlLoader = new FXMLLoader(getClass().getClassLoader().getResource("resources/views/DBView.fxml"));
         Parent window = fmxlLoader.load();
         con = fmxlLoader.<DBController>getController();

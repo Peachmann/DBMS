@@ -56,6 +56,7 @@ public class Listener implements Runnable {
                 		break;
                 	
                 	case CREATE_DATABASE:
+                		controller.printResponse(message.getResponse());
                 		break;
                 		
                 	case DROP_DATABASE:
@@ -86,6 +87,11 @@ public class Listener implements Runnable {
     	Message message = new Message();
     	message.setMsType(MessageType.CONNECTED);
     	oos.writeObject(message);
+    	oos.flush();
+    }
+    
+    public static void sendRequest(Message msg) throws IOException {
+    	oos.writeObject(msg);
     	oos.flush();
     }
 
