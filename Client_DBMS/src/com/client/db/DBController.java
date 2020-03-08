@@ -1,5 +1,6 @@
 package com.client.db;
 
+import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -45,7 +46,7 @@ public class DBController implements Initializable {
         borderPane.setOnMouseReleased(event -> {
             borderPane.setCursor(Cursor.DEFAULT);
         });
-        buildViewTree();
+        
 	}
 
 	public void setUsernameLabel(String text) {
@@ -59,8 +60,18 @@ public class DBController implements Initializable {
 	}
 
 	@FXML
-	public void createDatabase() {
-		//name.getText();
+	public void createDatabase() throws IOException, InterruptedException {
+		try {
+			Listener.getPaths();
+			Thread.sleep(100);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		DBStructure.setDbPath(Listener.getDbPath());
+		DBStructure.setIndexPath(Listener.getIndexPath());
+		
+		buildViewTree();
 	}
 	
 	@FXML
@@ -76,7 +87,7 @@ public class DBController implements Initializable {
 	 * */
 	public void buildViewTree() {
 		
-		TreeItem<String> root = new TreeItem<String>("EVERYTHING");
+		TreeItem<String> root = new TreeItem<String>("Everything");
 		root.setExpanded(true);
 		
 		List<ArrayList<String>> structure = DBStructure.getAllDBTables();

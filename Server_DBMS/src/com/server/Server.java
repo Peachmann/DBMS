@@ -7,14 +7,18 @@ import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 
 import message.Message;
+import message.MessageType;
 
 public class Server {
 
 	private static final int PORT = 9001;
-	private static ArrayList<String> users = new ArrayList<>();
+	private static Path absPath = Paths.get(".").normalize().toAbsolutePath();
 	
 	public static void main(String[] args) throws IOException {
 		System.out.println("Server started.");
@@ -52,52 +56,67 @@ public class Server {
                 output = new ObjectOutputStream(os);
                 
                 while (socket.isConnected()) {
-                	/*
-                	 * Message inputMessage = ....;
-                	 *
-                	 * 
-                	 * switch:
-                	 * 		CREATE_DATABASE:
-                	 * 			DDL.createDatabase(inputMessage.dbname);
-                	 */
                 	
-                	Message inputMessage = new Message(); //MESSAGE FROM CLIENT THROUGH SOCKET
+                	Message inputMessage = (Message) input.readObject(); //MESSAGE FROM CLIENT THROUGH SOCKET
                 	
+                	//statementState -> response for the client
                 	int statementState;
                 	
-                	/*statementState -> response for the client*/
-                	
-                	switch(inputMessage.getMsType()) {
-                	
-                	case CREATE_DATABASE:
-                		statementState = DDL.createDatabase(inputMessage.getDBname());
-                		break;
-                		
-                	case DROP_DATABASE:
-                		statementState = DDL.dropDatabase(inputMessage.getDBname());
-                		break;
-                		
-                	case CREATE_TABLE:
-                		statementState = DDL.createTable(inputMessage.getDBname(), inputMessage.getTbname(), inputMessage.getColumns());
-                		break;
-                		
-                	case DROP_TABLE:
-                		statementState = DDL.dropTable(inputMessage.getDBname(), inputMessage.getTbname());
-                		break;
-                		
-                	case CREATE_INDEX:
-                		statementState = DDL.createIndex(inputMessage.getDBname(), inputMessage.getTbname(), inputMessage.getColumns().get(0).getName(), inputMessage.getUserGivenName());
-                		break;
-                		
-                	default:
-                		System.out.println("Unrecognized message type.");
-                		break;
+                	if (inputMessage != null) {
+                    	switch(inputMessage.getMsType()) {
+                    	
+                    	case CONNECTED:
+                    		constructResponse(99);
+                    		break;
+                    	
+                    	case CREATE_DATABASE:
+                    		statementState = DDL.createDatabase(inputMessage.getDBname());
+                    		break;
+                    		
+                    	case DROP_DATABASE:
+                    		statementState = DDL.dropDatabase(inputMessage.getDBname());
+                    		break;
+                    		
+                    	case CREATE_TABLE:
+                    		statementState = DDL.createTable(inputMessage.getDBname(), inputMessage.getTbname(), inputMessage.getColumns());
+                    		break;
+                    		
+                    	case DROP_TABLE:
+                    		statementState = DDL.dropTable(inputMessage.getDBname(), inputMessage.getTbname());
+                    		break;
+                    		
+                    	case CREATE_INDEX:
+                    		statementState = DDL.createIndex(inputMessage.getDBname(), inputMessage.getTbname(), inputMessage.getColumns().get(0).getName(), inputMessage.getUserGivenName());
+                    		break;
+                    		
+                    	default:
+                    		System.out.println("Unrecognized message type.");
+                    		break;
+                    	}
                 	}
                 }
                 
-            } catch (Exception e){
-                System.out.println("Exception!");
+            } catch (SocketException e){
+                System.out.println("User disconnected!");
+            } catch (Exception e) {
+            	e.printStackTrace();
             }
+        }
+        
+        public void constructResponse(int statementState) throws IOException {
+        	
+        	Message response = new Message();
+        	
+        	switch (statementState) {
+        	
+        	//User connected, sending paths to DB/Indexes
+        	case 99:
+        		response.setMsType(MessageType.CONNECTED);
+        		response.setDBname(absPath + "\\databases\\");
+        		response.setResponse(absPath + "\\indexes\\");
+        	}
+        	
+        	output.writeObject(response);
         }
     }
 

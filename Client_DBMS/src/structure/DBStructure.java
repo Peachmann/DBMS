@@ -19,15 +19,22 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import com.client.db.Listener;
+
 // static class, methods give information about the databases and their tables
 public final class DBStructure {
+	
+	private static String dbPath;
+	private static String indexPath;
 
 	// gets all current database names
 	public static List<String> getDatabases() {
 		
+		System.out.println(dbPath);
+		
 		List<String> databases = new ArrayList<String>();
 		
-		try(Stream<Path> walk = Files.walk(Paths.get("//..//Server_DBMS//databases//"))) {
+		try(Stream<Path> walk = Files.walk(Paths.get(dbPath))) {
 			
 			databases = walk.map(x -> x.toString())
 					.filter(f -> f.endsWith(".xml"))
@@ -56,7 +63,7 @@ public final class DBStructure {
 
             DocumentBuilderFactory documentFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder documentBuilder = documentFactory.newDocumentBuilder();
-            Document document = documentBuilder.parse(new File("//..//Server_DBMS//databases//" + dbname + ".xml"));
+            Document document = documentBuilder.parse(new File(dbPath + dbname + ".xml"));
 			
             document.getDocumentElement().normalize();
             
@@ -95,6 +102,14 @@ public final class DBStructure {
 		}
 		
 		return structure;
+	}
+
+	public static void setDbPath(String dbPath) {
+		DBStructure.dbPath = dbPath;
+	}
+
+	public static void setIndexPath(String indexPath) {
+		DBStructure.indexPath = indexPath;
 	}
 	
 }

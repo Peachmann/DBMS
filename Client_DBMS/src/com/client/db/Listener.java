@@ -9,6 +9,9 @@ import java.net.Socket;
 
 import com.client.login.LoginController;
 
+import message.Message;
+import message.MessageType;
+
 public class Listener implements Runnable {
 
 	private static String hostname, username;
@@ -19,7 +22,8 @@ public class Listener implements Runnable {
 	private OutputStream outputStream;
 	private InputStream is;
     private ObjectInputStream input;
-	
+    private static String dbPath, indexPath;
+    
     public Listener(String hostname, int port, String username, DBController controller) {
         this.hostname = hostname;
         this.port = port;
@@ -41,13 +45,56 @@ public class Listener implements Runnable {
         
         try {
             while (socket.isConnected()) {
-            	// do stuff here
+            	Message message = null;
+            	message = (Message) input.readObject();
+            	
+            	if (message != null) {
+            		switch (message.getMsType()) {
+                	case CONNECTED:
+                		dbPath = message.getDBname();
+                		indexPath = message.getResponse();
+                		break;
+                	
+                	case CREATE_DATABASE:
+                		break;
+                		
+                	case DROP_DATABASE:
+                		break;
+                		
+                	case CREATE_TABLE:
+                		break;
+                		
+                	case DROP_TABLE:
+                		break;
+                		
+                	case CREATE_INDEX:
+                		break;
+                		
+                	default:
+                		System.out.println("Unrecognized message type.");
+                		break;
+            		}
+            	}
             }
         }
         catch (Exception e) {
         	e.printStackTrace();
         }
-
     }
+    
+    public static void getPaths() throws IOException {
+    	Message message = new Message();
+    	message.setMsType(MessageType.CONNECTED);
+    	oos.writeObject(message);
+    	oos.flush();
+    }
+
+	public static String getDbPath() {
+		return dbPath;
+	}
+
+	public static String getIndexPath() {
+		return indexPath;
+	}
     
 }

@@ -69,13 +69,13 @@ public class LoginController implements Initializable {
         int port = Integer.parseInt(portTextField.getText());
         String username = userTextField.getText();
         
+        
+        
         FXMLLoader fmxlLoader = new FXMLLoader(getClass().getClassLoader().getResource("resources/views/DBView.fxml"));
         Parent window = fmxlLoader.load();
         con = fmxlLoader.<DBController>getController();
         new Thread(new Listener(hostname, port, username, con)).start();
         this.scene = new Scene(window);
-        
-        System.out.println("xd");
     }
     
     public void showScene() throws IOException {

@@ -1,8 +1,9 @@
 package message;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public class Message {
+public class Message implements Serializable {
 
 	private MessageType msType;
 	private String dbname;
