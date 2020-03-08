@@ -28,3 +28,9 @@
 - Count Function
 - Min, Max Function
 - Having Function
+
+## If we have too much free time
+- Optimize the file pathing for TreeView (getter for databases/indexes)
+- CSS magic for TreeView
+- Polish the user interface
+- GUI for server
