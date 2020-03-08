@@ -58,7 +58,7 @@
                         </HBox>
                      </top>
                      <center>
-                        <TreeView prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER" />
+                        <TreeView fx:id="treeView" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER" />
                      </center>
                   </BorderPane>
                   <TextArea id="resultTextArea" fx:id="resultTextArea" prefHeight="706.0" prefWidth="682.0" />
