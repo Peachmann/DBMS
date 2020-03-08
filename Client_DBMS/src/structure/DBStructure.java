@@ -27,12 +27,16 @@ public final class DBStructure {
 		
 		List<String> databases = new ArrayList<String>();
 		
-		try(Stream<Path> walk = Files.walk(Paths.get("databases//"))) {
+		try(Stream<Path> walk = Files.walk(Paths.get("//..//Server_DBMS//databases//"))) {
 			
 			databases = walk.map(x -> x.toString())
 					.filter(f -> f.endsWith(".xml"))
 					.map(x -> x.substring(0,x.indexOf('.')).substring(x.lastIndexOf('\\') + 1))
 					.collect(Collectors.toList());
+			for(String e : databases) {
+				
+				System.out.println(e);
+			}
 
 		} catch (IOException e) {
 			
@@ -52,7 +56,7 @@ public final class DBStructure {
 
             DocumentBuilderFactory documentFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder documentBuilder = documentFactory.newDocumentBuilder();
-            Document document = documentBuilder.parse(new File("databases//" + dbname + ".xml"));
+            Document document = documentBuilder.parse(new File("//..//Server_DBMS//databases//" + dbname + ".xml"));
 			
             document.getDocumentElement().normalize();
             

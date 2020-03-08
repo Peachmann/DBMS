@@ -9,6 +9,7 @@ public class Message {
 	private String tbname;
 	private ArrayList<Attribute> columns;
 	private String userGivenName;
+	private String response;
 	
 	public MessageType getMsType() {
 		
@@ -53,5 +54,13 @@ public class Message {
 	public void addAttribute(Attribute attr) {
 		
 		this.columns.add(attr);
+	}
+	public void setResponse(String response) {
+		
+		this.response = response;
+	}
+	public String getResponse() {
+		
+		return this.response;
 	}
 }
