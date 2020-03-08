@@ -1,8 +1,5 @@
 package com.client.login;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
-
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
@@ -22,7 +19,7 @@ public class MainLauncher extends Application {
         Parent root = FXMLLoader.load(getClass().getClassLoader().getResource("resources/views/LoginView.fxml"));
         primaryStage.initStyle(StageStyle.UNDECORATED);
         primaryStage.setTitle("PhysiaDB");
-        primaryStage.getIcons().add(new Image(getClass().getClassLoader().getResource("resources/jpg/icon.png").toString()));
+        primaryStage.getIcons().add(new Image(getClass().getClassLoader().getResource("resources/jpg/icon2.png").toString()));
         Scene mainScene = new Scene(root, 350, 500);
         mainScene.setRoot(root);
         primaryStage.setResizable(false);

@@ -31,6 +31,10 @@ public final class DDL {
 	public static int createDatabase(String dbname) {
 		
 		try {
+			File file = new File("databases//" + dbname + ".xml");
+			if(file.exists()) {	
+				return -5;
+			}
 
             DocumentBuilderFactory documentFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder documentBuilder = documentFactory.newDocumentBuilder();
