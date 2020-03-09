@@ -30,8 +30,6 @@ public final class DBStructure {
 	// gets all current database names
 	public static List<String> getDatabases() {
 		
-		System.out.println(dbPath);
-		
 		List<String> databases = new ArrayList<String>();
 		
 		try(Stream<Path> walk = Files.walk(Paths.get(dbPath))) {
@@ -40,10 +38,6 @@ public final class DBStructure {
 					.filter(f -> f.endsWith(".xml"))
 					.map(x -> x.substring(0,x.indexOf('.')).substring(x.lastIndexOf('\\') + 1))
 					.collect(Collectors.toList());
-			for(String e : databases) {
-				
-				System.out.println(e);
-			}
 
 		} catch (IOException e) {
 			

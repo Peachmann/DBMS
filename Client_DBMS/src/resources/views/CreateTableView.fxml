@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" style="-fx-background-color: #4e546e;" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
+   <top>
+      <Label prefHeight="58.0" prefWidth="161.0" text="Create Table" textFill="WHITE" BorderPane.alignment="CENTER">
+         <font>
+            <Font size="29.0" />
+         </font>
+      </Label>
+   </top>
+   <bottom>
+      <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+         <children>
+            <Button fx:id="okButton1" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#createTable" prefHeight="26.0" prefWidth="92.0" style="-fx-translate-x: -6;" text="Add Attribute" />
+            <Button fx:id="okButton" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#createTable" prefHeight="26.0" prefWidth="42.0" style="-fx-translate-x: -2;" text="OK" />
+            <Button fx:id="cancelButton" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#cancelPopup" prefHeight="26.0" prefWidth="51.0" style="-fx-translate-x: 2;" text="Cancel" />
+         </children>
+      </HBox>
+   </bottom>
+   <center>
+      <VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="258.0" prefWidth="602.0" spacing="10.0" BorderPane.alignment="CENTER">
+         <children>
+            <HBox alignment="CENTER" prefHeight="34.0" prefWidth="602.0">
+               <children>
+                  <VBox prefHeight="34.0" prefWidth="126.0" spacing="5.0">
+                     <children>
+                        <Label alignment="TOP_LEFT" style="-fx-translate-x: -5;" text="Database name" textFill="WHITE">
+                           <font>
+                              <Font size="17.0" />
+                           </font>
+                        </Label>
+                        <Label alignment="TOP_LEFT" style="-fx-translate-x: -5;" text="Table name" textFill="WHITE">
+                           <font>
+                              <Font size="17.0" />
+                           </font>
+                        </Label>
+                     </children>
+                  </VBox>
+                  <VBox alignment="TOP_CENTER" prefHeight="34.0" prefWidth="142.0" spacing="5.0">
+                     <children>
+                        <ComboBox prefWidth="156.0" />
+                        <TextField alignment="CENTER_RIGHT" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="26.0" prefWidth="145.0" />
+                     </children>
+                  </VBox>
+               </children>
+            </HBox>
+            <HBox alignment="CENTER" prefHeight="40.0" prefWidth="602.0" spacing="50.0">
+               <children>
+                  <Label text="Name" textFill="WHITE">
+                     <font>
+                        <Font size="18.0" />
+                     </font>
+                  </Label>
+                  <Label text="Type" textFill="WHITE">
+                     <font>
+                        <Font size="18.0" />
+                     </font>
+                  </Label>
+                  <Label text="Primary Key" textFill="WHITE">
+                     <font>
+                        <Font size="18.0" />
+                     </font>
+                  </Label>
+                  <Label text="Foreign Key" textFill="WHITE">
+                     <font>
+                        <Font size="18.0" />
+                     </font>
+                  </Label>
+               </children>
+            </HBox>
+            <ScrollPane fx:id="scrollPane" prefHeight="200.0" prefWidth="200.0" />
+         </children>
+      </VBox>
+   </center>
+</BorderPane>

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane fx:id="borderPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="150.0" prefWidth="300.0" style="-fx-background-color: #4e546e;" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.client.db.DropDBCon">
+   <top>
+      <Label style="-fx-translate-y: 5;" text="Drop Database" textFill="WHITE" BorderPane.alignment="CENTER">
+         <font>
+            <Font size="19.0" />
+         </font>
+      </Label>
+   </top>
+   <left>
+      <Label style="-fx-translate-x: 10; -fx-translate-y: 3;" text="Database Name:" textFill="WHITE" BorderPane.alignment="CENTER" />
+   </left>
+   <bottom>
+      <HBox alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="64.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+         <children>
+            <Button fx:id="okButton" mnemonicParsing="false" onAction="#dropDB" style="-fx-translate-y: -8; -fx-translate-x: -2;" text="OK" />
+            <Button fx:id="cancelButton" mnemonicParsing="false" onAction="#cancelPopup" style="-fx-translate-y: -8; -fx-translate-x: 2;" text="Cancel" />
+         </children>
+      </HBox>
+   </bottom>
+   <center>
+      <ComboBox fx:id="dbNameCombobox" prefWidth="150.0" BorderPane.alignment="CENTER" />
+   </center>
+</BorderPane>

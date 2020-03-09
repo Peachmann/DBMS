@@ -56,19 +56,11 @@ public class Listener implements Runnable {
                 		break;
                 	
                 	case CREATE_DATABASE:
-                		controller.printResponse(message.getResponse());
-                		break;
-                		
                 	case DROP_DATABASE:
-                		break;
-                		
                 	case CREATE_TABLE:
-                		break;
-                		
                 	case DROP_TABLE:
-                		break;
-                		
                 	case CREATE_INDEX:
+                		controller.printResponse(message.getResponse());
                 		break;
                 		
                 	default:

@@ -32,7 +32,12 @@ public class LoginController implements Initializable {
 	private Scene scene;
 	private double xOffset, yOffset;
 	private static LoginController instance;
+	private Stage stage;
 	
+	public Stage getStage() {
+		return stage;
+	}
+
 	//Getting instance to help serialization
     public LoginController() {
         instance = this;
@@ -61,6 +66,8 @@ public class LoginController implements Initializable {
         basePane.setOnMouseReleased(event -> {
         	basePane.setCursor(Cursor.DEFAULT);
         });
+        
+        stage = MainLauncher.getPrimaryStage();
     }
     
     @FXML
@@ -72,6 +79,7 @@ public class LoginController implements Initializable {
         FXMLLoader fmxlLoader = new FXMLLoader(getClass().getClassLoader().getResource("resources/views/DBView.fxml"));
         Parent window = fmxlLoader.load();
         con = fmxlLoader.<DBController>getController();
+        con.setStage(stage);
         new Thread(new Listener(hostname, port, username, con)).start();
         this.scene = new Scene(window);
     }

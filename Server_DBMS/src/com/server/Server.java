@@ -10,7 +10,6 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 
 import message.Message;
 import message.MessageType;
@@ -37,7 +36,6 @@ public class Server {
 	}
 
 	private static class Handler extends Thread {
-		private String name;
 		private Socket socket;
 		private ObjectInputStream input;
 		private OutputStream os;

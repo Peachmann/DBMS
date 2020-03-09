@@ -37,20 +37,24 @@ public class DBController implements Initializable {
 	@FXML private TreeView<String> treeView;
 	@FXML private TextArea responseTextArea;
     private double xOffset, yOffset;
+    private Stage stage, stage1;
 	
+	public void setStage(Stage stage) {
+		this.stage = stage;
+	}
+
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
 		
         borderPane.setOnMousePressed(event -> {
-            xOffset = MainLauncher.getPrimaryStage().getX() - event.getScreenX();
-            yOffset = MainLauncher.getPrimaryStage().getY() - event.getScreenY();
+            xOffset = stage.getX() - event.getScreenX();
+            yOffset = stage.getY() - event.getScreenY();
             borderPane.setCursor(Cursor.CLOSED_HAND);
         });
 
         borderPane.setOnMouseDragged(event -> {
-            MainLauncher.getPrimaryStage().setX(event.getScreenX() + xOffset);
-            MainLauncher.getPrimaryStage().setY(event.getScreenY() + yOffset);
-
+        	stage.setX(event.getScreenX() + xOffset);
+        	stage.setY(event.getScreenY() + yOffset);
         });
 
         borderPane.setOnMouseReleased(event -> {
@@ -66,6 +70,10 @@ public class DBController implements Initializable {
         Tooltip.install(createIndexButton, new Tooltip("Create Index"));
         Tooltip.install(dropIndexButton, new Tooltip("Drop Index"));
         Tooltip.install(refreshButton, new Tooltip("Refresh"));
+        
+        stage1 = new Stage();
+        stage1.initStyle(StageStyle.UNDECORATED);
+        stage1.initModality(Modality.APPLICATION_MODAL);
 	}
 
 	public void setUsernameLabel(String text) {
@@ -94,18 +102,16 @@ public class DBController implements Initializable {
 	}
 	
 	@FXML
-	public void createDatabase() throws IOException {
+	public void createDatabase() throws IOException, InterruptedException {
 		Parent root;
         try {
         	FXMLLoader fxmlLoader = new FXMLLoader(getClass().getClassLoader().getResource("resources/views/createDBView.fxml"));
             root = fxmlLoader.load();
             CreateDBCon con = (CreateDBCon) fxmlLoader.getController();
-            Stage stage = new Stage();
-            stage.initStyle(StageStyle.UNDECORATED);
-            stage.initModality(Modality.APPLICATION_MODAL);
-            stage.setScene(new Scene(root, 300, 150));
-            con.setStage(stage);
-            stage.showAndWait();
+            stage1.setScene(new Scene(root, 300, 150));
+            con.setStage(stage1);
+            stage1.showAndWait();
+            refreshView();
         }
         catch (IOException e) {
             e.printStackTrace();
@@ -113,8 +119,20 @@ public class DBController implements Initializable {
 	}
 	
 	@FXML
-	public void dropDatabase() {
-		
+	public void dropDatabase() throws InterruptedException {
+		Parent root;
+        try {
+        	FXMLLoader fxmlLoader = new FXMLLoader(getClass().getClassLoader().getResource("resources/views/DropDBView.fxml"));
+            root = fxmlLoader.load();
+            DropDBCon con = (DropDBCon) fxmlLoader.getController();
+            stage1.setScene(new Scene(root, 300, 150));
+            con.setStage(stage1);
+            stage1.showAndWait();
+            refreshView();
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
 	}
 	
 	@FXML
@@ -150,12 +168,6 @@ public class DBController implements Initializable {
 		responseTextArea.setText(text.toString());
 	}
 	
-	// This is what I tried out
-	/*
-	 * https://gist.github.com/jewelsea/5174074
-	 * https://docs.oracle.com/javafx/2/ui_controls/tree-view.htm
-	 * https://www.youtube.com/watch?v=nm8_ZmMiHQA
-	 * */
 	public void buildViewTree() {
 		
 		TreeItem<String> root = new TreeItem<String>("Everything");
@@ -167,7 +179,6 @@ public class DBController implements Initializable {
 			
 			TreeItem<String> dbname = new TreeItem<String>(db.get(0));
 			for(int i = 1; i < db.size(); i++) {
-				
 				dbname.getChildren().add(new TreeItem<String>(db.get(i)));
 			}
 			root.getChildren().add(dbname);
