@@ -16,6 +16,7 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
@@ -26,6 +27,113 @@ public final class DBStructure {
 	
 	private static String dbPath;
 	private static String indexPath;
+	
+	// returns the Primary Key of a given table
+	public static List<String> getPrimaryKey(String dbname, String tbname) {
+		
+		List<String> pk = new ArrayList<String>();
+		
+		try {
+
+            DocumentBuilderFactory documentFactory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder documentBuilder = documentFactory.newDocumentBuilder();
+            Document document = documentBuilder.parse(new File(dbPath + dbname + ".xml"));
+			
+            document.getDocumentElement().normalize();
+            
+            NodeList nodeList = document.getElementsByTagName("Table");
+            
+            int l = nodeList.getLength();
+            
+            for(int i = 0; i < l; i++) {
+            	
+            	if(nodeList.item(i).getNodeType() == Node.ELEMENT_NODE) {
+            		
+            		Element element = (Element)nodeList.item(i);
+            		if(element.getAttribute("tableName").equals(tbname)) {
+            			
+            			NodeList primk = element.getElementsByTagName("pkAttribute");
+            			NodeList attr = element.getElementsByTagName("Attribute");
+            			
+            			String pkname = "";
+            			for(int j = 0; j < primk.getLength(); j++) {
+            				
+            				if(primk.item(j).getNodeType() == Node.ELEMENT_NODE) {
+            					
+            					pkname += ((Element)primk.item(j)).getTextContent();
+            					break;
+            				}
+            			}
+            			for(int j = 0; j < attr.getLength(); j++) {
+            				
+            				if(attr.item(j).getNodeType() == Node.ELEMENT_NODE) {
+            					
+            					Element attre = (Element)attr.item(j);
+            					if(attre.getAttribute("attributeName").equals(pkname)) {
+            						
+            						pk.add(attre.getAttribute("type") + "#" + pkname);
+            						break;
+            					}
+            				}
+            			}
+            			break;
+            		}
+            	}
+            }
+            
+		} catch(ParserConfigurationException | IOException | SAXException e) {
+			
+			e.printStackTrace();
+		}
+		
+		return pk;
+	}
+	
+	// return attributes from the given table
+	public static List<String> getAttributes(String dbname, String tbname) {
+		
+		List<String> attributes = new ArrayList<String>();
+		
+		try {
+
+            DocumentBuilderFactory documentFactory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder documentBuilder = documentFactory.newDocumentBuilder();
+            Document document = documentBuilder.parse(new File(dbPath + dbname + ".xml"));
+			
+            document.getDocumentElement().normalize();
+            
+            NodeList nodeList = document.getElementsByTagName("Table");
+            
+            int l = nodeList.getLength();
+            
+            for(int i = 0; i < l; i++) {
+            	
+            	if(nodeList.item(i).getNodeType() == Node.ELEMENT_NODE) {
+            		
+            		Element element = (Element)nodeList.item(i);
+            		if(element.getAttribute("tableName").equals(tbname)) {
+            			
+            			NodeList attr = element.getElementsByTagName("Attribute");
+            			for(int j = 0; j < attr.getLength(); j++) {
+            				
+            				if(attr.item(j).getNodeType() == Node.ELEMENT_NODE) {
+            					
+            					Element attre = (Element)attr.item(j);
+            					attributes.add(attre.getAttribute("type") + "#" + attre.getAttribute("attributeName"));
+            				}
+            			}
+            			break;
+            		}
+            	}
+            }
+            
+		} catch(ParserConfigurationException | IOException | SAXException e) {
+			
+			e.printStackTrace();
+		}
+		
+		return attributes;
+	}
 
 	// gets all current database names
 	public static List<String> getDatabases() {
