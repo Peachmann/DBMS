@@ -69,7 +69,7 @@ public class DBController implements Initializable {
 	}
 
 	public void setUsernameLabel(String text) {
-		userLabel.setText("Welcome back, " + text + "!");
+		userLabel.setText(" Welcome back, " + text + "!");
 	}
 	
 	@FXML
