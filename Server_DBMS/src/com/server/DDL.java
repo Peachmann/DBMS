@@ -30,6 +30,10 @@ public final class DDL {
 	// CREATE DATABASE DDL command, returns 0 if successful, -1 if error
 	public static int createDatabase(String dbname) {
 		
+		if(dbname.contains("#") || dbname.contains(" ") || dbname.contains(".") || dbname.contains("/") || dbname.contains("\\") || dbname.contains("_")) {
+			
+			return -2;
+		}
 		try {
 			File file = new File("databases//" + dbname + ".xml");
 			if(file.exists()) {	
@@ -165,12 +169,18 @@ public final class DDL {
 	
 	// CREATE TABLE DDL command, returns 0 if successful, -1 if error, -5 if the number of primary keys is not 1
 	// -10 if there are attributes with illegal types, -2 if a table with this name already
-	// exists or -7 if a Foreign Key reference is not possible
+	// exists or -7 if a Foreign Key reference is not possible, -3 if there are unwanted characters in
+	// the tables name
 	public static int createTable(String dbname, String tbname, ArrayList<Attribute> columns) {
 		
 		if(tableExists(dbname,tbname)) {
 			
 			return -2;
+		}
+		
+		if(tbname.contains("#") || tbname.contains(" ") || tbname.contains(".") || tbname.contains("/") || tbname.contains("\\") || tbname.contains("_")) {
+			
+			return -3;
 		}
 		
 		try {
@@ -253,6 +263,21 @@ public final class DDL {
             			ref.appendChild(refAttr);
             			fkmain.appendChild(ref);
             			fk.appendChild(fkmain);
+            			
+            			//create index file for foreign key
+            			
+            			Element indexFile = document.createElement("IndexFile");
+						Element indexAttributes = document.createElement("IndexAttributes");
+						Element iAttr = document.createElement("IAttribute");
+						indexFile.appendChild(indexAttributes);
+						indexAttributes.appendChild(iAttr);
+						indexFile.setAttribute("indexName", dbname + "#" + tbname + "#" + attr.getName() + "#" + "FK");
+						indexFile.setAttribute("keyLength", "");
+						iAttr.setTextContent(attr.getName());
+						indexf.appendChild(indexFile);
+						File indFile = new File("indexes//" + dbname + "#" + tbname + "#" + attr.getName() + "#" + "FK.ind");
+						indFile.createNewFile();
+						
             			break;
             			
             		case NONE:
@@ -290,7 +315,7 @@ public final class DDL {
 	// or -4 if name contains '_. /\' characters 
 	public static int createIndex(String dbname, String tbname, String column, String name) {
 		
-		if(name.contains("_") || name.contains(".") || name.contains("/") || name.contains(" ") || name.contains("\\")) {
+		if(name.contains("_") || name.contains(".") || name.contains("/") || name.contains(" ") || name.contains("\\") || name.contains("#")) {
 				
 			return -4;
 		}
@@ -306,7 +331,7 @@ public final class DDL {
             
             NodeList tables = document.getFirstChild().getChildNodes();
             
-            String ind = dbname + "_" + tbname + "_" + column;
+            String ind = dbname + "#" + tbname + "#" + column;
             // check if indexfile already exists
 			NodeList currentIndexes = document.getElementsByTagName("IndexFile");
 			int pl = currentIndexes.getLength();
@@ -323,7 +348,7 @@ public final class DDL {
 				}
 			}
 			
-			ind += "_" + name + ".ind";
+			ind += "#" + name + ".ind";
             
             int l = tables.getLength();
             
@@ -350,7 +375,6 @@ public final class DDL {
             						indexAttributes.appendChild(iAttr);
             						indexFile.setAttribute("indexName", ind);
             						indexFile.setAttribute("keyLength", "");
-            						indexFile.setAttribute("indexType", "");
             						iAttr.setTextContent(column);
             						struc.appendChild(indexFile);
             						File indFile = new File("indexes//" + ind);

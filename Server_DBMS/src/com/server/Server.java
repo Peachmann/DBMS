@@ -77,6 +77,9 @@ public class Server {
 							case -1:
 								constructResponse(2, inputMessage);
 								break;
+							case -2:
+								constructResponse(21, inputMessage);
+								break;
 							case -5:
 								constructResponse(3, inputMessage);
 								break;
@@ -109,6 +112,9 @@ public class Server {
 								break;
 							case -2:
 								constructResponse(8, inputMessage);
+								break;
+							case -3:
+								constructResponse(22, inputMessage);
 								break;
 							case -5:
 								constructResponse(9, inputMessage);
@@ -284,13 +290,25 @@ public class Server {
 			case 19:
 				response.setMsType(MessageType.CREATE_INDEX);
 				response.setResponse("Could not create index on column " + inputMessage.getColumns().get(0).getName()
-						+ ", name can not contain _. /\\ characters");
+						+ ", name can not contain #_. /\\ characters");
 				break;
 
 			case 20:
 				response.setMsType(MessageType.CREATE_INDEX);
 				response.setResponse("An error occured, could not create index on column "
 						+ inputMessage.getColumns().get(0).getName() + ".");
+				break;
+				
+			case 21:
+				response.setMsType(MessageType.CREATE_DATABASE);
+				response.setResponse("Could not create database " + inputMessage.getDBname()
+						+ ", database name can not contain #_. /\\ characters");
+				break;
+				
+			case 22:
+				response.setMsType(MessageType.CREATE_TABLE);
+				response.setResponse("Could not create table " + inputMessage.getTbname() + " in database " + inputMessage.getDBname()
+						+ ", table name can not contain #_. /\\ characters");
 				break;
 
 			case 99:

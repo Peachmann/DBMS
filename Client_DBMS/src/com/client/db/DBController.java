@@ -13,6 +13,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Cursor;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -21,6 +22,7 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.Tooltip;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Modality;
@@ -175,11 +177,14 @@ public class DBController implements Initializable {
 		
 		List<ArrayList<String>> structure = DBStructure.getAllDBTables();
 		
+		Image dbIcon = new Image(DBController.class.getResourceAsStream("../../../resources/jpg/dbicon.png"),16,16,true,true);
+		Image tbIcon = new Image(DBController.class.getResourceAsStream("../../../resources/jpg/tbicon.png"),16,16,true,true);
+		
 		for(ArrayList<String> db : structure) {
 			
-			TreeItem<String> dbname = new TreeItem<String>(db.get(0));
+			TreeItem<String> dbname = new TreeItem<String>(db.get(0),new ImageView(dbIcon));
 			for(int i = 1; i < db.size(); i++) {
-				dbname.getChildren().add(new TreeItem<String>(db.get(i)));
+				dbname.getChildren().add(new TreeItem<String>(db.get(i),new ImageView(tbIcon)));
 			}
 			root.getChildren().add(dbname);
 		}
