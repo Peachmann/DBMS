@@ -172,13 +172,14 @@ public class DBController implements Initializable {
 	
 	public void buildViewTree() {
 		
-		TreeItem<String> root = new TreeItem<String>("Everything");
+		Image dbIcon = new Image(DBController.class.getResourceAsStream("../../../resources/jpg/dbicon.png"),18,18,true,true);
+		Image tbIcon = new Image(DBController.class.getResourceAsStream("../../../resources/jpg/tbicon.png"),18,18,true,true);
+		Image globe = new Image(DBController.class.getResourceAsStream("../../../resources/jpg/globe.png"),18,18,true,true);
+		
+		TreeItem<String> root = new TreeItem<String>("Everything",new ImageView(globe));
 		root.setExpanded(true);
 		
 		List<ArrayList<String>> structure = DBStructure.getAllDBTables();
-		
-		Image dbIcon = new Image(DBController.class.getResourceAsStream("../../../resources/jpg/dbicon.png"),16,16,true,true);
-		Image tbIcon = new Image(DBController.class.getResourceAsStream("../../../resources/jpg/tbicon.png"),16,16,true,true);
 		
 		for(ArrayList<String> db : structure) {
 			
