@@ -3,7 +3,9 @@ package com.client.db;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.ResourceBundle;
+import java.util.stream.Collectors;
 
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
@@ -92,7 +94,8 @@ public class CreateTableCon implements Initializable{
 	@FXML
 	public void setFKAtt() {
 		attFKAtt.getItems().clear();
-		attFKAtt.getItems().addAll(DBStructure.getAttributes(databaseName.getSelectionModel().getSelectedItem(), attFKTable.getSelectionModel().getSelectedItem()));
+		List<String> list = DBStructure.getAttributes(databaseName.getSelectionModel().getSelectedItem(), attFKTable.getSelectionModel().getSelectedItem());
+		attFKAtt.getItems().addAll(list.stream().map(table -> table.substring(table.indexOf('#') + 1)).collect(Collectors.toList()));
 	}
 	
 	@FXML
