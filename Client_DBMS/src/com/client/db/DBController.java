@@ -155,8 +155,20 @@ public class DBController implements Initializable {
 	}
 	
 	@FXML
-	public void dropTable() {
-		
+	public void dropTable() throws InterruptedException {
+		Parent root;
+        try {
+        	FXMLLoader fxmlLoader = new FXMLLoader(getClass().getClassLoader().getResource("resources/views/DropTableView.fxml"));
+            root = fxmlLoader.load();
+            DropTableCon con = (DropTableCon) fxmlLoader.getController();
+            stage1.setScene(new Scene(root, 300, 200));
+            con.setStage(stage1);
+            stage1.showAndWait();
+            refreshView();
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
 	}
 	
 	@FXML

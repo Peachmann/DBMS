@@ -34,3 +34,4 @@
 - CSS magic for TreeView
 - Polish the user interface
 - GUI for server
+- Error messages for Create Table / Force filling of fields
