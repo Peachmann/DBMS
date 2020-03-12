@@ -172,8 +172,20 @@ public class DBController implements Initializable {
 	}
 	
 	@FXML
-	public void createIndex() {
-		
+	public void createIndex() throws InterruptedException {
+		Parent root;
+        try {
+        	FXMLLoader fxmlLoader = new FXMLLoader(getClass().getClassLoader().getResource("resources/views/CreateIndexView.fxml"));
+            root = fxmlLoader.load();
+            CreateIndexCon con = (CreateIndexCon) fxmlLoader.getController();
+            stage1.setScene(new Scene(root, 300, 300));
+            con.setStage(stage1);
+            stage1.showAndWait();
+            refreshView();
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
 	}
 	
 	@FXML

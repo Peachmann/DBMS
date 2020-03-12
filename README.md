@@ -1,13 +1,13 @@
 # DBMS To-Do List
 
 ## Lab 1
-- Create Database
-- Drop Database
-- Create Table
-- Drop Table
-- Store Database in XML
-- Create Index
-- Pseudo-Primary Key and Foreign Key
+- ~~Create Database~~
+- ~~Drop Database~~
+- ~~Create Table~~
+- ~~Drop Table~~
+- ~~Store Database in XML~~
+- ~~Create Index~~
+- ~~Pseudo-Primary Key and Foreign Key~~
 
 ## Lab 2
 - Implement Insert Command
