@@ -138,8 +138,20 @@ public class DBController implements Initializable {
 	}
 	
 	@FXML
-	public void createTable() {
-		
+	public void createTable() throws InterruptedException {
+		Parent root;
+        try {
+        	FXMLLoader fxmlLoader = new FXMLLoader(getClass().getClassLoader().getResource("resources/views/CreateTableView.fxml"));
+            root = fxmlLoader.load();
+            CreateTableCon con = (CreateTableCon) fxmlLoader.getController();
+            stage1.setScene(new Scene(root, 600, 400));
+            con.setStage(stage1);
+            stage1.showAndWait();
+            refreshView();
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
 	}
 	
 	@FXML
