@@ -341,7 +341,7 @@ public final class DDL {
 					
 					Element index = (Element)currentIndexes.item(i);
 					String indname = index.getAttribute("indexName");
-					if(indname.substring(0,indname.lastIndexOf('_')).equals(ind)) {
+					if(indname.substring(0,indname.lastIndexOf('#')).equals(ind)) {
 						
 						return -5;
 					}

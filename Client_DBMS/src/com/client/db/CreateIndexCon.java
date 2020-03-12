@@ -3,7 +3,9 @@ package com.client.db;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.ResourceBundle;
+import java.util.stream.Collectors;
 
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -55,7 +57,8 @@ public class CreateIndexCon implements Initializable {
 	@FXML
 	public void getAtt() {
 		attName.getItems().clear();
-		attName.getItems().addAll(DBStructure.getAttributes(databaseName.getSelectionModel().getSelectedItem(), tableName.getSelectionModel().getSelectedItem()));
+		List<String> list = DBStructure.getAttributes(databaseName.getSelectionModel().getSelectedItem(), tableName.getSelectionModel().getSelectedItem());
+		attName.getItems().addAll(list/*list.stream().map(table -> table.substring(table.indexOf('#') + 1)).collect(Collectors.toList())*/);
 	}
 	
 	@FXML
