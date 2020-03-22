@@ -13,11 +13,13 @@ import java.nio.file.Paths;
 
 import message.Message;
 import message.MessageType;
+import mongo.MongoDBBridge;
 
 public class Server {
 
 	private static final int PORT = 9001;
 	private static Path absPath = Paths.get(".").normalize().toAbsolutePath();
+	private static MongoDBBridge mongo = MongoDBBridge.getInstance(); 
 
 	public static void main(String[] args) throws IOException {
 		System.out.println("Server started.");
@@ -32,6 +34,7 @@ public class Server {
 		} finally {
 			listener.close();
 		}
+		
 
 	}
 
@@ -91,6 +94,7 @@ public class Server {
 							switch (statementState) {
 
 							case 0:
+								mongo.mdbDropDB(inputMessage.getDBname());
 								constructResponse(4, inputMessage);
 								break;
 							case -1:
@@ -108,6 +112,7 @@ public class Server {
 							switch (statementState) {
 
 							case 0:
+								mongo.mdbCreateTable(inputMessage.getDBname(), inputMessage.getTbname());
 								constructResponse(7, inputMessage);
 								break;
 							case -2:
@@ -136,6 +141,7 @@ public class Server {
 							switch (statementState) {
 
 							case 0:
+								mongo.mdbDropTable(inputMessage.getDBname(), inputMessage.getTbname());
 								constructResponse(13, inputMessage);
 								break;
 							case -2:
