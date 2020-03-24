@@ -10,7 +10,7 @@ import com.mongodb.client.MongoIterable;
 public class MongoDBBridge {
 
 	private static MongoDBBridge singleton = null;
-	private static String connectionString = "mongodb+srv://m001-student:m001-mongodb-basics@sandbox-p9ibs.mongodb.net/test?retryWrites=true&w=majority";
+	private static String connectionString = "mongodb+srv://m001-student:m001-mongodb-basics@cluster0-dlhll.mongodb.net/test?retryWrites=true&w=majority";
 	private static MongoClient mongoClient;
 	 
 	private MongoDBBridge() {

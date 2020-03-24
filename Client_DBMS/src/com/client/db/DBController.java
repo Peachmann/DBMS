@@ -9,21 +9,26 @@ import java.util.ResourceBundle;
 import com.client.login.MainLauncher;
 
 import javafx.application.Platform;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Cursor;
-import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.Tooltip;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -38,6 +43,8 @@ public class DBController implements Initializable {
 	@FXML private BorderPane borderPane;
 	@FXML private TreeView<String> treeView;
 	@FXML private TextArea responseTextArea;
+	private ContextMenu cm;
+	private MenuItem m1, m2;
     private double xOffset, yOffset;
     private Stage stage, stage1;
 	
@@ -64,6 +71,7 @@ public class DBController implements Initializable {
         });
         
         responseTextArea.setText("");
+        responseTextArea.setEditable(false);
         
         Tooltip.install(newDB, new Tooltip("Create Database"));
         Tooltip.install(dropDBButton, new Tooltip("Drop Database"));
@@ -76,6 +84,38 @@ public class DBController implements Initializable {
         stage1 = new Stage();
         stage1.initStyle(StageStyle.UNDECORATED);
         stage1.initModality(Modality.APPLICATION_MODAL);
+        
+        cm = new ContextMenu();
+        m1 = new MenuItem("Insert Value(s)");
+        m2 = new MenuItem("Delete Value(s)");
+        
+        //Insert
+        m1.setOnAction(ae -> {
+    		Parent root;
+            try {
+            	FXMLLoader fxmlLoader = new FXMLLoader(getClass().getClassLoader().getResource("resources/views/InsertView.fxml"));
+            	InsertCon con = new InsertCon(treeView.getSelectionModel().getSelectedItem().getParent().getValue(), treeView.getSelectionModel().getSelectedItem().getValue());
+            	fxmlLoader.setController(con);
+            	root = fxmlLoader.load();
+                stage1.setScene(new Scene(root, 500, 300));
+                con.setStage(stage1);
+                stage1.showAndWait();
+                refreshView();
+            }
+            catch (IOException | InterruptedException e) {
+                e.printStackTrace();
+            }
+        });;
+        
+        //Delete
+        m2.setOnAction(ae -> {
+        	//
+        });;
+        
+		cm.getItems().add(m1);
+		cm.getItems().add(m2);
+        
+        treeView.setContextMenu(cm);
 	}
 
 	public void setUsernameLabel(String text) {

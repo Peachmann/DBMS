@@ -17,6 +17,11 @@
                     <IAttribute>kecske</IAttribute>
                 </IndexAttributes>
             </IndexFile>
+            <IndexFile indexName="xd#table1#majom#ki.ind" keyLength="">
+                <IndexAttributes>
+                    <IAttribute>majom</IAttribute>
+                </IndexAttributes>
+            </IndexFile>
         </Indexfiles>
     </Table>
     <Table fileName="" rowLength="" tableName="table2">
