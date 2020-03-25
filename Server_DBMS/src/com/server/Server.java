@@ -187,6 +187,17 @@ public class Server {
 								constructResponse(24, inputMessage);
 								break;
 							}
+						
+						case DELETE_VALUES:
+							statementState = DML.deleteValues();
+							switch (statementState) {
+							case 0:
+								constructResponse(25, inputMessage);
+								break;
+							case -1:
+								constructResponse(26, inputMessage);
+								break;
+							}
 						}
 					}
 				}

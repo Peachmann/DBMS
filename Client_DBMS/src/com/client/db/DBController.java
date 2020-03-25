@@ -109,7 +109,20 @@ public class DBController implements Initializable {
         
         //Delete
         m2.setOnAction(ae -> {
-        	//
+    		Parent root;
+            try {
+            	FXMLLoader fxmlLoader = new FXMLLoader(getClass().getClassLoader().getResource("resources/views/DeleteView.fxml"));
+            	DeleteCon con = new DeleteCon(treeView.getSelectionModel().getSelectedItem().getParent().getValue(), treeView.getSelectionModel().getSelectedItem().getValue());
+            	fxmlLoader.setController(con);
+            	root = fxmlLoader.load();
+                stage1.setScene(new Scene(root, 600, 400));
+                con.setStage(stage1);
+                stage1.showAndWait();
+                refreshView();
+            }
+            catch (IOException | InterruptedException e) {
+                e.printStackTrace();
+            }
         });;
         
 		cm.getItems().add(m1);

@@ -61,6 +61,7 @@ public class Listener implements Runnable {
                 	case DROP_TABLE:
                 	case CREATE_INDEX:
                 	case INSERT_VALUES:
+                	case DELETE_VALUES:
                 		controller.printResponse(message.getResponse());
                 		break;
                 		

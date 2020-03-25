@@ -52,4 +52,8 @@ public final class DML {
 		return 0;
 	}
 	
+	public static int deleteValues() {
+		return 0;
+	}
+	
 }
