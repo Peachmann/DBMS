@@ -175,6 +175,18 @@ public class Server {
 								break;
 							}
 							break;
+						
+						case INSERT_VALUES:
+							statementState = DML.insertValues(inputMessage.getDBname(), inputMessage.getTbname(),
+									inputMessage.getColumns().get(0).getName(), inputMessage.getColumns().get(0).getType(), inputMessage.getColumns());
+							switch (statementState) {
+							case 0:
+								constructResponse(23, inputMessage);
+								break;
+							case -1:
+								constructResponse(24, inputMessage);
+								break;
+							}
 						}
 					}
 				}
@@ -315,6 +327,16 @@ public class Server {
 				response.setMsType(MessageType.CREATE_TABLE);
 				response.setResponse("Could not create table " + inputMessage.getTbname() + " in database " + inputMessage.getDBname()
 						+ ", table name can not contain #_. /\\ characters");
+				break;
+				
+			case 23:
+				response.setMsType(MessageType.INSERT_VALUES);
+				response.setResponse("Values inserted successfully in table " + inputMessage.getTbname() + " (" + inputMessage.getDBname() + ").");
+				break;
+				
+			case 24:
+				response.setMsType(MessageType.INSERT_VALUES);
+				response.setResponse("Values not inserted! Check input format!");
 				break;
 
 			case 99:

@@ -6,6 +6,7 @@ public class Attribute implements Serializable {
 
 	private String name;
 	private String type;
+	private String value;
 	private Constraints constraint;
 	private String refTable;
 	private String refAttr;
@@ -22,6 +23,17 @@ public class Attribute implements Serializable {
 		this.name = name;
 		this.type = type;
 		this.constraint = Constraints.NONE;
+	}
+	
+	public Attribute(String name, String type, String value) {
+		this.name = name;
+		this.type = type;
+		this.value = value;
+		this.constraint = Constraints.NONE;
+	}
+	
+	public String getValue() {
+		return this.value;
 	}
 	
 	public String getName() {
