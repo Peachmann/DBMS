@@ -1,12 +1,15 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <Tables>
-    <Table fileName="" rowLength="" tableName="majmok">
+    <Table fileName="" rowLength="" tableName="test">
         <Structure>
-            <Attribute attributeName="pid" type="int"/>
-            <Attribute attributeName="dikk" type="int"/>
+            <Attribute attributeName="int1" type="int"/>
+            <Attribute attributeName="fl" type="float"/>
+            <Attribute attributeName="text" length="50" type="varchar"/>
+            <Attribute attributeName="intaf" type="int"/>
+            <Attribute attributeName="af" length="50" type="varchar"/>
         </Structure>
         <primaryKey>
-            <pkAttribute>pid</pkAttribute>
+            <pkAttribute>int1</pkAttribute>
         </primaryKey>
         <foreignKeys/>
         <Indexfiles/>

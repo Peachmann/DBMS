@@ -47,6 +47,7 @@ public class DBController implements Initializable {
 	private MenuItem m1, m2;
     private double xOffset, yOffset;
     private Stage stage, stage1;
+    public DeleteCon instance;
 	
 	public void setStage(Stage stage) {
 		this.stage = stage;
@@ -117,6 +118,7 @@ public class DBController implements Initializable {
             	root = fxmlLoader.load();
                 stage1.setScene(new Scene(root, 600, 400));
                 con.setStage(stage1);
+                instance = con;
                 stage1.showAndWait();
                 refreshView();
             }
@@ -131,6 +133,10 @@ public class DBController implements Initializable {
         treeView.setContextMenu(cm);
 	}
 
+	public void sendValues(ArrayList<String> v) {
+		instance.initValues(v);
+	}
+	
 	public void setUsernameLabel(String text) {
 		userLabel.setText(" Welcome back, " + text + "!");
 	}

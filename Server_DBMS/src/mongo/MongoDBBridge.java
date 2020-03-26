@@ -98,7 +98,7 @@ public class MongoDBBridge {
 					key = curr.getValue();
 				} else {
 					
-					value += curr.getName() + "/" + curr.getType() + "/" + curr.getValue();
+					value += curr.getName() + "#" + curr.getType() + "#" + curr.getValue() + "#";
 				}
 			}
 			updatedValue.append(key, value);

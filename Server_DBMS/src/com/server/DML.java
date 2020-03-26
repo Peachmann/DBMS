@@ -262,4 +262,9 @@ public final class DML {
 		return 0;
 	}
 	
+	public static int getValues(String dbname, String tbname) {
+		//Optional error checking
+		return 0;
+	}
+	
 }

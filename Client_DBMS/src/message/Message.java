@@ -11,6 +11,14 @@ public class Message implements Serializable {
 	private ArrayList<Attribute> columns;
 	private String userGivenName;
 	private String response;
+	private ArrayList<String> resp;
+	
+	public ArrayList<String> getResp() {
+		return resp;
+	}
+	public void setResp(ArrayList<String> resp) {
+		this.resp = resp;
+	}
 	
 	public MessageType getMsType() {
 		

@@ -224,6 +224,14 @@ public class Server {
 								constructResponse(27, inputMessage);
 								break;
 							}
+						
+						case GET_VALUES:
+							statementState = DML.getValues(inputMessage.getDBname(), inputMessage.getTbname());
+							switch(statementState) {
+							case 0:
+								constructResponse(30, inputMessage);
+								break;
+							}
 							break;
 						}
 					}
@@ -400,6 +408,12 @@ public class Server {
 			case 29:
 				response.setMsType(MessageType.CREATE_TABLE);
 				response.setResponse("Could not create table " + inputMessage.getTbname() + " because there are column names containing illegal characters (\"#\",\"/\" or \"\\\").");
+				break;
+				
+			case 30:
+				response.setMsType(MessageType.GET_VALUES);
+				response.setResponse("");
+				response.setResp(mongo.mdbGetTableContent(inputMessage.getDBname(), inputMessage.getTbname()));
 				break;
 
 			case 99:
