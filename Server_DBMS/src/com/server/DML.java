@@ -3,16 +3,11 @@ package com.server;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -147,8 +142,25 @@ public final class DML {
 			default:
 				try{
 					
-					month = Integer.parseInt(m);
-					if(month < 1 || month > 12 || m.length() > 2) {
+					if(m.length() > 2 || m.length() == 0) {
+						
+						return false;
+					}
+					if(m.length() == 1) {
+						
+						month = Integer.parseInt(m);
+					}
+					if(m.length() == 2) {
+						
+						if(m.charAt(0) == '0') {
+							
+							month = Integer.parseInt(m.substring(1));
+						} else {
+							
+							month = Integer.parseInt(m);
+						}
+					}
+					if(month < 1 || month > 12) {
 						
 						return false;
 					}
@@ -166,8 +178,27 @@ public final class DML {
 			
 			try{
 				
-				int day = Integer.parseInt(value.substring(lastD + 1));
-				if(0 < day || days[month - 1] < day) {
+				String ds = value.substring(lastD + 1);
+				int day = 0;
+				if(ds.length() > 2 || ds.length() == 0) {
+					
+					return false;
+				}
+				if(ds.length() == 1) {
+					
+					day = Integer.parseInt(ds);
+				}
+				if(ds.length() == 2) {
+					
+					if(ds.charAt(0) == '0') {
+						
+						day = Integer.parseInt(ds.substring(1));
+					} else {
+						
+						day = Integer.parseInt(ds);
+					}
+				}
+				if(day < 0 || days[month - 1] < day) {
 					
 					return false;
 				}
@@ -195,10 +226,22 @@ public final class DML {
 	public static int insertValues(MongoDBBridge mongo, String dbname, String tbname, int tableLength, int totalInserts, ArrayList<Attribute> values) {
 		
 		String pk = DBStructure.getTablePK(dbname,tbname);
-		/*Integer tableLength = Integer.valueOf(len);
-		Integer totalInserts = Integer.valueOf(inserts);*/
 		
 		values.remove(0);
+		
+		HashSet<String> set = new HashSet<String>();
+		
+		for(int i = 0; i < values.size(); i++) {
+			
+			if(values.get(i).getName().equals(pk)) {
+				
+				if(set.contains(values.get(i).getValue())) {
+					
+					return -3;
+				}
+				set.add(values.get(i).getValue());
+			}
+		}
 		
 		for(int i = 0; i < totalInserts; i++) {
 			for(int j = 0; j < tableLength; j++) {

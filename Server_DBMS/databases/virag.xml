@@ -14,4 +14,31 @@
         <foreignKeys/>
         <Indexfiles/>
     </Table>
+    <Table fileName="" rowLength="" tableName="check">
+        <Structure>
+            <Attribute attributeName="cid" type="int"/>
+            <Attribute attributeName="cint" type="int"/>
+            <Attribute attributeName="cfloat" type="float"/>
+            <Attribute attributeName="cvc" length="50" type="varchar"/>
+            <Attribute attributeName="cdate" type="date"/>
+            <Attribute attributeName="cbit" type="bit"/>
+        </Structure>
+        <primaryKey>
+            <pkAttribute>cid</pkAttribute>
+        </primaryKey>
+        <foreignKeys/>
+        <Indexfiles/>
+    </Table>
+    <Table fileName="" rowLength="" tableName="lalaland">
+        <Structure>
+            <Attribute attributeName="lid" type="int"/>
+            <Attribute attributeName="lidl" length="50" type="varchar"/>
+            <Attribute attributeName="lidllidl" type="int"/>
+        </Structure>
+        <primaryKey>
+            <pkAttribute>lid</pkAttribute>
+        </primaryKey>
+        <foreignKeys/>
+        <Indexfiles/>
+    </Table>
 </Tables>

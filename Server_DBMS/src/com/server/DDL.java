@@ -552,7 +552,7 @@ public final class DDL {
 	}
 	
 	// removing the indentation(empty) nodes from the structure
-	private static void removeEmptyText(Node node) {
+	public static void removeEmptyText(Node node) {
 	    
 		Node child = node.getFirstChild();
 	    while(child!=null) {

@@ -190,15 +190,6 @@ public class Server {
 							switch (statementState) {
 							case 0:
 								mongo.mdbInsertData(inputMessage.getDBname(), inputMessage.getTbname(), tableLength, totalInserts, inputMessage.getColumns());
-								/*ArrayList<Attribute> trydel = new ArrayList<Attribute>();
-								trydel.add(new Attribute("pid","int","7"));
-								trydel.add(new Attribute("pid","int","8"));
-								mongo.mdbDeleteData(inputMessage.getDBname(), inputMessage.getTbname(), trydel);*/
-								/*ArrayList<String> list = mongo.mdbGetTableContent(inputMessage.getDBname(), inputMessage.getTbname());
-								for(String e : list) {
-									
-									System.out.println(e);
-								}*/
 								constructResponse(23, inputMessage);
 								break;
 							case -1:
@@ -206,6 +197,9 @@ public class Server {
 								break;
 							case -2:
 								constructResponse(28, inputMessage);
+								break;
+							case -3:
+								constructResponse(31, inputMessage);
 								break;
 							}
 							break;
@@ -414,6 +408,11 @@ public class Server {
 				response.setMsType(MessageType.GET_VALUES);
 				response.setResponse("");
 				response.setResp(mongo.mdbGetTableContent(inputMessage.getDBname(), inputMessage.getTbname()));
+				break;
+				
+			case 31:
+				response.setMsType(MessageType.INSERT_VALUES);
+				response.setResponse("Could not insert values into table " + inputMessage.getTbname() + " because there are rows with identical Primary Key values among them.");
 				break;
 
 			case 99:

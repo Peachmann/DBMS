@@ -20,6 +20,8 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import com.server.DDL;
+
 // static class, methods give information about the databases and their tables
 public final class DBStructure {
 	
@@ -32,25 +34,19 @@ public final class DBStructure {
             Document document = documentBuilder.parse(new File("databases//" + dbname + ".xml"));
 			
             document.getDocumentElement().normalize();
+            DDL.removeEmptyText(document);
             
-            NodeList tables = document.getElementsByTagName("Table");
+            NodeList pk = document.getElementsByTagName("pkAttribute");
             
-            for(int i = 0; i < tables.getLength(); i++) {
+            for(int i = 0; i < pk.getLength(); i++) {
             	
-            	if(tables.item(i).getNodeType() == Node.ELEMENT_NODE) {
+            	if(pk.item(i).getNodeType() == Node.ELEMENT_NODE) {
             		
-	            	Element element = (Element)tables.item(i);
-	            	if(element.getAttribute("tableName").equals(tbname)) {
-	            		
-	            		NodeList pk = element.getElementsByTagName("pkAttribute");
-	            		for(int j = 0; j < pk.getLength(); j++) {
-	            			
-	            			if(pk.item(i).getNodeType() == Node.ELEMENT_NODE) {
-	            				
-	            				return ((Element)pk.item(i)).getTextContent();
-	            			}
-	            		}
-	            	}
+            		Element element = (Element) pk.item(i);
+            		if(((Element)element.getParentNode().getParentNode()).getAttribute("tableName").equals(tbname)) {
+            			
+            			return element.getTextContent();
+            		}
             	}
             }
             
