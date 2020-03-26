@@ -192,11 +192,11 @@ public final class DML {
 	}
 	
 	// Insert command, -1 type problems, -2 if at least one primary key value already exists in the database
-	public static int insertValues(MongoDBBridge mongo, String dbname, String tbname, String len, String inserts, ArrayList<Attribute> values) {
+	public static int insertValues(MongoDBBridge mongo, String dbname, String tbname, int tableLength, int totalInserts, ArrayList<Attribute> values) {
 		
 		String pk = DBStructure.getTablePK(dbname,tbname);
-		Integer tableLength = Integer.valueOf(len);
-		Integer totalInserts = Integer.valueOf(inserts);
+		/*Integer tableLength = Integer.valueOf(len);
+		Integer totalInserts = Integer.valueOf(inserts);*/
 		
 		values.remove(0);
 		

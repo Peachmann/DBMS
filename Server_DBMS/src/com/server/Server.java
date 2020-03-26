@@ -10,7 +10,9 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 
+import message.Attribute;
 import message.Message;
 import message.MessageType;
 import mongo.MongoDBBridge;
@@ -122,6 +124,9 @@ public class Server {
 							case -3:
 								constructResponse(22, inputMessage);
 								break;
+							case -4:
+								constructResponse(29, inputMessage);
+								break;
 							case -5:
 								constructResponse(9, inputMessage);
 								break;
@@ -178,13 +183,22 @@ public class Server {
 							break;
 						
 						case INSERT_VALUES:
+							Integer tableLength = Integer.valueOf(inputMessage.getColumns().get(0).getName());
+							Integer totalInserts = Integer.valueOf(inputMessage.getColumns().get(0).getType());
 							statementState = DML.insertValues(mongo,inputMessage.getDBname(), inputMessage.getTbname(),
-									inputMessage.getColumns().get(0).getName(), inputMessage.getColumns().get(0).getType(), inputMessage.getColumns());
+									tableLength, totalInserts, inputMessage.getColumns());
 							switch (statementState) {
 							case 0:
-								Integer tableLength = Integer.valueOf(inputMessage.getColumns().get(0).getName());
-								Integer totalInserts = Integer.valueOf(inputMessage.getColumns().get(0).getType());
 								mongo.mdbInsertData(inputMessage.getDBname(), inputMessage.getTbname(), tableLength, totalInserts, inputMessage.getColumns());
+								/*ArrayList<Attribute> trydel = new ArrayList<Attribute>();
+								trydel.add(new Attribute("pid","int","7"));
+								trydel.add(new Attribute("pid","int","8"));
+								mongo.mdbDeleteData(inputMessage.getDBname(), inputMessage.getTbname(), trydel);*/
+								/*ArrayList<String> list = mongo.mdbGetTableContent(inputMessage.getDBname(), inputMessage.getTbname());
+								for(String e : list) {
+									
+									System.out.println(e);
+								}*/
 								constructResponse(23, inputMessage);
 								break;
 							case -1:
@@ -194,6 +208,7 @@ public class Server {
 								constructResponse(28, inputMessage);
 								break;
 							}
+							break;
 						
 						case DELETE_VALUES:
 							statementState = DML.deleteValues(inputMessage.getDBname(), inputMessage.getTbname());
@@ -209,6 +224,7 @@ public class Server {
 								constructResponse(27, inputMessage);
 								break;
 							}
+							break;
 						}
 					}
 				}
@@ -379,6 +395,11 @@ public class Server {
 			case 28:
 				response.setMsType(MessageType.INSERT_VALUES);
 				response.setResponse("Could not insert values into table " + inputMessage.getTbname() + " because there are already rows having at least one of these Primary keys.");
+				break;
+				
+			case 29:
+				response.setMsType(MessageType.CREATE_TABLE);
+				response.setResponse("Could not create table " + inputMessage.getTbname() + " because there are column names containing illegal characters (\"#\",\"/\" or \"\\\").");
 				break;
 
 			case 99:

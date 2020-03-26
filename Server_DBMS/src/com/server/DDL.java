@@ -183,6 +183,15 @@ public final class DDL {
 			return -3;
 		}
 		
+		for(int i = 0; i < columns.size(); i++) {
+			
+			String attr = columns.get(i).getName();
+			if(attr.contains("#") || attr.contains("/") || attr.contains("\\")) {
+				
+				return -4;
+			}
+		}
+		
 		try {
 
 			DocumentBuilderFactory documentFactory = DocumentBuilderFactory.newInstance();

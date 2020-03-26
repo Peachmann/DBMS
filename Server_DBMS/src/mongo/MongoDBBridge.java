@@ -73,19 +73,6 @@ public class MongoDBBridge {
 		
 		//TO-DO
 
-		/*MongoDatabase database = mongoClient.getDatabase(dbname);
-		MongoIterable<String> collections = database.listCollectionNames();
-		MongoCursor<String> cursor = collections.iterator();
-		while(cursor.hasNext()){
-			
-			String table = cursor.next();
-			database.getCollection(table).drop();
-		}*/
-		/*
-		 * MongoDatabase database = mongoClient.getDatabase(dbname);
-		MongoCollection<org.bson.Document> collection = database.getCollection(tbname);
-		collection.drop();
-		 * */
 	}
 	
 	public void mdbInsertData(String dbname, String tbname, int tableLength, int totalInserts, ArrayList<Attribute> values) {
@@ -95,7 +82,6 @@ public class MongoDBBridge {
 		MongoDatabase client = mongoClient.getDatabase(AppDB);
 		MongoCollection<Document> database = client.getCollection(dbname);
 		
-		//Document table = (Document) database.find(new Document("table#name",tbname));
 		FindIterable<Document> docs = database.find(new Document("table#name",tbname));
 		
 		Document updatedValue = new Document("table#name",tbname);
@@ -121,7 +107,11 @@ public class MongoDBBridge {
 		Bson updateOperation = new Document("$set",(Bson)updatedValue);
 		for(Document doc : docs) {
 			
-			database.updateOne(doc, updateOperation);
+			if(doc.containsKey("table#name") && doc.get("table#name").equals(tbname)) {
+
+				database.updateOne(doc, updateOperation);
+				break;
+			}
 		}
 		
 	}
@@ -133,12 +123,16 @@ public class MongoDBBridge {
 		
 		FindIterable<Document> docs = database.find(new Document("table#name",tbname));
         for (Document doc : docs) {
-        	if(doc.containsKey(key)) {
+        	
+        	if(doc.containsKey("table#name") && doc.get("table#name").equals(tbname)) {
+        	
+        		if(doc.containsKey(key)) {
         		
-        		return true;
+        			return true;
+        		}
+        		break;
         	}
         }
-		//Document table = (Document) database.find(new Document("table#name",tbname));
 		
 		return false;
 	}
@@ -150,15 +144,41 @@ public class MongoDBBridge {
 		MongoDatabase client = mongoClient.getDatabase(AppDB);
 		MongoCollection<Document> database = client.getCollection(dbname);
 		
-		Document table = (Document) database.find(new Document("table#name",tbname));
+		FindIterable<Document> docs = database.find(new Document("table#name",tbname));
 		
-		for(int i = 0; i < values.size(); i++) {
+		Document deletedValue = new Document("blank#value","");
+		
+		for(Document table : docs) {
 			
-			if(values.get(i).getName().equals(pk)) {
+			if(table.containsKey("table#name") && table.get("table#name").equals(tbname)) {
 				
-				table.remove(values.get(i).getValue());
+				for(int i = 0; i < values.size(); i++) {
+					
+					if(values.get(i).getName().equals(pk)) {
+						
+						deletedValue.append(values.get(i).getValue(), table.get(values.get(i).getValue()));
+						/*System.out.println(pk + " " + values.get(i).getName());
+						System.out.println(table.get(values.get(i).getValue()));
+						table.remove(values.get(i).getValue());
+						System.out.println(table.get(values.get(i).getValue()));*/
+					}
+				}
+				break;
 			}
 		}
+		
+		docs = database.find(new Document("table#name",tbname));
+		
+		Bson updateOperation = new Document("$unset",(Bson)deletedValue);
+		for(Document doc : docs) {
+			
+			if(doc.containsKey("table#name") && doc.get("table#name").equals(tbname)) {
+
+				database.updateOne(doc, updateOperation);
+				break;
+			}
+		}
+		
 	}
 	
 	public ArrayList<String> mdbGetTableContent(String dbname, String tbname) {
@@ -168,17 +188,23 @@ public class MongoDBBridge {
 		MongoDatabase client = mongoClient.getDatabase(AppDB);
 		MongoCollection<Document> database = client.getCollection(dbname);
 		
-		Document table = (Document) database.find(new Document("table#name",tbname));
+		FindIterable<Document> docs = database.find(new Document("table#name",tbname));
 		
-		Set<String> keys = table.keySet();
-		Iterator<String> iterator = keys.iterator();
-		
-		while(iterator.hasNext()) {
-			
-			String key = iterator.next();
-			if(!key.equals("table#name")) {
+		for(Document table : docs) {
+			if(table.containsKey("table#name") && table.get("table#name").equals(tbname)) {
 				
-				list.add(key + "#" + table.get(key));
+				Set<String> keys = table.keySet();
+				Iterator<String> iterator = keys.iterator();
+				
+				while(iterator.hasNext()) {
+					
+					String key = iterator.next();
+					if(!key.equals("table#name") && !key.equals("_id")) {
+						
+						list.add(key + "#" + table.get(key));
+					}
+				}
+				break;
 			}
 		}
 		
