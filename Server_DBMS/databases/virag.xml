@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<Tables>
+    <Table fileName="" rowLength="" tableName="majmok">
+        <Structure>
+            <Attribute attributeName="pid" type="int"/>
+            <Attribute attributeName="dikk" type="int"/>
+        </Structure>
+        <primaryKey>
+            <pkAttribute>pid</pkAttribute>
+        </primaryKey>
+        <foreignKeys/>
+        <Indexfiles/>
+    </Table>
+</Tables>

@@ -75,6 +75,7 @@ public class Server {
 							switch (statementState) {
 
 							case 0:
+								mongo.mdbCreateDB(inputMessage.getDBname());
 								constructResponse(1, inputMessage);
 								break;
 							case -1:
@@ -177,25 +178,35 @@ public class Server {
 							break;
 						
 						case INSERT_VALUES:
-							statementState = DML.insertValues(inputMessage.getDBname(), inputMessage.getTbname(),
+							statementState = DML.insertValues(mongo,inputMessage.getDBname(), inputMessage.getTbname(),
 									inputMessage.getColumns().get(0).getName(), inputMessage.getColumns().get(0).getType(), inputMessage.getColumns());
 							switch (statementState) {
 							case 0:
+								Integer tableLength = Integer.valueOf(inputMessage.getColumns().get(0).getName());
+								Integer totalInserts = Integer.valueOf(inputMessage.getColumns().get(0).getType());
+								mongo.mdbInsertData(inputMessage.getDBname(), inputMessage.getTbname(), tableLength, totalInserts, inputMessage.getColumns());
 								constructResponse(23, inputMessage);
 								break;
 							case -1:
 								constructResponse(24, inputMessage);
 								break;
+							case -2:
+								constructResponse(28, inputMessage);
+								break;
 							}
 						
 						case DELETE_VALUES:
-							statementState = DML.deleteValues();
+							statementState = DML.deleteValues(inputMessage.getDBname(), inputMessage.getTbname());
 							switch (statementState) {
 							case 0:
+								mongo.mdbDeleteData(inputMessage.getDBname(), inputMessage.getTbname(), inputMessage.getColumns());
 								constructResponse(25, inputMessage);
 								break;
 							case -1:
 								constructResponse(26, inputMessage);
+								break;
+							case -5:
+								constructResponse(27, inputMessage);
 								break;
 							}
 						}
@@ -348,6 +359,26 @@ public class Server {
 			case 24:
 				response.setMsType(MessageType.INSERT_VALUES);
 				response.setResponse("Values not inserted! Check input format!");
+				break;
+				
+			case 25:
+				response.setMsType(MessageType.DELETE_VALUES);
+				response.setResponse("Rows deleted successfully from table " + inputMessage.getTbname() + ".");
+				break;
+				
+			case 26:
+				response.setMsType(MessageType.DELETE_VALUES);
+				response.setResponse("An error occured, could not delete values from table " + inputMessage.getTbname() + ".");
+				break;
+				
+			case 27:
+				response.setMsType(MessageType.DELETE_VALUES);
+				response.setResponse("Could not delete from table " + inputMessage.getTbname() + " because there are other tables in " + inputMessage.getDBname() + " database that have Foreign Key references with the current table.");
+				break;
+				
+			case 28:
+				response.setMsType(MessageType.INSERT_VALUES);
+				response.setResponse("Could not insert values into table " + inputMessage.getTbname() + " because there are already rows having at least one of these Primary keys.");
 				break;
 
 			case 99:

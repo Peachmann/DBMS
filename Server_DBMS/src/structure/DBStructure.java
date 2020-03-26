@@ -16,11 +16,51 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 // static class, methods give information about the databases and their tables
 public final class DBStructure {
+	
+	public static String getTablePK(String dbname, String tbname) {
+		
+		try {
+
+            DocumentBuilderFactory documentFactory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder documentBuilder = documentFactory.newDocumentBuilder();
+            Document document = documentBuilder.parse(new File("databases//" + dbname + ".xml"));
+			
+            document.getDocumentElement().normalize();
+            
+            NodeList tables = document.getElementsByTagName("Table");
+            
+            for(int i = 0; i < tables.getLength(); i++) {
+            	
+            	if(tables.item(i).getNodeType() == Node.ELEMENT_NODE) {
+            		
+	            	Element element = (Element)tables.item(i);
+	            	if(element.getAttribute("tableName").equals(tbname)) {
+	            		
+	            		NodeList pk = element.getElementsByTagName("pkAttribute");
+	            		for(int j = 0; j < pk.getLength(); j++) {
+	            			
+	            			if(pk.item(i).getNodeType() == Node.ELEMENT_NODE) {
+	            				
+	            				return ((Element)pk.item(i)).getTextContent();
+	            			}
+	            		}
+	            	}
+            	}
+            }
+            
+		} catch(ParserConfigurationException | IOException | SAXException e) {
+			
+			e.printStackTrace();
+		}
+		
+		return "NO_PK_FOUND";
+	}
 
 	// gets all current database names
 	public static List<String> getDatabases() {
