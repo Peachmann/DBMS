@@ -260,7 +260,7 @@ public final class DML {
 				
 				if(aux.getName().equals(pk)) {
 					
-					if(mongo.mdbKeyExists(dbname, tbname, aux.getValue())) {
+					if(mongo.mdbKeyExists(dbname, tbname, pk ,aux.getValue())) {
 						
 						return -2;
 					}

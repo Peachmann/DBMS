@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<Tables>
+    <Table fileName="" rowLength="" tableName="qu1">
+        <Structure>
+            <Attribute attributeName="qid" type="int"/>
+            <Attribute attributeName="igen" length="50" type="varchar"/>
+            <Attribute attributeName="nem" type="int"/>
+        </Structure>
+        <primaryKey>
+            <pkAttribute>qid</pkAttribute>
+        </primaryKey>
+        <foreignKeys/>
+        <Indexfiles/>
+    </Table>
+</Tables>
