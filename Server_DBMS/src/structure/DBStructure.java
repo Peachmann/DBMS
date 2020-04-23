@@ -22,6 +22,9 @@ import org.xml.sax.SAXException;
 
 import com.server.DDL;
 
+import message.Attribute;
+import message.Constraints;
+
 // static class, methods give information about the databases and their tables
 public final class DBStructure {
 	
@@ -157,6 +160,117 @@ public final class DBStructure {
 		}
 		
 		return columns;
+	}
+	
+	public static ArrayList<String> getUniques(String dbname, String tbname) {
+
+		ArrayList<String> list = new ArrayList<String>();
+		
+		try {
+
+            DocumentBuilderFactory documentFactory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder documentBuilder = documentFactory.newDocumentBuilder();
+            Document document = documentBuilder.parse(new File("databases//" + dbname + ".xml"));
+			
+            document.getDocumentElement().normalize();
+            DDL.removeEmptyText(document);
+            
+            NodeList pk = document.getElementsByTagName("Attribute");
+            
+            for(int i = 0; i < pk.getLength(); i++) {
+            	
+            	if(pk.item(i).getNodeType() == Node.ELEMENT_NODE) {
+            		
+            		Element element = (Element) pk.item(i);
+            		if(((Element)element.getParentNode().getParentNode()).getAttribute("tableName").equals(tbname) &&
+            				element.getAttribute("isUnique").equals("true")) {
+            			
+            			list.add(element.getAttribute("attributeName"));
+            		}
+            	}
+            }
+            
+		} catch(ParserConfigurationException | IOException | SAXException e) {
+			
+			e.printStackTrace();
+		}
+		
+		list.add("NO_UNIQUE_FOUND");
+		
+		return list;
+	}
+	
+	public static ArrayList<Attribute> getForeignKeys(String dbname, String tbname) {
+		
+		ArrayList<Attribute> list = new ArrayList<Attribute>();
+		
+		try {
+
+            DocumentBuilderFactory documentFactory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder documentBuilder = documentFactory.newDocumentBuilder();
+            Document document = documentBuilder.parse(new File("databases//" + dbname + ".xml"));
+			
+            document.getDocumentElement().normalize();
+            DDL.removeEmptyText(document);
+            
+            NodeList fk = document.getElementsByTagName("foreignKey");
+            
+            for(int i = 0; i < fk.getLength(); i++) {
+            	
+            	if(fk.item(i).getNodeType() == Node.ELEMENT_NODE) {
+            		
+            		Element element = (Element) fk.item(i);
+            		if(((Element)element.getParentNode().getParentNode()).getAttribute("tableName").equals(tbname)) {
+            			
+            			String name = "";
+            			String type = "";
+            			String refTable = "";
+            			String refAttribute = "";
+            			NodeList e = element.getElementsByTagName("fkAttribute");
+            			for(int j = 0; j < e.getLength(); j++) {
+            				
+            				if(e.item(j).getNodeType() == Node.ELEMENT_NODE) {
+            					name = ((Element)e.item(j)).getTextContent();
+            					break;
+            				}
+            			}
+            			e = ((Element)(element.getParentNode().getParentNode())).getElementsByTagName("Attribute");
+            			for(int j = 0; j < e.getLength(); j++) {
+            				
+            				if(e.item(j).getNodeType() == Node.ELEMENT_NODE && ((Element)e.item(j)).getAttribute("attributeName").equals(name)) {
+            					type = ((Element)e.item(j)).getAttribute("type");
+            					break;
+            				}
+            			}
+            			Attribute fka = new Attribute(name,type,Constraints.FOREIGN_KEY);
+            			e = element.getElementsByTagName("refTable");
+            			for(int j = 0; j < e.getLength(); j++) {
+            				
+            				if(e.item(j).getNodeType() == Node.ELEMENT_NODE) {
+            					refTable = ((Element)e.item(j)).getTextContent();
+            					break;
+            				}
+            			}
+            			e = element.getElementsByTagName("refAttribute");
+            			for(int j = 0; j < e.getLength(); j++) {
+            				
+            				if(e.item(j).getNodeType() == Node.ELEMENT_NODE) {
+            					refAttribute = ((Element)e.item(j)).getTextContent();
+            					break;
+            				}
+            			}
+            			fka.setReference(refTable, refAttribute);
+            			list.add(fka);
+            		}
+            	}
+            }
+            
+		} catch(ParserConfigurationException | IOException | SAXException e) {
+			
+			e.printStackTrace();
+		}
+		
+		return list;
 	}
 	
 }

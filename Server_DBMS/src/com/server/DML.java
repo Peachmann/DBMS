@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -223,9 +224,11 @@ public final class DML {
 	}
 	
 	// Insert command, -1 type problems, -2 if at least one primary key value already exists in the database
+	// -3 same unique values inside query, -5 referenced value does not exist in child table
 	public static int insertValues(MongoDBBridge mongo, String dbname, String tbname, int tableLength, int totalInserts, ArrayList<Attribute> values) {
 		
 		String pk = DBStructure.getTablePK(dbname,tbname);
+		ArrayList<String> uniques = DBStructure.getUniques(dbname, tbname);
 		
 		values.remove(0);
 		
@@ -240,6 +243,19 @@ public final class DML {
 					return -3;
 				}
 				set.add(values.get(i).getValue());
+			}
+		}
+		
+		for(String attr : uniques) {
+			
+			HashSet<String> uSet = new HashSet<String>();
+			for(int j = 0; j < values.size(); j++) {
+				if(values.get(j).getName().equals(attr)) {
+					if(uSet.contains(values.get(j).getValue())) {
+						return -3;
+					}
+					uSet.add(values.get(j).getValue());
+				}
 			}
 		}
 		
@@ -258,9 +274,9 @@ public final class DML {
 					return -1;
 				}
 				
-				if(aux.getName().equals(pk)) {
+				if(aux.getName().equals(pk) || uniques.contains(aux.getName())) {
 					
-					if(mongo.mdbKeyExists(dbname, tbname, pk ,aux.getValue())) {
+					if(mongo.mdbKeyExists(dbname, tbname, aux.getName() ,aux.getValue())) {
 						
 						return -2;
 					}
@@ -268,11 +284,24 @@ public final class DML {
 				
 			}
 		}
+		
+		ArrayList<Attribute> FK = DBStructure.getForeignKeys(dbname, tbname);
+		
+		for(Attribute attr : FK) {
+			for(int i = 0; i < values.size(); i++) {
+				if(attr.getName().equals(values.get(i).getName()) && attr.getType().equals(values.get(i).getType())) {
+					if(!mongo.mdbKeyExists(dbname, attr.getRefTable(), attr.getRefAttr(), values.get(i).getValue())) {
+						return -5;
+					}
+				}
+			}
+		}
+		
 		return 0;
 	}
 	
 	//-5 if there are tables with FK that points to this table, 0 if it is okay
-	public static int deleteValues(String dbname, String tbname) {
+	public static int deleteValues(MongoDBBridge mongo, String dbname, String tbname, ArrayList<Attribute> values) {
 		
 		try {
 
@@ -281,6 +310,7 @@ public final class DML {
             Document document = documentBuilder.parse(new File("databases//" + dbname + ".xml"));
 			
             document.getDocumentElement().normalize();
+            DDL.removeEmptyText(document);
             
             NodeList references = document.getElementsByTagName("refTable");
             int rl = references.getLength();
@@ -289,10 +319,42 @@ public final class DML {
             	if(references.item(i).getNodeType() == Node.ELEMENT_NODE) {
             		
             		Element element = (Element)references.item(i);
-            		System.out.println(element.getTextContent());
             		if(element.getTextContent().equals(tbname)) {
             			
-            			return -5;
+            			Element tab = (Element)element.getParentNode().getParentNode().getParentNode().getParentNode();
+            			String tn = tab.getAttribute("tableName");
+            			String an = "";
+            			String dest = "";
+            			String type = "";
+            			NodeList ft = ((Element)element.getParentNode().getParentNode()).getElementsByTagName("fkAttribute");
+            			for(int j = 0; j < ft.getLength(); j++) {
+            				if(ft.item(j).getNodeType() == Node.ELEMENT_NODE) {
+            					an = ft.item(j).getTextContent();
+            					break;
+            				}
+            			}
+            			ft = ((Element)element.getParentNode()).getElementsByTagName("refAttribute");
+            			for(int j = 0; j < ft.getLength(); j++) {
+            				if(ft.item(j).getNodeType() == Node.ELEMENT_NODE) {
+            					dest = ft.item(j).getTextContent();
+            					break;
+            				}
+            			}
+            			ft = tab.getElementsByTagName("Attribute");
+            			for(int j = 0; j < ft.getLength(); j++) {
+            				if(ft.item(j).getNodeType() == Node.ELEMENT_NODE && ((Element)ft.item(j)).getAttribute("attributeName").equals(an)) {
+            					type = ((Element)(ft.item(j))).getAttribute("type");
+            					break;
+            				}
+            			}
+            			for(Attribute attr : values) {
+            				if(attr.getName().equals(dest)) {
+            					System.out.println(dbname + " " + tn + " " + an + "#" + type + " " + attr.getValue());
+            					if(mongo.mdbKeyExists(dbname, tn, an + "#" + type, attr.getValue())) {
+            						return -5;
+            					}
+            				}
+            			}
             		}
             	}
             }

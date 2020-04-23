@@ -21,11 +21,29 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import message.Attribute;
+import message.Constraints;
+import mongo.MongoDBBridge;
 
 // static class, the methods represent the Data Definition Language (DDL) of the system
 public final class DDL {
 
 	private DDL() {}
+	
+	public static int createDefaultIndexes(MongoDBBridge mongo, String dbname, String tbname, ArrayList<Attribute> columns) {
+		
+		try {
+			for(Attribute attr : columns) {
+				
+				if(attr.getConstraint() == Constraints.PRIMARY_KEY || attr.getConstraint() == Constraints.FOREIGN_KEY) {
+					DDL.createIndex(dbname, tbname, attr.getName(), "def" + attr.getName());
+					mongo.mdbCreateIndex(dbname, tbname, attr.getName());
+				}
+			}
+		} catch(Exception e) {
+			return -1;
+		}
+		return 0;
+	}
 	
 	// CREATE DATABASE DDL command, returns 0 if successful, -1 if error
 	public static int createDatabase(String dbname) {
@@ -509,7 +527,7 @@ public final class DDL {
 				}
 			}
 		}
-        
+
         return false;
 	}
 	

@@ -36,7 +36,7 @@ public class Server {
 		} finally {
 			listener.close();
 		}
-		
+
 
 	}
 
@@ -116,6 +116,8 @@ public class Server {
 
 							case 0:
 								mongo.mdbCreateTable(inputMessage.getDBname(), inputMessage.getTbname());
+								DDL.createDefaultIndexes(mongo, inputMessage.getDBname(), inputMessage.getTbname(),
+										inputMessage.getColumns());
 								constructResponse(7, inputMessage);
 								break;
 							case -2:
@@ -168,6 +170,7 @@ public class Server {
 							switch (statementState) {
 
 							case 0:
+								mongo.mdbCreateIndex(inputMessage.getDBname(), inputMessage.getTbname(), inputMessage.getColumns().get(0).getName());
 								constructResponse(17, inputMessage);
 								break;
 							case -5:
@@ -181,7 +184,7 @@ public class Server {
 								break;
 							}
 							break;
-						
+
 						case INSERT_VALUES:
 							Integer tableLength = Integer.valueOf(inputMessage.getColumns().get(0).getName());
 							Integer totalInserts = Integer.valueOf(inputMessage.getColumns().get(0).getType());
@@ -201,11 +204,15 @@ public class Server {
 							case -3:
 								constructResponse(31, inputMessage);
 								break;
+							case -5:
+								constructResponse(32, inputMessage);
+								break;
+
 							}
 							break;
-						
+
 						case DELETE_VALUES:
-							statementState = DML.deleteValues(inputMessage.getDBname(), inputMessage.getTbname());
+							statementState = DML.deleteValues(mongo, inputMessage.getDBname(), inputMessage.getTbname(), inputMessage.getColumns());
 							switch (statementState) {
 							case 0:
 								mongo.mdbDeleteData(inputMessage.getDBname(), inputMessage.getTbname(), inputMessage.getColumns());
@@ -218,7 +225,7 @@ public class Server {
 								constructResponse(27, inputMessage);
 								break;
 							}
-						
+
 						case GET_VALUES:
 							statementState = DML.getValues(inputMessage.getDBname(), inputMessage.getTbname());
 							switch(statementState) {
@@ -288,13 +295,13 @@ public class Server {
 			case 9:
 				response.setMsType(MessageType.CREATE_TABLE);
 				response.setResponse("Could not create table " + inputMessage.getTbname()
-						+ ", the number of Primary Keys in one table must be 1!");
+				+ ", the number of Primary Keys in one table must be 1!");
 				break;
 
 			case 10:
 				response.setMsType(MessageType.CREATE_TABLE);
 				response.setResponse("Could not create table " + inputMessage.getTbname()
-						+ ", because Foreign Key reference does not exists or the type differs.");
+				+ ", because Foreign Key reference does not exists or the type differs.");
 				break;
 
 			case 11:
@@ -330,7 +337,7 @@ public class Server {
 			case 16:
 				response.setMsType(MessageType.DROP_TABLE);
 				response.setResponse("An error occured, could not drop table " + inputMessage.getTbname()
-						+ " from database " + inputMessage.getDBname() + ".");
+				+ " from database " + inputMessage.getDBname() + ".");
 				break;
 
 			case 17:
@@ -356,63 +363,68 @@ public class Server {
 				response.setResponse("An error occured, could not create index on column "
 						+ inputMessage.getColumns().get(0).getName() + ".");
 				break;
-				
+
 			case 21:
 				response.setMsType(MessageType.CREATE_DATABASE);
 				response.setResponse("Could not create database " + inputMessage.getDBname()
-						+ ", database name can not contain #_. /\\ characters");
+				+ ", database name can not contain #_. /\\ characters");
 				break;
-				
+
 			case 22:
 				response.setMsType(MessageType.CREATE_TABLE);
 				response.setResponse("Could not create table " + inputMessage.getTbname() + " in database " + inputMessage.getDBname()
-						+ ", table name can not contain #_. /\\ characters");
+				+ ", table name can not contain #_. /\\ characters");
 				break;
-				
+
 			case 23:
 				response.setMsType(MessageType.INSERT_VALUES);
 				response.setResponse("Values inserted successfully in table " + inputMessage.getTbname() + " (" + inputMessage.getDBname() + ").");
 				break;
-				
+
 			case 24:
 				response.setMsType(MessageType.INSERT_VALUES);
 				response.setResponse("Values not inserted! Check input format!");
 				break;
-				
+
 			case 25:
 				response.setMsType(MessageType.DELETE_VALUES);
 				response.setResponse("Rows deleted successfully from table " + inputMessage.getTbname() + ".");
 				break;
-				
+
 			case 26:
 				response.setMsType(MessageType.DELETE_VALUES);
 				response.setResponse("An error occured, could not delete values from table " + inputMessage.getTbname() + ".");
 				break;
-				
+
 			case 27:
 				response.setMsType(MessageType.DELETE_VALUES);
-				response.setResponse("Could not delete from table " + inputMessage.getTbname() + " because there are other tables in " + inputMessage.getDBname() + " database that have Foreign Key references with the current table.");
+				response.setResponse("Could not delete from table " + inputMessage.getTbname() + " because there are other tables in " + inputMessage.getDBname() + " database that have Foreign Key references with the current table and the value to be deleted.");
 				break;
-				
+
 			case 28:
 				response.setMsType(MessageType.INSERT_VALUES);
 				response.setResponse("Could not insert values into table " + inputMessage.getTbname() + " because there are already rows having at least one of these Primary keys.");
 				break;
-				
+
 			case 29:
 				response.setMsType(MessageType.CREATE_TABLE);
 				response.setResponse("Could not create table " + inputMessage.getTbname() + " because there are column names containing illegal characters (\"#\",\"/\" or \"\\\").");
 				break;
-				
+
 			case 30:
 				response.setMsType(MessageType.GET_VALUES);
 				response.setResponse("");
 				response.setResp(mongo.mdbGetTableContent(inputMessage.getDBname(), inputMessage.getTbname()));
 				break;
-				
+
 			case 31:
 				response.setMsType(MessageType.INSERT_VALUES);
-				response.setResponse("Could not insert values into table " + inputMessage.getTbname() + " because there are rows with identical Primary Key values among them.");
+				response.setResponse("Could not insert values into table " + inputMessage.getTbname() + " because there are rows with identical unique(Unique Key or Primary Key) values among them.");
+				break;
+
+			case 32:
+				response.setMsType(MessageType.INSERT_VALUES);
+				response.setResponse("Could not insert values into table " + inputMessage.getTbname() + " because there are rows containing FK values that do not appear in child table.");
 				break;
 
 			case 99:

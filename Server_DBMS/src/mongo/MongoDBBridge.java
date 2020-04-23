@@ -6,6 +6,7 @@ import java.util.Set;
 
 import org.bson.Document;
 
+import com.mongodb.BasicDBObject;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
@@ -69,10 +70,11 @@ public class MongoDBBridge {
 		collection.drop();
 	}
 	
-	public void mdbCreateIndex() {
+	public void mdbCreateIndex(String dbname, String tbname, String column) {
 		
-		//TO-DO
-
+		MongoDatabase database = mongoClient.getDatabase(dbname);
+		MongoCollection<Document> table = database.getCollection(tbname);
+		table.createIndex(new BasicDBObject(column,1));
 	}
 	
 	public void mdbInsertData(String dbname, String tbname, int tableLength, int totalInserts, ArrayList<Attribute> values) {
@@ -124,8 +126,6 @@ public class MongoDBBridge {
 		MongoCollection<Document> table = database.getCollection(tbname);
 		
 		for(int i = 0; i < values.size(); i++) {
-			System.out.println(pk + " NANANA " + values.get(i).getValue() + " NANANA");
-			System.out.println(values.get(i).getName() + " NANANA");
 			if(values.get(i).getName().equals(pk)) {
 			
 				table.deleteOne(new Document(pk, values.get(i).getValue()));
@@ -162,4 +162,5 @@ public class MongoDBBridge {
 		
 		return list;
 	}
+	
 }
