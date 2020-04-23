@@ -9,7 +9,7 @@
 
 <Pane id="basePane" fx:id="basePane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="350.0" stylesheets="@../css/login.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.client.login.LoginController">
    <children>
-      <TextField fx:id="userTextField" layoutX="87.0" layoutY="196.0" prefHeight="31.0" prefWidth="236.0" promptText="Username" />
+      <TextField fx:id="userTextField" layoutX="87.0" layoutY="196.0" onAction="#loginButtonAction" prefHeight="31.0" prefWidth="236.0" promptText="Username" />
       <TextField fx:id="ipTextField" layoutX="87.0" layoutY="246.0" prefHeight="31.0" prefWidth="236.0" promptText="Database IP" />
       <TextField fx:id="portTextField" layoutX="87.0" layoutY="297.0" prefHeight="31.0" prefWidth="236.0" promptText="Database Port" />
       <Button id="dark-blue" fx:id="loginButton" layoutX="99.0" layoutY="373.0" mnemonicParsing="false" onAction="#loginButtonAction" prefHeight="55.0" prefWidth="152.0" text="Login" />
