@@ -8,6 +8,7 @@ public class Attribute implements Serializable {
 	private String type;
 	private String value;
 	private Constraints constraint;
+	private Boolean isUnique;
 	private String refTable;
 	private String refAttr;
 	
@@ -28,6 +29,14 @@ public class Attribute implements Serializable {
 		this.type = type;
 		this.value = value;
 		this.constraint = Constraints.NONE;
+	}
+	
+	public void setIsUnique(Boolean isUnique) {
+		this.isUnique = isUnique;
+	}
+
+	public Boolean getIsUnique() {
+		return isUnique;
 	}
 	
 	public String getValue() {

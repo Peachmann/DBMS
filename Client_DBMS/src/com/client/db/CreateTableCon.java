@@ -25,7 +25,7 @@ public class CreateTableCon implements Initializable{
 
 	@FXML private ComboBox<String> databaseName, attType, attFKTable, attFKAtt;
 	@FXML private TextField tableName, attName;
-	@FXML private ToggleButton attPK, attFK;
+	@FXML private ToggleButton attPK, attFK, attUnique;
 	private ToggleGroup grp;
 	private ArrayList<Attribute> list;
 	private Stage stage;
@@ -65,13 +65,20 @@ public class CreateTableCon implements Initializable{
 		
 		if(attPK.isSelected()) {
 			newAttr = new Attribute(attName.getText(), type, Constraints.PRIMARY_KEY);
+			newAttr.setIsUnique(true);
 		} else if (attFK.isSelected()) {
 			newAttr = new Attribute(attName.getText(), type, Constraints.FOREIGN_KEY);
 			newAttr.setReference(attFKTable.getSelectionModel().getSelectedItem(), attFKAtt.getSelectionModel().getSelectedItem());
+			newAttr.setIsUnique(false);
 		} else {
 			newAttr = new Attribute(attName.getText(),type);
+			if(attUnique.isSelected()) {
+				newAttr.setIsUnique(true);
+			} else {
+				newAttr.setIsUnique(false);
+			}
 		}
-		
+			
 		list.add(newAttr);
 		clearAll();
 	}

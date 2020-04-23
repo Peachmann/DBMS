@@ -239,6 +239,12 @@ public final class DDL {
             		at.setAttribute("type", "varchar");
             		at.setAttribute("length", attr.getType().substring(7));
             	}
+            	
+            	if(attr.getIsUnique()) {
+            		at.setAttribute("isUnique", "true");
+            	} else {
+            		at.setAttribute("isUnique", "false");
+            	}
             	structure.appendChild(at);
             	
             	//check and add constraints
