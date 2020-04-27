@@ -6,6 +6,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -271,6 +272,92 @@ public final class DBStructure {
 		}
 		
 		return list;
+	}
+	
+	public static String getAttributeType(String dbname, String tbname, String attr) {
+		
+		try {
+
+            DocumentBuilderFactory documentFactory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder documentBuilder = documentFactory.newDocumentBuilder();
+            Document document = documentBuilder.parse(new File("databases//" + dbname + ".xml"));
+			
+            document.getDocumentElement().normalize();
+            DDL.removeEmptyText(document);
+            
+            NodeList tb = document.getElementsByTagName("Table");
+            
+            for(int i = 0; i < tb.getLength(); i++) {
+            	
+            	if(tb.item(i).getNodeType() == Node.ELEMENT_NODE) {
+            		
+            		Element element = (Element)tb.item(i);
+            		if(element.getAttribute("tableName").equals(tbname)) {
+            			NodeList ns = element.getElementsByTagName("Attribute");
+            			for(int j = 0; j < ns.getLength(); j++) {
+            				if(ns.item(j).getNodeType() == Node.ELEMENT_NODE) {
+            					return ((Element)ns.item(j)).getAttribute("type");
+            				}
+            			}
+            		}
+            	}
+            }
+            
+		} catch(ParserConfigurationException | IOException | SAXException e) {
+			
+			e.printStackTrace();
+		}
+		
+		return "NO_COLUMN";
+	}
+	
+	public static Hashtable<String, String> getIndexes(String dbname, String tbname) {
+		
+		Hashtable<String, String> indexes = new Hashtable<String, String>();
+		
+		try {
+
+            DocumentBuilderFactory documentFactory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder documentBuilder = documentFactory.newDocumentBuilder();
+            Document document = documentBuilder.parse(new File("databases//" + dbname + ".xml"));
+			
+            document.getDocumentElement().normalize();
+            DDL.removeEmptyText(document);
+            
+            NodeList tb = document.getElementsByTagName("Table");
+            
+            for(int i = 0; i < tb.getLength(); i++) {
+            	
+            	if(tb.item(i).getNodeType() == Node.ELEMENT_NODE) {
+            		
+            		Element element = (Element)tb.item(i);
+            		if(element.getAttribute("tableName").equals(tbname)) {
+            			NodeList ns = element.getElementsByTagName("IndexFile");
+            			for(int j = 0; j < ns.getLength(); j++) {
+            				if(ns.item(j).getNodeType() == Node.ELEMENT_NODE) {
+            					Element ind = (Element)ns.item(j);
+            					String name = ind.getAttribute("indexName");
+            					NodeList at = ind.getElementsByTagName("IAttribute");
+            					for(int l = 0; l < at.getLength(); l++) {
+            						if(at.item(l).getNodeType() == Node.ELEMENT_NODE) {
+            							
+            							String attr = ((Element)at.item(l)).getTextContent();
+            							indexes.put(name, attr);
+            							break;
+            						}
+            					}
+            				}
+            			}
+            		}
+            	}
+            }
+            
+		} catch(ParserConfigurationException | IOException | SAXException e) {
+			
+			e.printStackTrace();
+		}
+		
+		return indexes;
 	}
 	
 }

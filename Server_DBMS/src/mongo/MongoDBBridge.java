@@ -1,7 +1,10 @@
 package mongo;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 import org.bson.Document;
@@ -70,11 +73,47 @@ public class MongoDBBridge {
 		collection.drop();
 	}
 	
-	public void mdbCreateIndex(String dbname, String tbname, String column) {
+	public void mdbCreateIndexPK(String dbname, String tbname, String column) {
 		
 		MongoDatabase database = mongoClient.getDatabase(dbname);
 		MongoCollection<Document> table = database.getCollection(tbname);
 		table.createIndex(new BasicDBObject(column,1));
+	}
+	
+	public void mdbCreateIndex(String dbname, String tbname, String column, String name) {
+		
+		String pk = DBStructure.getTablePK(dbname, tbname);
+		String type = DBStructure.getAttributeType(dbname, tbname, column);
+		
+		MongoDatabase database = mongoClient.getDatabase(dbname);
+		String indName = dbname + "#" + tbname + "#" + column + "#" + name;
+		database.createCollection(indName);
+		MongoCollection<Document> table = database.getCollection(tbname);
+		MongoCollection<Document> index = database.getCollection(indName);
+		
+		FindIterable<Document> docs = table.find();
+		Hashtable<String,String> values = new Hashtable<String,String>();
+		for(Document d : docs) {
+			String id = d.getString(pk);
+			String attr = d.getString(column + "#" + type);
+			if(values.containsKey(attr)) {
+				String getv = values.get(attr);
+				getv += "#" + id;
+				values.remove(attr);
+				values.put(attr, getv);
+			} else {
+				values.put(attr, id);
+			}
+		}
+		
+		Set<String> keys = values.keySet();
+		for(String k : keys) {
+			String value = values.get(k);
+			Document indData = new Document();
+			indData.append(column, k);
+			indData.append("ID", value);
+			index.insertOne(indData);
+		}
 	}
 	
 	public void mdbInsertData(String dbname, String tbname, int tableLength, int totalInserts, ArrayList<Attribute> values) {
@@ -99,6 +138,67 @@ public class MongoDBBridge {
 				}
 			}
 			table.insertOne(row);
+		}
+		
+		Hashtable<String, String> indexes = DBStructure.getIndexes(dbname, tbname);
+		Set<String> keys = indexes.keySet();
+		for(String k : keys) {
+			String col = indexes.get(k);
+			Hashtable<String, String> indForCol = new Hashtable<String, String>();
+			for(int i = 0; i < totalInserts; i++) {
+				String pkVal = "";
+				String colVal = "";
+				int vals = 0;
+				for(int j = 0; j < tableLength; j++) {
+					
+					Attribute curr = values.get(i * tableLength + j);
+					if(curr.getName().equals(pk)) {
+						
+						pkVal = curr.getValue();
+						vals++;
+						if(vals == 2) {
+							break;
+						}
+					}
+					if(curr.getName().equals(col)) {
+						
+						colVal = curr.getValue();
+						vals++;
+						if(vals == 2) {
+							break;
+						}
+					}
+				}
+				if(indForCol.containsKey(colVal)) {
+					String old = indForCol.get(colVal);
+					old += "#" + pkVal;
+					indForCol.remove(colVal);
+					indForCol.put(colVal, old);
+				} else {
+					indForCol.put(colVal, pkVal);
+				}
+			}
+			
+			MongoCollection<Document> index = database.getCollection(k);
+			Set<String> insertInd = indForCol.keySet();
+			for(String colValue : insertInd) {
+				
+				String old = "";
+				FindIterable<Document> docs = index.find(new Document(col, colValue));
+				for(Document val : docs) {
+					old = val.getString("ID");
+				}
+				Document changedIndex = new Document(col, colValue);
+				if(!old.isEmpty()) {
+
+					index.deleteOne(new Document(col, colValue));
+					changedIndex.append("ID", old + "#" + indForCol.get(colValue));
+				} else {
+					
+					changedIndex.append("ID", indForCol.get(colValue));
+				}
+				index.insertOne(changedIndex);
+			}
 		}
 		
 	}
@@ -129,6 +229,71 @@ public class MongoDBBridge {
 			if(values.get(i).getName().equals(pk)) {
 			
 				table.deleteOne(new Document(pk, values.get(i).getValue()));
+			}
+		}
+		
+		Hashtable<String, String> indexes = DBStructure.getIndexes(dbname, tbname);
+		Set<String> keys = indexes.keySet();
+		for(String k : keys) {
+			String col = indexes.get(k);
+			Hashtable<String, String> indForCol = new Hashtable<String, String>();
+			int vals = 0;
+			String pkVal = "";
+			String colVal = "";
+			for(int i = 0; i < values.size(); i++) {
+				if(values.get(i).getName().equals(pk)) {
+					
+					pkVal = values.get(i).getValue();
+					vals++;
+				}
+				if(values.get(i).getName().equals(col)) {
+					
+					colVal = values.get(i).getValue();
+					vals++;
+				}
+				if(vals == 2) {
+					
+					if(indForCol.containsKey(colVal)) {
+						String old = indForCol.get(colVal);
+						old += "#" + pkVal;
+						indForCol.remove(colVal);
+						indForCol.put(colVal, old);
+					} else {
+						indForCol.put(colVal, pkVal);
+					}
+					vals = 0;
+				}
+			}
+			
+			MongoCollection<Document> index = database.getCollection(k);
+			Set<String> insertInd = indForCol.keySet();
+			for(String colValue : insertInd) {
+				
+				String old = "";
+				FindIterable<Document> docs = index.find(new Document(col, colValue));
+				for(Document val : docs) {
+					old = val.getString("ID");
+				}
+				ArrayList<String> elements = new ArrayList<String>(Arrays.asList(old.split("#")));
+				ArrayList<String> removal = new ArrayList<String>(Arrays.asList(indForCol.get(colValue).split("#")));
+				for(String r : removal) {
+					elements.remove(r);
+				}
+				if(elements.size() == 0) {
+					
+					index.deleteOne(new Document(col, colValue));
+				} else {
+					
+					String newIDs = elements.get(0);
+					int s = elements.size();
+					for(int i = 1; i < s; i++) {
+						newIDs += "#" + elements.get(i);
+					}
+					index.deleteOne(new Document(col, colValue));
+					Document reborn = new Document(col, colValue);
+					reborn.append("ID", newIDs);
+					index.insertOne(reborn);
+				}
 			}
 		}
 		

@@ -36,7 +36,13 @@ public final class DDL {
 				
 				if(attr.getConstraint() == Constraints.PRIMARY_KEY || attr.getConstraint() == Constraints.FOREIGN_KEY) {
 					DDL.createIndex(dbname, tbname, attr.getName(), "def" + attr.getName());
-					mongo.mdbCreateIndex(dbname, tbname, attr.getName());
+					if(attr.getConstraint() == Constraints.PRIMARY_KEY) {
+
+						mongo.mdbCreateIndexPK(dbname, tbname, attr.getName());
+					} else {
+						
+						mongo.mdbCreateIndex(dbname, tbname, attr.getName(), "def" + attr.getName());
+					}
 				}
 			}
 		} catch(Exception e) {

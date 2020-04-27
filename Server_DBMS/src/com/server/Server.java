@@ -170,7 +170,8 @@ public class Server {
 							switch (statementState) {
 
 							case 0:
-								mongo.mdbCreateIndex(inputMessage.getDBname(), inputMessage.getTbname(), inputMessage.getColumns().get(0).getName());
+								mongo.mdbCreateIndex(inputMessage.getDBname(), inputMessage.getTbname(),
+										inputMessage.getColumns().get(0).getName(), inputMessage.getUserGivenName());
 								constructResponse(17, inputMessage);
 								break;
 							case -5:
