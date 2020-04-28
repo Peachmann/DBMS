@@ -35,15 +35,13 @@ public final class DDL {
 		try {
 			for(Attribute attr : columns) {
 				
-				if(attr.getConstraint() == Constraints.PRIMARY_KEY || attr.getConstraint() == Constraints.FOREIGN_KEY) {
-					DDL.createIndex(dbname, tbname, attr.getName(), "def" + attr.getName());
-					if(attr.getConstraint() == Constraints.PRIMARY_KEY) {
+				if(attr.getConstraint() == Constraints.PRIMARY_KEY) {
 
-						mongo.mdbCreateIndexPK(dbname, tbname, attr.getName());
-					} else {
+					mongo.mdbCreateIndexPK(dbname, tbname, attr.getName());
+				}
+				if(attr.getConstraint() == Constraints.FOREIGN_KEY) {
 						
-						mongo.mdbCreateIndex(dbname, tbname, attr.getName(), "def" + attr.getName());
-					}
+					mongo.mdbCreateIndex(dbname, tbname, attr.getName(), "def" + attr.getName());
 				}
 			}
 		} catch(Exception e) {
@@ -289,6 +287,18 @@ public final class DDL {
             			Element pkat = document.createElement("pkAttribute");
             			pkat.setTextContent(attr.getName());
             			pk.appendChild(pkat);
+            			
+            			Element indexFil = document.createElement("IndexFile");
+						Element indexAttribute = document.createElement("IndexAttributes");
+						Element iAttri = document.createElement("IAttribute");
+						indexFil.appendChild(indexAttribute);
+						indexAttribute.appendChild(iAttri);
+						indexFil.setAttribute("indexName", dbname + "#" + tbname + "#" + attr.getName() + "#" + "def" + attr.getName() + ".ind");
+						indexFil.setAttribute("keyLength", "");
+						iAttri.setTextContent(attr.getName());
+						indexf.appendChild(indexFil);
+						File indxFile = new File("indexes//" + dbname + "#" + tbname + "#" + attr.getName() + "#" + "def" + attr.getName() + ".ind");
+						indxFile.createNewFile();
             			break;
             			
             		case FOREIGN_KEY:
@@ -317,11 +327,11 @@ public final class DDL {
 						Element iAttr = document.createElement("IAttribute");
 						indexFile.appendChild(indexAttributes);
 						indexAttributes.appendChild(iAttr);
-						indexFile.setAttribute("indexName", dbname + "#" + tbname + "#" + attr.getName() + "#" + "FK");
+						indexFile.setAttribute("indexName", dbname + "#" + tbname + "#" + attr.getName() + "#" + "def" + attr.getName() + ".ind");
 						indexFile.setAttribute("keyLength", "");
 						iAttr.setTextContent(attr.getName());
 						indexf.appendChild(indexFile);
-						File indFile = new File("indexes//" + dbname + "#" + tbname + "#" + attr.getName() + "#" + "FK.ind");
+						File indFile = new File("indexes//" + dbname + "#" + tbname + "#" + attr.getName() + "#" + "def" + attr.getName() + ".ind");
 						indFile.createNewFile();
 						
             			break;

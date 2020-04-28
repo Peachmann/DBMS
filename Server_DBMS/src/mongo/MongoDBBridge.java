@@ -145,6 +145,9 @@ public class MongoDBBridge {
 		Set<String> keys = indexes.keySet();
 		for(String k : keys) {
 			String col = indexes.get(k);
+			if(col.equals(pk)) {
+				continue;
+			}
 			Hashtable<String, String> indForCol = new Hashtable<String, String>();
 			for(int i = 0; i < totalInserts; i++) {
 				String pkVal = "";
