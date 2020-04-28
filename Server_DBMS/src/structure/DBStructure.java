@@ -337,6 +337,7 @@ public final class DBStructure {
             				if(ns.item(j).getNodeType() == Node.ELEMENT_NODE) {
             					Element ind = (Element)ns.item(j);
             					String name = ind.getAttribute("indexName");
+            					name = name.substring(0,name.indexOf('.'));
             					NodeList at = ind.getElementsByTagName("IAttribute");
             					for(int l = 0; l < at.getLength(); l++) {
             						if(at.item(l).getNodeType() == Node.ELEMENT_NODE) {
@@ -358,6 +359,57 @@ public final class DBStructure {
 		}
 		
 		return indexes;
+	}
+	
+	public static String getIndexName(String dbname, String tbname, String column) {
+
+		try {
+
+            DocumentBuilderFactory documentFactory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder documentBuilder = documentFactory.newDocumentBuilder();
+            Document document = documentBuilder.parse(new File("databases//" + dbname + ".xml"));
+			
+            document.getDocumentElement().normalize();
+            DDL.removeEmptyText(document);
+            
+            NodeList tb = document.getElementsByTagName("Table");
+            
+            for(int i = 0; i < tb.getLength(); i++) {
+            	
+            	if(tb.item(i).getNodeType() == Node.ELEMENT_NODE) {
+            		
+            		Element element = (Element)tb.item(i);
+            		if(element.getAttribute("tableName").equals(tbname)) {
+            			NodeList ns = element.getElementsByTagName("IndexFile");
+            			for(int j = 0; j < ns.getLength(); j++) {
+            				if(ns.item(j).getNodeType() == Node.ELEMENT_NODE) {
+            					Element ind = (Element)ns.item(j);
+            					String name = ind.getAttribute("indexName");
+            					name = name.substring(0,name.indexOf('.'));
+            					NodeList at = ind.getElementsByTagName("IAttribute");
+            					for(int l = 0; l < at.getLength(); l++) {
+            						if(at.item(l).getNodeType() == Node.ELEMENT_NODE) {
+            							
+            							String attr = ((Element)at.item(l)).getTextContent();
+            							if(attr.equals(column)) {
+            								
+            								return name;
+            							}
+            							break;
+            						}
+            					}
+            				}
+            			}
+            		}
+            	}
+            }
+            
+		} catch(ParserConfigurationException | IOException | SAXException e) {
+			
+			e.printStackTrace();
+		}
+		
+		return "#NO_INDEX#";
 	}
 	
 }

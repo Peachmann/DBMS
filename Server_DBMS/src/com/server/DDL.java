@@ -3,6 +3,7 @@ package com.server;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -207,6 +208,7 @@ public final class DDL {
 			return -3;
 		}
 		
+		HashSet<String> fieldNames = new HashSet<String>();
 		for(int i = 0; i < columns.size(); i++) {
 			
 			String attr = columns.get(i).getName();
@@ -214,6 +216,11 @@ public final class DDL {
 				
 				return -4;
 			}
+			if(fieldNames.contains(attr)) {
+				
+				return -6;
+			}
+			fieldNames.add(attr);
 		}
 		
 		try {

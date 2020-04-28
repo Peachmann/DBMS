@@ -132,6 +132,9 @@ public class Server {
 							case -5:
 								constructResponse(9, inputMessage);
 								break;
+							case -6:
+								constructResponse(33, inputMessage);
+								break;
 							case -7:
 								constructResponse(10, inputMessage);
 								break;
@@ -426,6 +429,12 @@ public class Server {
 			case 32:
 				response.setMsType(MessageType.INSERT_VALUES);
 				response.setResponse("Could not insert values into table " + inputMessage.getTbname() + " because there are rows containing FK values that do not appear in child table.");
+				break;
+
+			case 33:
+				response.setMsType(MessageType.CREATE_TABLE);
+				response.setResponse("Could not create table " + inputMessage.getTbname()
+				+ ", column names must be different!");
 				break;
 
 			case 99:

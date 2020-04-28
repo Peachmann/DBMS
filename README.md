@@ -10,12 +10,13 @@
 - ~~Pseudo-Primary Key and Foreign Key~~
 
 ## Lab 2
-- Implement Insert Command
-- Implement Delete Command
+- ~~Implement Insert Command
+- ~~Implement Delete Command
 
 ## Lab 3
-- Implement Primary Key (Single attribute)
-- Implement Foreign Key (Single attribute, multiple occurences)
+- ~~Implement Primary Key (Single attribute)
+- ~~Implement Foreign Key (Single attribute, multiple occurences)
+- ~~Implement Index files
 
 ## Lab 4-5
 - Implement Select Command

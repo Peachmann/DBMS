@@ -105,6 +105,7 @@ public class MongoDBBridge {
 				values.put(attr, id);
 			}
 		}
+		index.createIndex(new BasicDBObject(column,1));
 		
 		Set<String> keys = values.keySet();
 		for(String k : keys) {
@@ -205,14 +206,32 @@ public class MongoDBBridge {
 	
 	public boolean mdbKeyExists(String dbname, String tbname, String key, String value) {
 
-		MongoDatabase database = mongoClient.getDatabase(dbname);
-		MongoCollection<Document> table = database.getCollection(tbname);
-		
-		FindIterable<Document> docs = table.find(new Document(key, value));
-		for(Document row : docs) {
-			if(row.containsKey(key) && row.getString(key).equals(value)) {
-				return true;
+		String pk = DBStructure.getTablePK(dbname, tbname);
+		String index = DBStructure.getIndexName(dbname, tbname, key);
+		if(key.equals(pk) || index.equals("#NO_INDEX#")) {
+			
+			MongoDatabase database = mongoClient.getDatabase(dbname);
+			MongoCollection<Document> table = database.getCollection(tbname);
+			
+			FindIterable<Document> docs = table.find(new Document(key, value));
+			for(Document row : docs) {
+				if(row.containsKey(key) && row.getString(key).equals(value)) {
+					return true;
+				}
 			}
+			
+		} else {
+
+			MongoDatabase database = mongoClient.getDatabase(dbname);
+			MongoCollection<Document> ind = database.getCollection(index);
+			
+			FindIterable<Document> docs = ind.find(new Document(key, value));
+			for(Document row : docs) {
+				if(row.containsKey(key) && row.getString(key).equals(value) && !row.getString("ID").isEmpty()) {
+					return true;
+				}
+			}
+			
 		}
 		
 		return false;
