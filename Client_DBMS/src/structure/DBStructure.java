@@ -213,6 +213,37 @@ public final class DBStructure {
 	public static void setIndexPath(String indexPath) {
 		DBStructure.indexPath = indexPath;
 	}
+
+	// get all columns of a specific table
+	public static List<String> getColumns(String dbname, String tableName) {
+		
+		List<String> columns = new ArrayList<String>();
+		
+		try {
+
+            DocumentBuilderFactory documentFactory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder documentBuilder = documentFactory.newDocumentBuilder();
+            Document document = documentBuilder.parse(new File("databases//" + dbname + ".xml"));
+			
+            document.getDocumentElement().normalize();
+            
+            NodeList nodeList = document.getElementsByTagName("Attribute");
+            
+            int l = nodeList.getLength();
+            
+            for(int i = 0; i < l; i++) {
+            	
+            	Element element = (Element)nodeList.item(i);
+            	columns.add(element.getAttribute("attributeName"));
+            }
+            
+		} catch(ParserConfigurationException | IOException | SAXException e) {
+			
+			e.printStackTrace();
+		}
+		
+		return columns;
+	}
 	
 }
 

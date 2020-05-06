@@ -3,8 +3,6 @@ package mongo;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
 
 import org.bson.Document;
@@ -95,7 +93,14 @@ public class MongoDBBridge {
 		Hashtable<String,String> values = new Hashtable<String,String>();
 		for(Document d : docs) {
 			String id = d.getString(pk);
-			String attr = d.getString(column + "#" + type);
+			String[] data = d.getString("#data#").split("#");
+			String attr = "";
+			for(int i = 0; i < data.length; i += 3) {
+				if(data[i].equals(column) && data[i + 1].equals(type)) {
+					attr = data[i + 2];
+					break;
+				}
+			}
 			if(values.containsKey(attr)) {
 				String getv = values.get(attr);
 				getv += "#" + id;
@@ -127,6 +132,7 @@ public class MongoDBBridge {
 		for(int i = 0; i < totalInserts; i++) {
 			
 			Document row = new Document();
+			String data = "";
 			for(int j = 0; j < tableLength; j++) {
 				
 				Attribute curr = values.get(i * tableLength + j);
@@ -135,9 +141,10 @@ public class MongoDBBridge {
 					row.append(pk, curr.getValue());
 				} else {
 					
-					row.append(curr.getName() + "#" + curr.getType(), curr.getValue());
+					data += curr.getName() + "#" + curr.getType() + "#" + curr.getValue() + "#";
 				}
 			}
+			row.append("#data#", data);
 			table.insertOne(row);
 		}
 		
@@ -216,10 +223,13 @@ public class MongoDBBridge {
 			MongoDatabase database = mongoClient.getDatabase(dbname);
 			MongoCollection<Document> table = database.getCollection(tbname);
 			
-			FindIterable<Document> docs = table.find(new Document(key, value));
+			FindIterable<Document> docs = table.find();
 			for(Document row : docs) {
-				if(row.containsKey(key) && row.getString(key).equals(value)) {
-					return true;
+				String[] data = row.getString("#data#").split("#");
+				for(int i = 0; i < data.length; i += 3) {
+					if(data[i].equals(key) && data[i+2].equals(value)) {
+						return true;
+					}
 				}
 			}
 			
@@ -333,17 +343,7 @@ public class MongoDBBridge {
 		
 		for(Document row : docs) {
 
-			Set<String> keys = row.keySet();
-			Iterator<String> iterator = keys.iterator();
-			
-			String send = row.getString(pk) + "#";
-			while(iterator.hasNext()) {
-				
-				String key = iterator.next();
-				if(!key.equals("_id") && !key.equals(pk)) {
-					send += key + "#" + row.getString(key) + "#";
-				}
-			}
+			String send = row.getString(pk) + "#" + row.getString("#data#");
 			list.add(send);
 		}
 		

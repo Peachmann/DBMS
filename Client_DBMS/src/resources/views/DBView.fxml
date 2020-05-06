@@ -11,7 +11,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane id="basePane" fx:id="borderPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="768.0" prefWidth="1024.0" stylesheets="@../css/db.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.client.db.DBController">
+<BorderPane id="basePane" fx:id="borderPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="768.0" prefWidth="1024.0" stylesheets="@../../../../../Client_DBMS/src/resources/css/db.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.client.db.DBController">
    <center>
       <VBox prefHeight="200.0" prefWidth="100.0" BorderPane.alignment="CENTER">
          <children>
@@ -51,37 +51,42 @@
                            <children>
                               <ImageView id="newDB" fx:id="newDB" fitHeight="25.0" fitWidth="27.0" onMouseClicked="#createDatabase" pickOnBounds="true" preserveRatio="true" style="-fx-translate-y: 2; -fx-translate-x: 5;">
                                  <image>
-                                    <Image url="@../jpg/icon.png" />
+                                    <Image url="@../../../../../Client_DBMS/src/resources/jpg/icon.png" />
                                  </image>
                               </ImageView>
                               <ImageView id="newDB" fx:id="dropDBButton" fitHeight="25.0" fitWidth="27.0" onMouseClicked="#dropDatabase" pickOnBounds="true" preserveRatio="true" style="-fx-translate-y: 2; -fx-translate-x: 5;">
                                  <image>
-                                    <Image url="@../jpg/dropdb.png" />
+                                    <Image url="@../../../../../Client_DBMS/src/resources/jpg/dropdb.png" />
                                  </image>
                               </ImageView>
                               <ImageView id="newDB" fx:id="createTableButton" fitHeight="25.0" fitWidth="27.0" onMouseClicked="#createTable" pickOnBounds="true" preserveRatio="true" style="-fx-translate-y: 2; -fx-translate-x: 5;">
                                  <image>
-                                    <Image url="@../jpg/createtable.png" />
+                                    <Image url="@../../../../../Client_DBMS/src/resources/jpg/createtable.png" />
                                  </image>
                               </ImageView>
                               <ImageView id="newDB" fx:id="dropTableButton" fitHeight="25.0" fitWidth="27.0" onMouseClicked="#dropTable" pickOnBounds="true" preserveRatio="true" style="-fx-translate-y: 2; -fx-translate-x: 5;">
                                  <image>
-                                    <Image url="@../jpg/droptable.png" />
+                                    <Image url="@../../../../../Client_DBMS/src/resources/jpg/droptable.png" />
                                  </image>
                               </ImageView>
                               <ImageView id="newDB" fx:id="createIndexButton" fitHeight="25.0" fitWidth="27.0" onMouseClicked="#createIndex" pickOnBounds="true" preserveRatio="true" style="-fx-translate-y: 2; -fx-translate-x: 5;">
                                  <image>
-                                    <Image url="@../jpg/index.png" />
+                                    <Image url="@../../../../../Client_DBMS/src/resources/jpg/index.png" />
                                  </image>
                               </ImageView>
                               <ImageView id="newDB" fx:id="dropIndexButton" fitHeight="25.0" fitWidth="27.0" onMouseClicked="#dropIndex" pickOnBounds="true" preserveRatio="true" style="-fx-translate-y: 2; -fx-translate-x: 5;">
                                  <image>
-                                    <Image url="@../jpg/dropindex.png" />
+                                    <Image url="@../../../../../Client_DBMS/src/resources/jpg/dropindex.png" />
+                                 </image>
+                              </ImageView>
+                              <ImageView id="newDB" fx:id="selectButton" fitHeight="25.0" fitWidth="27.0" onMouseClicked="#selectCommand" pickOnBounds="true" preserveRatio="true" style="-fx-translate-y: 2; -fx-translate-x: 5;">
+                                 <image>
+                                    <Image url="@../../../../../Client_DBMS/src/resources/jpg/select.png" />
                                  </image>
                               </ImageView>
                               <ImageView id="newDB" fx:id="refreshButton" fitHeight="25.0" fitWidth="27.0" layoutX="10.0" layoutY="16.0" onMouseClicked="#refreshView" pickOnBounds="true" preserveRatio="true" style="-fx-translate-y: 2; -fx-translate-x: 5;">
                                  <image>
-                                    <Image url="@../jpg/refresh.png" />
+                                    <Image url="@../../../../../Client_DBMS/src/resources/jpg/refresh.png" />
                                  </image>
                               </ImageView>
                            </children>

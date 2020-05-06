@@ -38,7 +38,7 @@ import structure.DBStructure;
 public class DBController implements Initializable {
 
 	@FXML private Button minimizeButton, closeButton;
-	@FXML private ImageView newDB, dropDBButton, createTableButton, dropTableButton, createIndexButton, dropIndexButton, refreshButton;
+	@FXML private ImageView newDB, dropDBButton, createTableButton, dropTableButton, createIndexButton, dropIndexButton, refreshButton, selectButton;
 	@FXML private Label userLabel;
 	@FXML private BorderPane borderPane;
 	@FXML private TreeView<String> treeView;
@@ -48,6 +48,7 @@ public class DBController implements Initializable {
     private double xOffset, yOffset;
     private Stage stage, stage1;
     public DeleteCon instance;
+    public SelectCon selectInstance;
 	
 	public void setStage(Stage stage) {
 		this.stage = stage;
@@ -81,6 +82,7 @@ public class DBController implements Initializable {
         Tooltip.install(createIndexButton, new Tooltip("Create Index"));
         Tooltip.install(dropIndexButton, new Tooltip("Drop Index"));
         Tooltip.install(refreshButton, new Tooltip("Refresh"));
+        Tooltip.install(selectButton, new Tooltip("Select"));
         
         stage1 = new Stage();
         stage1.initStyle(StageStyle.UNDECORATED);
@@ -135,6 +137,10 @@ public class DBController implements Initializable {
 
 	public void sendValues(ArrayList<String> v) {
 		instance.initValues(v);
+	}
+	
+	public void sendAllValues(ArrayList<String> v) {
+		selectInstance.refreshValues(v);
 	}
 	
 	public void setUsernameLabel(String text) {
@@ -245,6 +251,29 @@ public class DBController implements Initializable {
         catch (IOException e) {
             e.printStackTrace();
         }
+	}
+	
+	@FXML
+	public void selectCommand() throws InterruptedException {
+		Parent root;
+        try {
+        	FXMLLoader fxmlLoader = new FXMLLoader(getClass().getClassLoader().getResource("resources/views/SelectView.fxml"));
+        	SelectCon con = new SelectCon();
+        	fxmlLoader.setController(con);
+        	root = fxmlLoader.load();
+            stage1.setScene(new Scene(root, 800, 800));
+            con.setStage(stage1);
+            selectInstance = con;
+            stage1.showAndWait();
+            refreshView();
+        }
+        catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+        }
+	}
+	
+	public void showSelectResult(ArrayList<String> v) {
+		// FXML and stuff will come here, but I need the response format first
 	}
 	
 	@FXML

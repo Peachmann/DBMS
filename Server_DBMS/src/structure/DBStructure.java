@@ -275,41 +275,41 @@ public final class DBStructure {
 	}
 	
 	public static String getAttributeType(String dbname, String tbname, String attr) {
-		
-		try {
+
+        try {
 
             DocumentBuilderFactory documentFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder documentBuilder = documentFactory.newDocumentBuilder();
             Document document = documentBuilder.parse(new File("databases//" + dbname + ".xml"));
-			
+
             document.getDocumentElement().normalize();
             DDL.removeEmptyText(document);
-            
+
             NodeList tb = document.getElementsByTagName("Table");
-            
+
             for(int i = 0; i < tb.getLength(); i++) {
-            	
-            	if(tb.item(i).getNodeType() == Node.ELEMENT_NODE) {
-            		
-            		Element element = (Element)tb.item(i);
-            		if(element.getAttribute("tableName").equals(tbname)) {
-            			NodeList ns = element.getElementsByTagName("Attribute");
-            			for(int j = 0; j < ns.getLength(); j++) {
-            				if(ns.item(j).getNodeType() == Node.ELEMENT_NODE) {
-            					return ((Element)ns.item(j)).getAttribute("type");
-            				}
-            			}
-            		}
-            	}
+
+                if(tb.item(i).getNodeType() == Node.ELEMENT_NODE) {
+
+                    Element element = (Element)tb.item(i);
+                    if(element.getAttribute("tableName").equals(tbname)) {
+                        NodeList ns = element.getElementsByTagName("Attribute");
+                        for(int j = 0; j < ns.getLength(); j++) {
+                            if(ns.item(j).getNodeType() == Node.ELEMENT_NODE && ((Element)ns.item(j)).getAttribute("attributeName").equals(attr)) {
+                                return ((Element)ns.item(j)).getAttribute("type");
+                            }
+                        }
+                    }
+                }
             }
-            
-		} catch(ParserConfigurationException | IOException | SAXException e) {
-			
-			e.printStackTrace();
-		}
-		
-		return "NO_COLUMN";
-	}
+
+        } catch(ParserConfigurationException | IOException | SAXException e) {
+
+            e.printStackTrace();
+        }
+
+        return "NO_COLUMN";
+    }
 	
 	public static Hashtable<String, String> getIndexes(String dbname, String tbname) {
 		

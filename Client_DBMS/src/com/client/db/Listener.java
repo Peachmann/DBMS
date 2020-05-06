@@ -69,6 +69,14 @@ public class Listener implements Runnable {
                 		controller.sendValues(message.getResp());
                 		break;
                 		
+                	case GET_ALL_VALUES:
+                		controller.sendAllValues(message.getResp());
+                		break;
+                		
+                	case SELECT:
+                		controller.showSelectResult(message.getResp());
+                		break;
+                		
                 	default:
                 		System.out.println("Unrecognized message type.");
                 		break;

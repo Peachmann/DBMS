@@ -117,13 +117,11 @@ public class DeleteCon implements Initializable {
 			for (int j = 3; j < aux.length; j += 3) {
 				row.add(aux[j]);
 			}
-			System.out.println(row);
 			data.add(row);
 		}
 
 		valueTable.setItems(data);
 		valueTable.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
-		System.out.println(v);
 
 	}
 }

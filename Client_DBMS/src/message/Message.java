@@ -11,7 +11,21 @@ public class Message implements Serializable {
 	private ArrayList<Attribute> columns;
 	private String userGivenName;
 	private String response;
-	private ArrayList<String> resp;
+	private ArrayList<String> resp, selectList;
+	private ArrayList<Where> whereList;
+
+	public ArrayList<String> getSelectList() {
+		return selectList;
+	}
+	public void setSelectList(ArrayList<String> selectList) {
+		this.selectList = selectList;
+	}
+	public ArrayList<Where> getWhereList() {
+		return whereList;
+	}
+	public void setWhereList(ArrayList<Where> whereList) {
+		this.whereList = whereList;
+	}
 	
 	public ArrayList<String> getResp() {
 		return resp;

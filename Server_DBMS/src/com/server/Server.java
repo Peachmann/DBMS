@@ -16,6 +16,7 @@ import message.Attribute;
 import message.Message;
 import message.MessageType;
 import mongo.MongoDBBridge;
+import structure.DBStructure;
 
 public class Server {
 
@@ -238,6 +239,24 @@ public class Server {
 								break;
 							}
 							break;
+							
+						case GET_ALL_VALUES:
+							statementState = 0;
+							switch(statementState) {
+							case 0:
+								constructResponse(34, inputMessage);
+								break;
+							}
+							break;
+							
+						case SELECT:
+//							statementState = DML.select(inputMessage.getDBname(), inputMessage.getSelectList(), inputMessage.getWhereList());
+//							switch(statementState) {
+//							case 0:
+//								constructResponse(35, inputMessage);
+//								break;
+//							}
+							break;
 						}
 					}
 				}
@@ -435,6 +454,16 @@ public class Server {
 				response.setMsType(MessageType.CREATE_TABLE);
 				response.setResponse("Could not create table " + inputMessage.getTbname()
 				+ ", column names must be different!");
+				break;
+				
+			case 34:
+				response.setMsType(MessageType.GET_ALL_VALUES);
+				response.setResponse("");
+				response.setResp((ArrayList<String>) DBStructure.getColumns(inputMessage.getDBname(), inputMessage.getTbname()));
+				break;
+				
+			case 35:
+				// SELECT MongoDB stuff, you got it man <3
 				break;
 
 			case 99:

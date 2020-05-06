@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.RadioButton?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="800.0" style="-fx-background-color: #4e546e;" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
+   <top>
+      <Label style="-fx-translate-y: 10;" text="Select" textFill="WHITE" BorderPane.alignment="CENTER">
+         <font>
+            <Font size="32.0" />
+         </font>
+      </Label>
+   </top>
+   <center>
+      <VBox prefHeight="200.0" prefWidth="100.0" spacing="10.0" BorderPane.alignment="CENTER">
+         <children>
+            <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="10.0">
+               <children>
+                  <Label text="Database" textFill="WHITE">
+                     <font>
+                        <Font size="18.0" />
+                     </font>
+                  </Label>
+                  <ComboBox fx:id="databaseName" prefWidth="150.0" promptText="Select database" />
+                  <Label text="Main Table (FROM)" textFill="WHITE">
+                     <font>
+                        <Font size="18.0" />
+                     </font>
+                  </Label>
+                  <ComboBox fx:id="tableName" onMouseClicked="#getTables" prefWidth="150.0" promptText="Select table" />
+               </children>
+            </HBox>
+            <VBox alignment="TOP_CENTER" prefHeight="113.0" prefWidth="800.0">
+               <children>
+                  <Label text="Join tables (JOIN)" textFill="WHITE">
+                     <font>
+                        <Font size="18.0" />
+                     </font>
+                  </Label>
+                  <HBox alignment="CENTER" prefHeight="47.0" prefWidth="800.0" spacing="10.0">
+                     <children>
+                        <Label text="Join type" textFill="WHITE">
+                           <font>
+                              <Font size="18.0" />
+                           </font>
+                        </Label>
+                        <RadioButton fx:id="joinType1" mnemonicParsing="false" text="Type1" textFill="WHITE">
+                           <font>
+                              <Font size="15.0" />
+                           </font>
+                        </RadioButton>
+                        <RadioButton fx:id="joinType2" mnemonicParsing="false" text="Type2" textFill="WHITE">
+                           <font>
+                              <Font size="15.0" />
+                           </font>
+                        </RadioButton>
+                     </children>
+                  </HBox>
+                  <HBox alignment="TOP_CENTER" prefHeight="39.0" prefWidth="800.0" spacing="10.0">
+                     <children>
+                        <Label text="Join tables" textFill="WHITE">
+                           <font>
+                              <Font size="18.0" />
+                           </font>
+                        </Label>
+                        <ComboBox fx:id="joinTable" prefWidth="150.0" promptText="Select table(s)" />
+                        <Button fx:id="joinButton" mnemonicParsing="false" text="Join" />
+                     </children>
+                  </HBox>
+               </children>
+            </VBox>
+            <VBox alignment="TOP_CENTER" prefHeight="238.0" prefWidth="800.0" spacing="8.0">
+               <children>
+                  <Label text="Choose columns" textFill="WHITE">
+                     <font>
+                        <Font size="18.0" />
+                     </font>
+                  </Label>
+                  <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="10.0">
+                     <children>
+                        <Button fx:id="refreshButton" mnemonicParsing="false" onAction="#getAllValues" text="Refresh available columns" />
+                        <Button fx:id="selectAllButton" mnemonicParsing="false" onAction="#selectAll" text="Select All (*)" />
+                     </children>
+                  </HBox>
+                  <TableView fx:id="columnTable" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="200.0" prefWidth="752.0" style="-fx-background-color: #5f6686;" />
+               </children>
+            </VBox>
+            <VBox alignment="TOP_CENTER" prefHeight="200.0" prefWidth="100.0" spacing="10.0">
+               <children>
+                  <Label text="Where" textFill="WHITE">
+                     <font>
+                        <Font size="20.0" />
+                     </font>
+                  </Label>
+                  <GridPane alignment="CENTER" prefHeight="110.0" prefWidth="800.0">
+                    <columnConstraints>
+                      <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                      <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                    </columnConstraints>
+                    <rowConstraints>
+                      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                    </rowConstraints>
+                     <children>
+                        <Label text="Column" textFill="WHITE">
+                           <font>
+                              <Font size="18.0" />
+                           </font>
+                        </Label>
+                        <Label text="Operator" textFill="WHITE" GridPane.rowIndex="1">
+                           <font>
+                              <Font size="18.0" />
+                           </font>
+                        </Label>
+                        <Label text="Compare to" textFill="WHITE" GridPane.rowIndex="2">
+                           <font>
+                              <Font size="18.0" />
+                           </font>
+                        </Label>
+                        <ComboBox fx:id="columnBox" onMouseClicked="#fillBox" prefWidth="150.0" promptText="Select Column" GridPane.columnIndex="1" />
+                        <ComboBox fx:id="operatorBox" prefWidth="150.0" promptText="Select Operator" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                        <TextField fx:id="compareField" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="25.0" prefWidth="308.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                     </children>
+                  </GridPane>
+                  <Button fx:id="whereButton" mnemonicParsing="false" onAction="#addWhere" text="Add &quot;WHERE&quot;" />
+               </children>
+            </VBox>
+         </children>
+      </VBox>
+   </center>
+   <bottom>
+      <HBox alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="58.0" prefWidth="200.0" spacing="10.0" BorderPane.alignment="CENTER">
+         <children>
+            <Button mnemonicParsing="false" onAction="#select" text="OK" />
+            <Button mnemonicParsing="false" onAction="#cancelPopup" text="Cancel" />
+         </children>
+      </HBox>
+   </bottom>
+</BorderPane>
