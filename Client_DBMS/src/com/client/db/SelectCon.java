@@ -80,7 +80,7 @@ public class SelectCon implements Initializable {
 	}
 	
 	@FXML
-	public void select() {
+	public void select() throws IOException {
 		
 		Message selectMessage = new Message();
 		selectMessage.setWhereList(whereList);
@@ -94,8 +94,7 @@ public class SelectCon implements Initializable {
 		}
 		
 		selectMessage.setSelectList(selectList);
-		
-		System.out.println(selectList);
+		Listener.sendRequest(selectMessage);
 	}
 	
 	@FXML

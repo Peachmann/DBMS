@@ -1,6 +1,8 @@
 package message;
 
-public class Where {
+import java.io.Serializable;
+
+public class Where implements Serializable {
 	String field1, field2;
 	Operator op;
 	
