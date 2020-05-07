@@ -92,8 +92,8 @@ public class MongoDBBridge {
 		FindIterable<Document> docs = table.find();
 		Hashtable<String,String> values = new Hashtable<String,String>();
 		for(Document d : docs) {
-			String id = d.getString(pk);
-			String[] data = d.getString("#data#").split("#");
+			String id = d.get(pk).toString();
+			String[] data = d.get("#data#").toString().split("#");
 			String attr = "";
 			for(int i = 0; i < data.length; i += 3) {
 				if(data[i].equals(column) && data[i + 1].equals(type)) {
@@ -197,7 +197,7 @@ public class MongoDBBridge {
 				String old = "";
 				FindIterable<Document> docs = index.find(new Document(col, colValue));
 				for(Document val : docs) {
-					old = val.getString("ID");
+					old = val.get("ID").toString();
 				}
 				Document changedIndex = new Document(col, colValue);
 				if(!old.isEmpty()) {
@@ -225,7 +225,7 @@ public class MongoDBBridge {
 			
 			FindIterable<Document> docs = table.find();
 			for(Document row : docs) {
-				String[] data = row.getString("#data#").split("#");
+				String[] data = row.get("#data#").toString().split("#");
 				for(int i = 0; i < data.length; i += 3) {
 					if(data[i].equals(key) && data[i+2].equals(value)) {
 						return true;
@@ -240,7 +240,7 @@ public class MongoDBBridge {
 			
 			FindIterable<Document> docs = ind.find(new Document(key, value));
 			for(Document row : docs) {
-				if(row.containsKey(key) && row.getString(key).equals(value) && !row.getString("ID").isEmpty()) {
+				if(row.containsKey(key) && row.get(key).toString().equals(value) && !row.get("ID").toString().isEmpty()) {
 					return true;
 				}
 			}
@@ -304,7 +304,7 @@ public class MongoDBBridge {
 				String old = "";
 				FindIterable<Document> docs = index.find(new Document(col, colValue));
 				for(Document val : docs) {
-					old = val.getString("ID");
+					old = val.get("ID").toString();
 				}
 				ArrayList<String> elements = new ArrayList<String>(Arrays.asList(old.split("#")));
 				ArrayList<String> removal = new ArrayList<String>(Arrays.asList(indForCol.get(colValue).split("#")));
@@ -343,7 +343,7 @@ public class MongoDBBridge {
 		
 		for(Document row : docs) {
 
-			String send = row.getString(pk) + "#" + row.getString("#data#");
+			String send = row.get(pk) + "#" + row.get("#data#").toString();
 			list.add(send);
 		}
 		

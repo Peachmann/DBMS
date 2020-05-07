@@ -288,19 +288,19 @@ public final class DBStructure {
             NodeList tb = document.getElementsByTagName("Table");
 
             for(int i = 0; i < tb.getLength(); i++) {
-
-                if(tb.item(i).getNodeType() == Node.ELEMENT_NODE) {
-
-                    Element element = (Element)tb.item(i);
-                    if(element.getAttribute("tableName").equals(tbname)) {
-                        NodeList ns = element.getElementsByTagName("Attribute");
-                        for(int j = 0; j < ns.getLength(); j++) {
-                            if(ns.item(j).getNodeType() == Node.ELEMENT_NODE && ((Element)ns.item(j)).getAttribute("attributeName").equals(attr)) {
-                                return ((Element)ns.item(j)).getAttribute("type");
-                            }
-                        }
-                    }
-                }
+            	
+            	if(tb.item(i).getNodeType() == Node.ELEMENT_NODE) {
+            		
+            		Element element = (Element)tb.item(i);
+            		if(element.getAttribute("tableName").equals(tbname)) {
+            			NodeList ns = element.getElementsByTagName("Attribute");
+            			for(int j = 0; j < ns.getLength(); j++) {
+            				if(ns.item(j).getNodeType() == Node.ELEMENT_NODE && ((Element)ns.item(j)).getAttribute("attributeName").equals(attr)) {
+            					return ((Element)ns.item(j)).getAttribute("type");
+            				}
+            			}
+            		}
+            	}
             }
 
         } catch(ParserConfigurationException | IOException | SAXException e) {
