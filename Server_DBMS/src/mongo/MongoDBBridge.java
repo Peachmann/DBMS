@@ -439,6 +439,7 @@ public class MongoDBBridge {
 			for(Document doc : docs) {
 				String id = doc.get(pk).toString();
 				String d = doc.get("#data#").toString();
+				d = pk + "#" + DBStructure.getAttributeType(dbname, t, pk) + "#" + id + "#" + d;
 				all.put(id, d);
 			}
 			
@@ -463,26 +464,30 @@ public class MongoDBBridge {
 				} else {
 					
 					Set<String> keys = all.keySet();
+					Hashtable<String, String> help = new Hashtable<String, String>();
 					for(String k : keys) {
+						System.out.println(k + " " +all.get(k));
 						String[] data = all.get(k).split("#");
 						for(int i = 0; i < data.length; i+=3) {
 							if(data[i].equals(name)) {
-								if(!mdbCompare(data[i + 1], data[i + 2], where.getField2(), where.getOp())) {
-									all.remove(k);
+								if(mdbCompare(data[i + 1], data[i + 2], where.getField2(), where.getOp())) {
+									help.put(k, all.get(k));
 								}
 								break;
 							}
 						}
 					}
+					all.clear();
+					all = help;
 				}
 			}
 			
 			Set<String> keys = all.keySet();
 			for(String k : keys) {
 				String rowData = "";
-				if(selectList.contains(t + "#" + pk)) {
+				/*if(selectList.contains(t + "#" + pk)) {
 					rowData += t + "#" + pk + "#" + DBStructure.getAttributeType(dbname, t, pk) + "#" + k + "#";
-				}
+				}*/
 				String[] data = all.get(k).split("#");
 				for(int i = 0; i < data.length; i += 3) {
 					if(selectList.contains(t + "#" + data[i])) {
