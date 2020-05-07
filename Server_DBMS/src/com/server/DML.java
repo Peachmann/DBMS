@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -17,6 +16,8 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import message.Attribute;
+import message.Operator;
+import message.Where;
 import mongo.MongoDBBridge;
 import structure.DBStructure;
 
@@ -369,6 +370,26 @@ public final class DML {
 	
 	public static int getValues(String dbname, String tbname) {
 		//Optional error checking
+		return 0;
+	}
+	
+	public static int checkWhere(String dbname, ArrayList<Where> whereList) {
+		
+		for (Where i : whereList) {
+			String [] aux = i.getField1().split("#");
+			String attType = DBStructure.getAttributeType(dbname, aux[0], aux[1]);
+			
+			if (attType.equals("varchar") || attType.equals("bit")) {
+				if (i.getOp() != Operator.EQ || !valueCheck(attType, i.getField2()))
+					return -1;
+			} else {
+				if(!valueCheck(attType, i.getField2()))
+					return -1;
+			}
+			
+			System.out.println(i.getField1() + i.getOp().toString() + i.getField2());
+		}
+		
 		return 0;
 	}
 	

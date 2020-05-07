@@ -106,6 +106,8 @@ public class SelectCon implements Initializable {
 		
 		selectMessage.setSelectList(selectList);
 		Listener.sendRequest(selectMessage);
+		
+		cancelPopup();
 	}
 	
 	@FXML
@@ -150,7 +152,8 @@ public class SelectCon implements Initializable {
 		Where aux = new Where();
 		String opaux = "";
 		
-		aux.setField1(columnBox.getSelectionModel().getSelectedItem());
+		String [] helper = columnBox.getSelectionModel().getSelectedItem().split(" - ");
+		aux.setField1(helper[0] + "#" + helper[1]);
 		aux.setField2(compareField.getText());
 		
 		switch (operatorBox.getSelectionModel().getSelectedItem()) {

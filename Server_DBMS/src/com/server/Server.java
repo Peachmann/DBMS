@@ -250,12 +250,15 @@ public class Server {
 							break;
 							
 						case SELECT:
-//							statementState = DML.select(inputMessage.getDBname(), inputMessage.getSelectList(), inputMessage.getWhereList());
-//							switch(statementState) {
-//							case 0:
-//								constructResponse(35, inputMessage);
-//								break;
-//							}
+							statementState = DML.checkWhere(inputMessage.getDBname(), inputMessage.getWhereList());
+							switch(statementState) {
+							case 0:
+								constructResponse(35, inputMessage);
+								break;
+							case -1:
+								constructResponse(36, inputMessage);
+								break;
+							}
 							break;
 						}
 					}
@@ -463,7 +466,13 @@ public class Server {
 				break;
 				
 			case 35:
-				// SELECT MongoDB stuff, you got it man <3
+				response.setMsType(MessageType.SELECT);
+				// put stuff here
+				break;
+				
+			case 36:
+				response.setMsType(MessageType.INSERT_VALUES); // just to print error message
+				response.setResponse("Error in where statement!");
 				break;
 
 			case 99:
