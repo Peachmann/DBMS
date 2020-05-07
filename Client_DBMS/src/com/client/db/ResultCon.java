@@ -52,13 +52,21 @@ public class ResultCon implements Initializable {
 	
 	public void fill() {
 		ObservableList<ObservableList<String>> data = FXCollections.observableArrayList();
+		int k = 0;
 		for (int i = 0; i < values.size(); i++) {
 			String[] aux = values.get(i).split("#");
 			ObservableList<String> row = FXCollections.observableArrayList();
 			for (int j = 0; j < aux.length; j++) {
 				row.add(aux[j]);
+				
+				k++;
+				if(k == 4) {
+					data.add(row);
+					System.out.println(row);
+					row = FXCollections.observableArrayList();
+					k = 0;
+				}
 			}
-			data.add(row);
 		}
 
 		resultTable.setItems(data);
