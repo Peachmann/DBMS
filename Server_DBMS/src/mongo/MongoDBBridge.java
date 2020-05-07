@@ -418,12 +418,12 @@ public class MongoDBBridge {
 					for(int i = 0; i < data.length; i += 3) {
 						
 						if(selectList.contains(t + "#" + data[i])) {
-							sel += table + "#" + data[i] + "#" + data[i + 1] + "#" + data[i + 2]; 
+							sel += t + "#" + data[i] + "#" + data[i + 1] + "#" + data[i + 2]; 
 						}
 					}
 					String pk = DBStructure.getTablePK(dbname, t);
 					if(selectList.contains(t + "#" + pk)) {
-						sel = table + "#" + pk + "#" + DBStructure.getAttributeType(dbname, t, pk) + "#" + doc.get(pk) + "#" + sel;
+						sel = t + "#" + pk + "#" + DBStructure.getAttributeType(dbname, t, pk) + "#" + doc.get(pk).toString() + "#" + sel;
 					}
 					select.add(sel);
 				}
@@ -446,10 +446,11 @@ public class MongoDBBridge {
 			for(Where where : whereList) {
 				String name = where.getField1().substring(where.getField1().indexOf('#') + 1);
 				String indexName = DBStructure.getIndexName(dbname, t, name);
-				if(!indexName.equals("#NO_INDEX#")) {
+				String pk2 = DBStructure.getTablePK(dbname, t);
+				if(!indexName.equals("#NO_INDEX#") && !name.equals(pk2)) {
 					MongoCollection<Document> index = database.getCollection(indexName);
 					FindIterable<Document> ind = index.find();
-					for(Document doc : docs) {
+					for(Document doc : ind) {
 						String val = doc.get(name).toString();
 						String type = DBStructure.getAttributeType(dbname, t, name);
 						if(!mdbCompare(type, val, where.getField2(), where.getOp())) {

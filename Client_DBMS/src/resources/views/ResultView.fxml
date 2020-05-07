@@ -27,7 +27,7 @@
       </HBox>
    </bottom>
    <center>
-      <TableView fx:id="selectTable" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="200.0" prefWidth="562.0" style="-fx-background-color: #5f6686;" BorderPane.alignment="CENTER">
+      <TableView fx:id="resultTable" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="200.0" prefWidth="562.0" style="-fx-background-color: #5f6686;" BorderPane.alignment="CENTER">
          <columnResizePolicy>
             <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
          </columnResizePolicy>

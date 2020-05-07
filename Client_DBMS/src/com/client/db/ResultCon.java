@@ -36,8 +36,8 @@ public class ResultCon implements Initializable {
 		// Building table layout
 		columnNames = new ArrayList<String>();
 		columnNames.add("Table");
-		columnNames.add("Type");
 		columnNames.add("Name");
+		columnNames.add("Type");
 		columnNames.add("Value");
 
 		for (int i = 0; i < columnNames.size(); i++) {
@@ -47,6 +47,10 @@ public class ResultCon implements Initializable {
 			resultTable.getColumns().add(column);
 		}
 		
+		fill();
+	}
+	
+	public void fill() {
 		ObservableList<ObservableList<String>> data = FXCollections.observableArrayList();
 		for (int i = 0; i < values.size(); i++) {
 			String[] aux = values.get(i).split("#");
@@ -59,7 +63,6 @@ public class ResultCon implements Initializable {
 
 		resultTable.setItems(data);
 		resultTable.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
-
 	}
 	
 	@FXML

@@ -387,7 +387,6 @@ public final class DML {
 					return -1;
 			}
 			
-			System.out.println(i.getField1() + i.getOp().toString() + i.getField2());
 		}
 		
 		return 0;
