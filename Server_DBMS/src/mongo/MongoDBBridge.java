@@ -408,7 +408,8 @@ public class MongoDBBridge {
 				}
 				
 			} else {
-				MongoCollection<Document> table = database.getCollection(indexNames.get(0));
+				String t = selectList.get(0).substring(0, selectList.get(0).indexOf("#"));
+				MongoCollection<Document> table = database.getCollection(t);
 				
 				FindIterable<Document> docs = table.find();
 				for(Document doc : docs) {
@@ -416,13 +417,13 @@ public class MongoDBBridge {
 					String sel = "";
 					for(int i = 0; i < data.length; i += 3) {
 						
-						if(selectList.contains(indexNames.get(0) + "#" + data[i])) {
+						if(selectList.contains(t + "#" + data[i])) {
 							sel += table + "#" + data[i] + "#" + data[i + 1] + "#" + data[i + 2]; 
 						}
 					}
-					String pk = DBStructure.getTablePK(dbname, indexNames.get(0));
-					if(selectList.contains(indexNames.get(0) + "#" + pk)) {
-						sel = table + "#" + pk + "#" + DBStructure.getAttributeType(dbname, indexNames.get(0), pk) + "#" + doc.get(pk) + "#" + sel;
+					String pk = DBStructure.getTablePK(dbname, t);
+					if(selectList.contains(t + "#" + pk)) {
+						sel = table + "#" + pk + "#" + DBStructure.getAttributeType(dbname, t, pk) + "#" + doc.get(pk) + "#" + sel;
 					}
 					select.add(sel);
 				}
@@ -452,7 +453,7 @@ public class MongoDBBridge {
 						String val = doc.get(name).toString();
 						String type = DBStructure.getAttributeType(dbname, t, name);
 						if(!mdbCompare(type, val, where.getField2(), where.getOp())) {
-							String[] data = doc.get("ID").toString().split("#");
+							String[] data = doc.get("ID").toString().split("#"); //HIBA
 							for(String lost : data) {
 								all.remove(lost);
 							}
@@ -504,7 +505,7 @@ public class MongoDBBridge {
 		switch(type) {
 		
 		case "int":
-			int v1i = Integer.parseInt(value1);
+			int v1i = (int)Double.parseDouble(value1);
 			int v2i = Integer.parseInt(value2);
 			switch(operator) {
 			
