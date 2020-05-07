@@ -152,7 +152,9 @@ public final class DBStructure {
             for(int i = 0; i < l; i++) {
             	
             	Element element = (Element)nodeList.item(i);
-            	columns.add(element.getAttribute("attributeName"));
+            	if (((Element) element.getParentNode().getParentNode()).getAttribute("tableName").equals(tableName)) {
+            		columns.add(element.getAttribute("attributeName"));
+            	}
             }
             
 		} catch(ParserConfigurationException | IOException | SAXException e) {

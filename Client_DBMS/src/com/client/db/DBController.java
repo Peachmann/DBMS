@@ -261,7 +261,7 @@ public class DBController implements Initializable {
         	SelectCon con = new SelectCon();
         	fxmlLoader.setController(con);
         	root = fxmlLoader.load();
-            stage1.setScene(new Scene(root, 800, 800));
+            stage1.setScene(new Scene(root, 800, 850));
             con.setStage(stage1);
             selectInstance = con;
             stage1.showAndWait();
@@ -274,6 +274,20 @@ public class DBController implements Initializable {
 	
 	public void showSelectResult(ArrayList<String> v) {
 		// FXML and stuff will come here, but I need the response format first
+		Parent root;
+        try {
+        	FXMLLoader fxmlLoader = new FXMLLoader(getClass().getClassLoader().getResource("resources/views/SelectView.fxml"));
+        	ResultCon con = new ResultCon(v);
+        	fxmlLoader.setController(con);
+        	root = fxmlLoader.load();
+            stage1.setScene(new Scene(root, 800, 850));
+            con.setStage(stage1);
+            stage1.showAndWait();
+            refreshView();
+        }
+        catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+        }
 	}
 	
 	@FXML

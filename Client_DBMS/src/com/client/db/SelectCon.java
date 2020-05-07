@@ -16,6 +16,7 @@ import javafx.scene.control.RadioButton;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleGroup;
 import javafx.stage.Stage;
@@ -32,13 +33,16 @@ public class SelectCon implements Initializable {
 	@FXML private TextField compareField;
 	@FXML private TableView<ObservableList<String>> columnTable;
 	@FXML private RadioButton joinType1, joinType2;
+	@FXML private TextArea whereArea;
 	private ToggleGroup buttonGroup;
 	private String currentTable;
 	private List<String> columnNames;
 	private ArrayList<Where> whereList;
+	private Boolean empty;
 	
 	public SelectCon() {
 		columnTable = new TableView<ObservableList<String>>();
+		empty = true;
 	}
 	
 	@Override
@@ -77,6 +81,13 @@ public class SelectCon implements Initializable {
 
 	public void setStage(Stage stage) {
 		this.stage = stage;
+	}
+	
+	@FXML
+	public void resetWhere() {
+		whereArea.setText("WHERE");
+		whereList.clear();
+		empty = true;
 	}
 	
 	@FXML
@@ -137,32 +148,39 @@ public class SelectCon implements Initializable {
 	@FXML
 	public void addWhere() {
 		Where aux = new Where();
+		String opaux = "";
 		
 		aux.setField1(columnBox.getSelectionModel().getSelectedItem());
 		aux.setField2(compareField.getText());
 		
 		switch (operatorBox.getSelectionModel().getSelectedItem()) {
 		case ">":
+			opaux = ">";
 			aux.setOp(Operator.GT);
 			break;
 
 		case "<":
+			opaux = "<";
 			aux.setOp(Operator.LT);
 			break;
 			
 		case ">=":
+			opaux = ">=";
 			aux.setOp(Operator.GTE);
 			break;
 			
 		case "<=":
+			opaux = "<=";
 			aux.setOp(Operator.LTE);
 			break;
 			
 		case "=":
+			opaux = "=";
 			aux.setOp(Operator.EQ);
 			break;
 			
 		case "!=":
+			opaux = "!=";
 			aux.setOp(Operator.NEQ);
 			break;
 			
@@ -175,6 +193,13 @@ public class SelectCon implements Initializable {
 		columnBox.getSelectionModel().clearSelection();
 		operatorBox.getSelectionModel().clearSelection();
 		compareField.setText("");
+		
+		if (empty == true)
+			whereArea.setText(whereArea.getText() + " " + aux.getField1() + " " + opaux + " " + aux.getField2());
+		else
+			whereArea.setText(whereArea.getText() + " AND " + aux.getField1() + " " + opaux + " " + aux.getField2());
+		
+		empty = false;
 	}
 	
 	@FXML

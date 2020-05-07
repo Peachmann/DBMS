@@ -5,6 +5,7 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.RadioButton?>
 <?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
@@ -14,7 +15,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="800.0" style="-fx-background-color: #4e546e;" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="850.0" prefWidth="800.0" style="-fx-background-color: #4e546e;" stylesheets="@../css/select.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
    <top>
       <Label style="-fx-translate-y: 10;" text="Select" textFill="WHITE" BorderPane.alignment="CENTER">
          <font>
@@ -25,7 +26,7 @@
    <center>
       <VBox prefHeight="200.0" prefWidth="100.0" spacing="10.0" BorderPane.alignment="CENTER">
          <children>
-            <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="10.0">
+            <HBox alignment="CENTER" prefHeight="63.0" prefWidth="800.0" spacing="10.0">
                <children>
                   <Label text="Database" textFill="WHITE">
                      <font>
@@ -96,7 +97,7 @@
                   <TableView fx:id="columnTable" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="200.0" prefWidth="752.0" style="-fx-background-color: #5f6686;" />
                </children>
             </VBox>
-            <VBox alignment="TOP_CENTER" prefHeight="200.0" prefWidth="100.0" spacing="10.0">
+            <VBox alignment="TOP_CENTER" prefHeight="271.0" prefWidth="800.0" spacing="10.0">
                <children>
                   <Label text="Where" textFill="WHITE">
                      <font>
@@ -134,7 +135,21 @@
                         <TextField fx:id="compareField" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="25.0" prefWidth="308.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
                      </children>
                   </GridPane>
-                  <Button fx:id="whereButton" mnemonicParsing="false" onAction="#addWhere" text="Add &quot;WHERE&quot;" />
+                  <HBox alignment="CENTER" prefHeight="28.0" prefWidth="800.0" spacing="10.0">
+                     <children>
+                        <Button fx:id="whereButton" mnemonicParsing="false" onAction="#addWhere" text="Add &quot;WHERE&quot;" />
+                        <Button mnemonicParsing="false" onMouseClicked="#resetWhere" text="Reset &quot;WHERE&quot;" />
+                     </children>
+                  </HBox>
+                  <HBox alignment="CENTER" prefHeight="72.0" prefWidth="800.0" spacing="10.0">
+                     <children>
+                        <TextArea fx:id="whereArea" editable="false" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="45.0" prefWidth="712.0" text="WHERE">
+                           <font>
+                              <Font size="13.0" />
+                           </font>
+                        </TextArea>
+                     </children>
+                  </HBox>
                </children>
             </VBox>
          </children>
