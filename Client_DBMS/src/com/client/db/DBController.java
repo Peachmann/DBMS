@@ -49,6 +49,7 @@ public class DBController implements Initializable {
     private Stage stage, stage1;
     public DeleteCon instance;
     public SelectCon selectInstance;
+    private ArrayList<String> values;
 	
 	public void setStage(Stage stage) {
 		this.stage = stage;
@@ -273,21 +274,25 @@ public class DBController implements Initializable {
 	}
 	
 	public void showSelectResult(ArrayList<String> v) {
-		// FXML and stuff will come here, but I need the response format first
-		Parent root;
-        try {
-        	FXMLLoader fxmlLoader = new FXMLLoader(getClass().getClassLoader().getResource("resources/views/SelectView.fxml"));
-        	ResultCon con = new ResultCon(v);
-        	fxmlLoader.setController(con);
-        	root = fxmlLoader.load();
-            stage1.setScene(new Scene(root, 800, 850));
-            con.setStage(stage1);
-            stage1.showAndWait();
-            refreshView();
-        }
-        catch (IOException | InterruptedException e) {
-            e.printStackTrace();
-        }
+		Platform.runLater(new Runnable(){
+			@Override
+			public void run() {
+				Parent root;
+		        try {
+		        	FXMLLoader fxmlLoader = new FXMLLoader(getClass().getClassLoader().getResource("resources/views/ResultView.fxml"));
+		        	ResultCon con = new ResultCon(v);
+		        	fxmlLoader.setController(con);
+		        	root = fxmlLoader.load();
+		            stage1.setScene(new Scene(root, 600, 400));
+		            con.setStage(stage1);
+		            stage1.showAndWait();
+		            refreshView();
+		        }
+		        catch (IOException | InterruptedException e) {
+		            e.printStackTrace();
+		        }
+			}
+			});
 	}
 	
 	@FXML

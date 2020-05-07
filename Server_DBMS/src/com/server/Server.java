@@ -12,7 +12,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 
-import message.Attribute;
 import message.Message;
 import message.MessageType;
 import mongo.MongoDBBridge;
@@ -468,6 +467,7 @@ public class Server {
 			case 35:
 				response.setMsType(MessageType.SELECT);
 				ArrayList<String> select = mongo.mdbSelect(inputMessage.getDBname(), inputMessage.getSelectList(), inputMessage.getWhereList());
+				System.out.println("IM HERE");
 				response.setResp(select);
 				break;
 				

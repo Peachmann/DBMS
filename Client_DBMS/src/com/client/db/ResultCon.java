@@ -24,6 +24,7 @@ public class ResultCon implements Initializable {
 	public ResultCon(ArrayList<String> v) {
 		resultTable = new TableView<ObservableList<String>>();
 		values = v;
+		System.out.println(values);
 	}
 
 	public void setStage(Stage stage) {
