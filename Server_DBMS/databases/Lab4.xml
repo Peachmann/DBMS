@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<Tables>
+    <Table fileName="" rowLength="" tableName="Country">
+        <Structure>
+            <Attribute attributeName="CID" isUnique="true" type="int"/>
+            <Attribute attributeName="name" isUnique="false" length="50" type="varchar"/>
+        </Structure>
+        <primaryKey>
+            <pkAttribute>CID</pkAttribute>
+        </primaryKey>
+        <foreignKeys/>
+        <Indexfiles>
+            <IndexFile indexName="Lab4#Country#CID#defCID.ind" keyLength="">
+                <IndexAttributes>
+                    <IAttribute>CID</IAttribute>
+                </IndexAttributes>
+            </IndexFile>
+        </Indexfiles>
+    </Table>
+    <Table fileName="" rowLength="" tableName="main">
+        <Structure>
+            <Attribute attributeName="mid" isUnique="true" type="int"/>
+            <Attribute attributeName="CID" isUnique="false" type="int"/>
+            <Attribute attributeName="name" isUnique="false" length="50" type="varchar"/>
+            <Attribute attributeName="price" isUnique="false" type="float"/>
+            <Attribute attributeName="when" isUnique="false" type="date"/>
+            <Attribute attributeName="using" isUnique="false" type="bit"/>
+        </Structure>
+        <primaryKey>
+            <pkAttribute>mid</pkAttribute>
+        </primaryKey>
+        <foreignKeys>
+            <foreignKey>
+                <fkAttribute>CID</fkAttribute>
+                <references>
+                    <refTable>Country</refTable>
+                    <refAttribute>CID</refAttribute>
+                </references>
+            </foreignKey>
+        </foreignKeys>
+        <Indexfiles>
+            <IndexFile indexName="Lab4#main#mid#defmid.ind" keyLength="">
+                <IndexAttributes>
+                    <IAttribute>mid</IAttribute>
+                </IndexAttributes>
+            </IndexFile>
+            <IndexFile indexName="Lab4#main#CID#defCID.ind" keyLength="">
+                <IndexAttributes>
+                    <IAttribute>CID</IAttribute>
+                </IndexAttributes>
+            </IndexFile>
+            <IndexFile indexName="Lab4#main#name#mainname.ind" keyLength="">
+                <IndexAttributes>
+                    <IAttribute>name</IAttribute>
+                </IndexAttributes>
+            </IndexFile>
+            <IndexFile indexName="Lab4#main#when#maindate.ind" keyLength="">
+                <IndexAttributes>
+                    <IAttribute>when</IAttribute>
+                </IndexAttributes>
+            </IndexFile>
+        </Indexfiles>
+    </Table>
+</Tables>

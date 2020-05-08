@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<Tables>
+    <Table fileName="" rowLength="" tableName="test1">
+        <Structure>
+            <Attribute attributeName="id" isUnique="true" type="int"/>
+            <Attribute attributeName="kecske" isUnique="false" type="int"/>
+            <Attribute attributeName="majom" isUnique="true" length="50" type="varchar"/>
+        </Structure>
+        <primaryKey>
+            <pkAttribute>id</pkAttribute>
+        </primaryKey>
+        <foreignKeys/>
+        <Indexfiles>
+            <IndexFile indexName="tp#test1#id#defid.ind" keyLength="">
+                <IndexAttributes>
+                    <IAttribute>id</IAttribute>
+                </IndexAttributes>
+            </IndexFile>
+            <IndexFile indexName="tp#test1#kecske#kek.ind" keyLength="">
+                <IndexAttributes>
+                    <IAttribute>kecske</IAttribute>
+                </IndexAttributes>
+            </IndexFile>
+        </Indexfiles>
+    </Table>
+    <Table fileName="" rowLength="" tableName="test2">
+        <Structure>
+            <Attribute attributeName="id2" isUnique="true" type="int"/>
+            <Attribute attributeName="id" isUnique="false" type="int"/>
+            <Attribute attributeName="vior" isUnique="false" length="50" type="varchar"/>
+        </Structure>
+        <primaryKey>
+            <pkAttribute>id2</pkAttribute>
+        </primaryKey>
+        <foreignKeys>
+            <foreignKey>
+                <fkAttribute>id</fkAttribute>
+                <references>
+                    <refTable>test1</refTable>
+                    <refAttribute>id</refAttribute>
+                </references>
+            </foreignKey>
+        </foreignKeys>
+        <Indexfiles>
+            <IndexFile indexName="tp#test2#id2#defid2.ind" keyLength="">
+                <IndexAttributes>
+                    <IAttribute>id2</IAttribute>
+                </IndexAttributes>
+            </IndexFile>
+            <IndexFile indexName="tp#test2#id#defid.ind" keyLength="">
+                <IndexAttributes>
+                    <IAttribute>id</IAttribute>
+                </IndexAttributes>
+            </IndexFile>
+        </Indexfiles>
+    </Table>
+</Tables>

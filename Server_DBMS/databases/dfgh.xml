@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<Tables>
+    <Table fileName="" rowLength="" tableName="cgfv">
+        <Structure>
+            <Attribute attributeName="id" isUnique="true" type="int"/>
+            <Attribute attributeName="gxa" isUnique="false" type="int"/>
+            <Attribute attributeName="ycx" isUnique="false" length="50" type="varchar"/>
+            <Attribute attributeName="qwe" isUnique="false" type="int"/>
+        </Structure>
+        <primaryKey>
+            <pkAttribute>id</pkAttribute>
+        </primaryKey>
+        <foreignKeys/>
+        <Indexfiles>
+            <IndexFile indexName="dfgh#cgfv#id#defid.ind" keyLength="">
+                <IndexAttributes>
+                    <IAttribute>id</IAttribute>
+                </IndexAttributes>
+            </IndexFile>
+            <IndexFile indexName="dfgh#cgfv#ycx#proba.ind" keyLength="">
+                <IndexAttributes>
+                    <IAttribute>ycx</IAttribute>
+                </IndexAttributes>
+            </IndexFile>
+        </Indexfiles>
+    </Table>
+    <Table fileName="" rowLength="" tableName="efcxy">
+        <Structure>
+            <Attribute attributeName="idk" isUnique="true" type="int"/>
+            <Attribute attributeName="qw" isUnique="false" type="int"/>
+            <Attribute attributeName="vbn" isUnique="false" length="50" type="varchar"/>
+        </Structure>
+        <primaryKey>
+            <pkAttribute>idk</pkAttribute>
+        </primaryKey>
+        <foreignKeys>
+            <foreignKey>
+                <fkAttribute>qw</fkAttribute>
+                <references>
+                    <refTable>cgfv</refTable>
+                    <refAttribute>id</refAttribute>
+                </references>
+            </foreignKey>
+        </foreignKeys>
+        <Indexfiles>
+            <IndexFile indexName="dfgh#efcxy#idk#defidk.ind" keyLength="">
+                <IndexAttributes>
+                    <IAttribute>idk</IAttribute>
+                </IndexAttributes>
+            </IndexFile>
+            <IndexFile indexName="dfgh#efcxy#qw#defqw.ind" keyLength="">
+                <IndexAttributes>
+                    <IAttribute>qw</IAttribute>
+                </IndexAttributes>
+            </IndexFile>
+        </Indexfiles>
+    </Table>
+</Tables>
