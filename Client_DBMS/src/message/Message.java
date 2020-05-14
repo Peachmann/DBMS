@@ -13,6 +13,7 @@ public class Message implements Serializable {
 	private String response;
 	private ArrayList<String> resp, selectList;
 	private ArrayList<Where> whereList;
+	private ArrayList<JoinOn> joins;
 
 	public ArrayList<String> getSelectList() {
 		return selectList;
@@ -85,5 +86,12 @@ public class Message implements Serializable {
 	public String getResponse() {
 		
 		return this.response;
+	}
+	public ArrayList<JoinOn> getJoins() {
+		
+		return this.joins;
+	}
+	public void setJoins(ArrayList<JoinOn> joins) {
+		this.joins = joins;
 	}
 }
