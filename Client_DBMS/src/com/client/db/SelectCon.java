@@ -176,8 +176,6 @@ public class SelectCon implements Initializable {
 	}
 	
 	public void refreshValues(String tbName, ArrayList<String> v) {
-		columnTable.getItems().clear();
-		
 		for (int i = 0; i < v.size(); i++) {
 			ObservableList<String> row = FXCollections.observableArrayList();
 			row.add(tbName);
