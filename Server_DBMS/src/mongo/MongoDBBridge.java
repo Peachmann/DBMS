@@ -224,15 +224,26 @@ public class MongoDBBridge {
 		String pk = DBStructure.getTablePK(dbname, tbname);
 		String index = DBStructure.getIndexName(dbname, tbname, key);
 		if(key.equals(pk) || index.equals("#NO_INDEX#")) {
-			
-			MongoDatabase database = mongoClient.getDatabase(dbname);
-			MongoCollection<Document> table = database.getCollection(tbname);
-			
-			FindIterable<Document> docs = table.find();
-			for(Document row : docs) {
-				String[] data = row.get("#data#").toString().split("#");
-				for(int i = 0; i < data.length; i += 3) {
-					if(data[i].equals(key) && data[i+2].equals(value)) {
+			if(!key.equals(pk)) {
+				MongoDatabase database = mongoClient.getDatabase(dbname);
+				MongoCollection<Document> table = database.getCollection(tbname);
+				
+				FindIterable<Document> docs = table.find();
+				for(Document row : docs) {
+					String[] data = row.get("#data#").toString().split("#");
+					for(int i = 0; i < data.length; i += 3) {
+						if(data[i].equals(key) && data[i+2].equals(value)) {
+							return true;
+						}
+					}
+				}
+			} else {
+				MongoDatabase database = mongoClient.getDatabase(dbname);
+				MongoCollection<Document> table = database.getCollection(tbname);
+				
+				FindIterable<Document> docs = table.find(new Document(pk, value));
+				for(Document row : docs) {
+					if(row.get(pk).toString().equals(value)) {
 						return true;
 					}
 				}
@@ -359,25 +370,35 @@ public class MongoDBBridge {
 		
 		HashSet<String> newJoined = new HashSet<String>();
 		MongoDatabase database = mongoClient.getDatabase(dbname);
+		String pk = DBStructure.getTablePK(dbname, join.getTable1());
+		String pk2 = DBStructure.getTablePK(dbname, join.getTable2());
+		String pkt = DBStructure.getAttributeType(dbname, join.getTable1(), pk);
+		String pk2t = DBStructure.getAttributeType(dbname, join.getTable2(), pk2);
+		
+		join.setAttribute1(join.getAttribute1().substring(join.getAttribute1().indexOf("#") + 1));
+		join.setAttribute2(join.getAttribute2().substring(join.getAttribute2().indexOf("#") + 1));
 		
 		if(first) {
-			if(!DBStructure.getIndexName(dbname, join.getTable1(), join.getAttribute1()).equals("#NO_INDEX#") ) {
+			if(!DBStructure.getIndexName(dbname, join.getTable1(), join.getAttribute1()).equals("#NO_INDEX#") 
+					&& !join.getAttribute1().equals(pk)) {
 				String help = join.getTable1();
 				join.setTable1(join.getTable2());
 				join.setTable2(help);
 				help = join.getAttribute1();
 				join.setAttribute1(join.getAttribute2());
 				join.setAttribute2(help);
+				help = pk;
+				pk = pk2;
+				pk2 = help;
 			}
 			
 			MongoCollection<Document> table = database.getCollection(join.getTable1());
 			FindIterable<Document> docs = table.find();
-			String pk = DBStructure.getTablePK(dbname, join.getTable1());
 			
-			if(!DBStructure.getIndexName(dbname, join.getTable2(), join.getAttribute2()).equals("#NO_INDEX#")) {
+			if(!DBStructure.getIndexName(dbname, join.getTable2(), join.getAttribute2()).equals("#NO_INDEX#") && !join.getAttribute2().equals(pk2)) {
 				//INL
 				for(Document doc : docs) {
-					String t1p = join.getTable1() + "#" + pk + "#" + DBStructure.getAttributeType(dbname, join.getTable1(), pk) + "#" + doc.get(pk).toString() + "#";
+					String t1p = join.getTable1() + "#" + pk + "#" + pkt + "#" + doc.get(pk).toString() + "#";
 					String indexName = DBStructure.getIndexName(dbname, join.getTable2(), join.getAttribute2());
 					MongoCollection<Document> index = database.getCollection(indexName);
 					String pv = "";
@@ -397,15 +418,14 @@ public class MongoDBBridge {
 						}
 					}
 					MongoCollection<Document> table2 = database.getCollection(join.getTable2());
-					String pk2 = DBStructure.getTablePK(dbname, join.getTable2());
 					FindIterable<Document> connect = index.find(new Document(join.getAttribute2(), pv));
 					for(Document con : connect) { // 1 match
 						String[] ids = con.get("ID").toString().split("#");
 						for(String id : ids) {
 							FindIterable<Document> match = table2.find(new Document(pk2, id));
 							for(Document row : match) { // 1 match
-								String tp = t1p;
-								tp += join.getTable2() + "#" + pk2 + "#" + DBStructure.getAttributeType(dbname, join.getTable2(), pk2) + "#" + row.get(pk2) + "#";
+								String tp = new String(t1p);
+								tp += join.getTable2() + "#" + pk2 + "#" + pk2t + "#" + row.get(pk2) + "#";
 								String[] rowd = row.get("#data#").toString().split("#");
 								for(int j = 0; j < rowd.length; j += 3) {
 									tp += join.getTable2() + "#" + rowd[j] + "#" + rowd[j + 1] + "#" + rowd[j + 2] + "#";
@@ -422,7 +442,7 @@ public class MongoDBBridge {
 				
 				for(Document doc1 : docs) {
 					String pv = "";
-					String t1p = join.getTable1() + "#" + pk + "#" + DBStructure.getAttributeType(dbname, join.getTable1(), pk) + "#" + doc1.get(pk).toString() + "#";
+					String t1p = join.getTable1() + "#" + pk + "#" + pkt + "#" + doc1.get(pk).toString() + "#";
 					
 					if(pk.equals(join.getAttribute1())) {
 						pv = doc1.get(pk).toString();
@@ -439,10 +459,9 @@ public class MongoDBBridge {
 							}
 						}
 					}
-					String pk2 = DBStructure.getTablePK(dbname, join.getTable2());
 					for(Document doc2 : docs2) {
 						String pv2 = "";
-						String t2p = join.getTable2() + "#" + pk2 + "#" + DBStructure.getAttributeType(dbname, join.getTable1(), pk2) + "#" + doc2.get(pk2).toString() + "#";
+						String t2p = join.getTable2() + "#" + pk2 + "#" + pk2t + "#" + doc2.get(pk2).toString() + "#";
 						
 						if(pk2.equals(join.getAttribute2())) {
 							pv2 = doc2.get(pk2).toString();
@@ -466,6 +485,8 @@ public class MongoDBBridge {
 							}
 						}
 						if(pv.equals(pv2)) {
+							System.out.println(pv + " " + pv2);
+							System.out.println(t2p + " " + t2p);
 							newJoined.add(t1p + t2p);
 						}
 					}
@@ -473,7 +494,6 @@ public class MongoDBBridge {
 			}
 		} else {
 			
-			String pk2 = DBStructure.getTablePK(dbname, join.getTable2());
 			if(!DBStructure.getIndexName(dbname, join.getTable2(), join.getAttribute2()).equals("#NO_INDEX#")) {
 				//INL
 				String indexName = DBStructure.getIndexName(dbname, join.getTable2(), join.getAttribute2());
@@ -494,7 +514,7 @@ public class MongoDBBridge {
 								for(String id : ids) {
 									FindIterable<Document> rowt2 = table2.find(new Document(pk2, id));
 									for(Document rowFin : rowt2) { // 1 match
-										String concat = join.getTable2() + "#" + pk2 + "#" + DBStructure.getAttributeType(dbname, join.getTable2(), pk2) + "#" + id + "#";
+										String concat = join.getTable2() + "#" + pk2 + "#" + pk2t + "#" + id + "#";
 										String[] rowData = rowFin.get("#data#").toString().split("#");
 										for(int j = 0; j < rowData.length; j += 3) {
 											concat += join.getTable2() + "#" + rowData[i] + "#" + rowData[i + 1] + "#" + rowData[i + 2] + "#";
@@ -530,7 +550,7 @@ public class MongoDBBridge {
 								continue;
 							}
 						}
-						String concat = join.getTable2() + "#" + pk2 + "#" + DBStructure.getAttributeType(dbname, join.getTable2(), pk2) + "#" + rowT2.get(pk2) + "#";
+						String concat = join.getTable2() + "#" + pk2 + "#" + pk2t + "#" + rowT2.get(pk2) + "#";
 						String[] rowData = rowT2.get("#data#").toString().split("#");
 						String pr = "";
 						for(int i = 0; i < rowData.length; i += 3) {

@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<Tables>
+    <Table fileName="" rowLength="" tableName="Country">
+        <Structure>
+            <Attribute attributeName="CID" isUnique="true" type="int"/>
+            <Attribute attributeName="name" isUnique="false" length="50" type="varchar"/>
+        </Structure>
+        <primaryKey>
+            <pkAttribute>CID</pkAttribute>
+        </primaryKey>
+        <foreignKeys/>
+        <Indexfiles>
+            <IndexFile indexName="Lab5#Country#CID#defCID.ind" keyLength="">
+                <IndexAttributes>
+                    <IAttribute>CID</IAttribute>
+                </IndexAttributes>
+            </IndexFile>
+        </Indexfiles>
+    </Table>
+    <Table fileName="" rowLength="" tableName="Products">
+        <Structure>
+            <Attribute attributeName="PID" isUnique="true" type="int"/>
+            <Attribute attributeName="name" isUnique="false" length="50" type="varchar"/>
+            <Attribute attributeName="CID" isUnique="false" type="int"/>
+            <Attribute attributeName="price" isUnique="false" type="float"/>
+        </Structure>
+        <primaryKey>
+            <pkAttribute>PID</pkAttribute>
+        </primaryKey>
+        <foreignKeys>
+            <foreignKey>
+                <fkAttribute>CID</fkAttribute>
+                <references>
+                    <refTable>Country</refTable>
+                    <refAttribute>CID</refAttribute>
+                </references>
+            </foreignKey>
+        </foreignKeys>
+        <Indexfiles>
+            <IndexFile indexName="Lab5#Products#PID#defPID.ind" keyLength="">
+                <IndexAttributes>
+                    <IAttribute>PID</IAttribute>
+                </IndexAttributes>
+            </IndexFile>
+            <IndexFile indexName="Lab5#Products#CID#defCID.ind" keyLength="">
+                <IndexAttributes>
+                    <IAttribute>CID</IAttribute>
+                </IndexAttributes>
+            </IndexFile>
+        </Indexfiles>
+    </Table>
+    <Table fileName="" rowLength="" tableName="Bolt">
+        <Structure>
+            <Attribute attributeName="BID" isUnique="true" type="int"/>
+            <Attribute attributeName="name" isUnique="false" length="50" type="varchar"/>
+            <Attribute attributeName="when" isUnique="false" type="date"/>
+        </Structure>
+        <primaryKey>
+            <pkAttribute>BID</pkAttribute>
+        </primaryKey>
+        <foreignKeys/>
+        <Indexfiles>
+            <IndexFile indexName="Lab5#Bolt#BID#defBID.ind" keyLength="">
+                <IndexAttributes>
+                    <IAttribute>BID</IAttribute>
+                </IndexAttributes>
+            </IndexFile>
+        </Indexfiles>
+    </Table>
+    <Table fileName="" rowLength="" tableName="Vasarlas">
+        <Structure>
+            <Attribute attributeName="VID" isUnique="true" type="int"/>
+            <Attribute attributeName="BID" isUnique="false" type="int"/>
+            <Attribute attributeName="PID" isUnique="false" type="int"/>
+        </Structure>
+        <primaryKey>
+            <pkAttribute>VID</pkAttribute>
+        </primaryKey>
+        <foreignKeys>
+            <foreignKey>
+                <fkAttribute>BID</fkAttribute>
+                <references>
+                    <refTable>Bolt</refTable>
+                    <refAttribute>BID</refAttribute>
+                </references>
+            </foreignKey>
+            <foreignKey>
+                <fkAttribute>PID</fkAttribute>
+                <references>
+                    <refTable>Products</refTable>
+                    <refAttribute>PID</refAttribute>
+                </references>
+            </foreignKey>
+        </foreignKeys>
+        <Indexfiles>
+            <IndexFile indexName="Lab5#Vasarlas#VID#defVID.ind" keyLength="">
+                <IndexAttributes>
+                    <IAttribute>VID</IAttribute>
+                </IndexAttributes>
+            </IndexFile>
+            <IndexFile indexName="Lab5#Vasarlas#BID#defBID.ind" keyLength="">
+                <IndexAttributes>
+                    <IAttribute>BID</IAttribute>
+                </IndexAttributes>
+            </IndexFile>
+            <IndexFile indexName="Lab5#Vasarlas#PID#defPID.ind" keyLength="">
+                <IndexAttributes>
+                    <IAttribute>PID</IAttribute>
+                </IndexAttributes>
+            </IndexFile>
+        </Indexfiles>
+    </Table>
+</Tables>

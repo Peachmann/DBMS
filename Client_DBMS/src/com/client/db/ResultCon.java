@@ -60,7 +60,7 @@ public class ResultCon implements Initializable {
 		for (int i = 0; i < values.size(); i++) {
 			String[] aux = values.get(i).split("#");
 			ObservableList<String> row = FXCollections.observableArrayList();
-			row.add(String.valueOf(counter++));
+			row.add(String.valueOf(++counter));
 			for (int j = 0; j < aux.length; j++) {
 				row.add(aux[j]);
 				
@@ -69,11 +69,11 @@ public class ResultCon implements Initializable {
 					data.add(row);
 					System.out.println(row);
 					row = FXCollections.observableArrayList();
-					row.add(String.valueOf(counter++));
+					row.add(String.valueOf(counter));
 					k = 0;
 				}
 			}
-			counter--;
+			//counter--;
 		}
 
 		resultTable.setItems(data);

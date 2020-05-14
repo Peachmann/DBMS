@@ -61,4 +61,36 @@
             </IndexFile>
         </Indexfiles>
     </Table>
+    <Table fileName="" rowLength="" tableName="Products">
+        <Structure>
+            <Attribute attributeName="pid" isUnique="true" type="int"/>
+            <Attribute attributeName="name" isUnique="false" length="50" type="varchar"/>
+            <Attribute attributeName="CID" isUnique="false" type="int"/>
+            <Attribute attributeName="price" isUnique="false" type="float"/>
+        </Structure>
+        <primaryKey>
+            <pkAttribute>pid</pkAttribute>
+        </primaryKey>
+        <foreignKeys>
+            <foreignKey>
+                <fkAttribute>CID</fkAttribute>
+                <references>
+                    <refTable>Country</refTable>
+                    <refAttribute>CID</refAttribute>
+                </references>
+            </foreignKey>
+        </foreignKeys>
+        <Indexfiles>
+            <IndexFile indexName="Lab4#Products#pid#defpid.ind" keyLength="">
+                <IndexAttributes>
+                    <IAttribute>pid</IAttribute>
+                </IndexAttributes>
+            </IndexFile>
+            <IndexFile indexName="Lab4#Products#CID#defCID.ind" keyLength="">
+                <IndexAttributes>
+                    <IAttribute>CID</IAttribute>
+                </IndexAttributes>
+            </IndexFile>
+        </Indexfiles>
+    </Table>
 </Tables>
