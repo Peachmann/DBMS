@@ -163,10 +163,10 @@ public class SelectCon implements Initializable {
 		}
 		
 		try {
-			Message msg = new Message();
-			msg.setMsType(MessageType.GET_ALL_VALUES);
-			msg.setDBname(databaseName.getSelectionModel().getSelectedItem());
 			for (int i = 0; i < joinList.size(); i++) {
+				Message msg = new Message();
+				msg.setMsType(MessageType.GET_ALL_VALUES);
+				msg.setDBname(databaseName.getSelectionModel().getSelectedItem());
 				msg.setTbname(joinList.get(i).getTable2());
 				Listener.sendRequest(msg);
 			}
@@ -176,6 +176,7 @@ public class SelectCon implements Initializable {
 	}
 	
 	public void refreshValues(String tbName, ArrayList<String> v) {
+		System.out.println(tbName);
 		for (int i = 0; i < v.size(); i++) {
 			ObservableList<String> row = FXCollections.observableArrayList();
 			row.add(tbName);

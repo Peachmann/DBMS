@@ -485,8 +485,8 @@ public class MongoDBBridge {
 							}
 						}
 						if(pv.equals(pv2)) {
-							System.out.println(pv + " " + pv2);
-							System.out.println(t2p + " " + t2p);
+							//System.out.println(pv + " " + pv2);
+							//System.out.println(t2p + " " + t2p);
 							newJoined.add(t1p + t2p);
 						}
 					}
@@ -687,7 +687,7 @@ public class MongoDBBridge {
 						Set<String> keys = all.keySet();
 						Hashtable<String, String> help = new Hashtable<String, String>();
 						for(String k : keys) {
-							System.out.println(k + " " +all.get(k));
+							//System.out.println(k + " " +all.get(k));
 							String[] data = all.get(k).split("#");
 							for(int i = 0; i < data.length; i+=3) {
 								if(data[i].equals(name)) {

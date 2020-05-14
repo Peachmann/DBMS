@@ -73,7 +73,6 @@ public class ResultCon implements Initializable {
 					k = 0;
 				}
 			}
-			//counter--;
 		}
 
 		resultTable.setItems(data);
