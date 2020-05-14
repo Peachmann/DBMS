@@ -494,7 +494,7 @@ public class MongoDBBridge {
 			}
 		} else {
 			
-			if(!DBStructure.getIndexName(dbname, join.getTable2(), join.getAttribute2()).equals("#NO_INDEX#")) {
+			if(!DBStructure.getIndexName(dbname, join.getTable2(), join.getAttribute2()).equals("#NO_INDEX#") && !pk2.equals(join.getAttribute2())) {
 				//INL
 				String indexName = DBStructure.getIndexName(dbname, join.getTable2(), join.getAttribute2());
 				MongoCollection<Document> index = database.getCollection(indexName);
@@ -517,7 +517,7 @@ public class MongoDBBridge {
 										String concat = join.getTable2() + "#" + pk2 + "#" + pk2t + "#" + id + "#";
 										String[] rowData = rowFin.get("#data#").toString().split("#");
 										for(int j = 0; j < rowData.length; j += 3) {
-											concat += join.getTable2() + "#" + rowData[i] + "#" + rowData[i + 1] + "#" + rowData[i + 2] + "#";
+											concat += join.getTable2() + "#" + rowData[j] + "#" + rowData[j + 1] + "#" + rowData[j + 2] + "#";
 										}
 										newJoined.add(row + concat);
 									}
@@ -545,19 +545,20 @@ public class MongoDBBridge {
 						}
 					}
 					for(Document rowT2 : table2Data) {
+						String pr = "";
 						if(pk2.equals(join.getAttribute2())) {
-							if(!rowT2.get(pk2).equals(pv)) {
+							pr = rowT2.get(pk2).toString();
+							if(!rowT2.get(pk2).toString().equals(pv)) {
 								continue;
 							}
 						}
 						String concat = join.getTable2() + "#" + pk2 + "#" + pk2t + "#" + rowT2.get(pk2) + "#";
 						String[] rowData = rowT2.get("#data#").toString().split("#");
-						String pr = "";
 						for(int i = 0; i < rowData.length; i += 3) {
-							concat += join.getTable2() + "#" + data[i] + "#" + data[i+1] + "#" + data[i+2] + "#";
-							if(data[i].equals(join.getAttribute2())) {
-								if(!data[i].equals(pv)) {
-									pr = data[i];
+							concat += join.getTable2() + "#" + rowData[i] + "#" + rowData[i+1] + "#" + rowData[i+2] + "#";
+							if(rowData[i].equals(join.getAttribute2())) {
+								pr = rowData[i];
+								if(!pr.equals(pv)) {
 									break;
 								}
 							}
@@ -734,7 +735,7 @@ public class MongoDBBridge {
 					String[] wd = where.getField1().split("#");
 					for(int i = 0; i < data.length; i += 4) {
 						if(data[i].equals(wd[0]) && data[i+1].equals(wd[1])) {
-							if(!mdbCompare(data[i + 1], data[i + 2], where.getField2(), where.getOp())) {
+							if(!mdbCompare(data[i + 2], data[i + 3], where.getField2(), where.getOp())) {
 								match = false;
 								break;
 							}
