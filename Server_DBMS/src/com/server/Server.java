@@ -460,7 +460,7 @@ public class Server {
 				
 			case 34:
 				response.setMsType(MessageType.GET_ALL_VALUES);
-				response.setResponse("");
+				response.setResponse(inputMessage.getTbname());
 				response.setResp((ArrayList<String>) DBStructure.getColumns(inputMessage.getDBname(), inputMessage.getTbname()));
 				break;
 				

@@ -3,7 +3,6 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.control.RadioButton?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TextField?>
@@ -42,43 +41,46 @@
                   <ComboBox fx:id="tableName" onMouseClicked="#getTables" prefWidth="150.0" promptText="Select table" />
                </children>
             </HBox>
-            <VBox alignment="TOP_CENTER" prefHeight="113.0" prefWidth="800.0">
+            <VBox alignment="TOP_CENTER" prefHeight="113.0" prefWidth="800.0" spacing="5.0">
                <children>
                   <Label text="Join tables (JOIN)" textFill="WHITE">
                      <font>
                         <Font size="18.0" />
                      </font>
                   </Label>
-                  <HBox alignment="CENTER" prefHeight="47.0" prefWidth="800.0" spacing="10.0">
-                     <children>
-                        <Label text="Join type" textFill="WHITE">
-                           <font>
-                              <Font size="18.0" />
-                           </font>
-                        </Label>
-                        <RadioButton fx:id="joinType1" mnemonicParsing="false" text="Type1" textFill="WHITE">
-                           <font>
-                              <Font size="15.0" />
-                           </font>
-                        </RadioButton>
-                        <RadioButton fx:id="joinType2" mnemonicParsing="false" text="Type2" textFill="WHITE">
-                           <font>
-                              <Font size="15.0" />
-                           </font>
-                        </RadioButton>
-                     </children>
-                  </HBox>
                   <HBox alignment="TOP_CENTER" prefHeight="39.0" prefWidth="800.0" spacing="10.0">
                      <children>
-                        <Label text="Join tables" textFill="WHITE">
+                        <Label text="Join" textFill="WHITE">
                            <font>
                               <Font size="18.0" />
                            </font>
                         </Label>
-                        <ComboBox fx:id="joinTable" prefWidth="150.0" promptText="Select table(s)" />
-                        <Button fx:id="joinButton" mnemonicParsing="false" text="Join" />
+                        <ComboBox fx:id="joinTable1" onMouseClicked="#joinTableRefresh" prefWidth="150.0" promptText="Select table" />
+                        <Label text="With" textFill="WHITE">
+                           <font>
+                              <Font size="18.0" />
+                           </font>
+                        </Label>
+                        <ComboBox fx:id="joinTable2" onMouseClicked="#joinTable2Refresh" prefWidth="150.0" promptText="Select table" />
                      </children>
                   </HBox>
+                  <HBox alignment="CENTER" prefHeight="47.0" prefWidth="800.0" spacing="10.0">
+                     <children>
+                        <Label text="ON" textFill="WHITE">
+                           <font>
+                              <Font size="18.0" />
+                           </font>
+                        </Label>
+                        <ComboBox fx:id="joinAtt1" onMouseClicked="#joinAttRefresh" prefWidth="150.0" promptText="Select attribute" />
+                        <Label text="=" textFill="WHITE">
+                           <font>
+                              <Font size="18.0" />
+                           </font>
+                        </Label>
+                        <ComboBox fx:id="joinAtt2" onMouseClicked="#joinAtt2Refresh" prefWidth="150.0" promptText="Select attribute" />
+                     </children>
+                  </HBox>
+                  <Button mnemonicParsing="false" onAction="#addJoin" text="Join" />
                </children>
             </VBox>
             <VBox alignment="TOP_CENTER" prefHeight="238.0" prefWidth="800.0" spacing="8.0">

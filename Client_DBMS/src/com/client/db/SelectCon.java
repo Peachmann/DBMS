@@ -12,14 +12,13 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.ComboBox;
-import javafx.scene.control.RadioButton;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
-import javafx.scene.control.ToggleGroup;
 import javafx.stage.Stage;
+import message.JoinOn;
 import message.Message;
 import message.MessageType;
 import message.Operator;
@@ -29,16 +28,14 @@ import structure.DBStructure;
 public class SelectCon implements Initializable {
 
 	private Stage stage;
-	@FXML private ComboBox<String> databaseName, tableName, joinTables, columnBox, operatorBox;
+	@FXML private ComboBox<String> databaseName, tableName, columnBox, operatorBox, joinTable1, joinTable2, joinAtt1, joinAtt2;
 	@FXML private TextField compareField;
 	@FXML private TableView<ObservableList<String>> columnTable;
-	@FXML private RadioButton joinType1, joinType2;
 	@FXML private TextArea whereArea;
-	private ToggleGroup buttonGroup;
-	private String currentTable;
 	private List<String> columnNames;
 	private ArrayList<Where> whereList;
 	private Boolean empty;
+	private ArrayList<JoinOn> joinList;
 	
 	public SelectCon() {
 		columnTable = new TableView<ObservableList<String>>();
@@ -49,9 +46,7 @@ public class SelectCon implements Initializable {
 	public void initialize(URL arg0, ResourceBundle arg1) {
 		databaseName.getItems().addAll(DBStructure.getDatabases());
 		whereList = new ArrayList<Where>();
-		buttonGroup = new ToggleGroup();
-		joinType1.setToggleGroup(buttonGroup);
-		joinType2.setToggleGroup(buttonGroup);
+		joinList = new ArrayList<JoinOn>();
 		
 		List<String> data1 = new ArrayList<String>();
 		data1.add("From Table");
@@ -78,6 +73,50 @@ public class SelectCon implements Initializable {
 		ops.add("!=");
 		operatorBox.setItems(ops);
 	}
+	
+	@FXML
+	public void addJoin() {
+		JoinOn aux = new JoinOn();
+		aux.setTable1(joinTable1.getSelectionModel().getSelectedItem());
+		aux.setTable2(joinTable2.getSelectionModel().getSelectedItem());
+		aux.setAttribute1(joinAtt1.getSelectionModel().getSelectedItem());
+		aux.setAttribute2(joinAtt2.getSelectionModel().getSelectedItem());
+		joinList.add(aux);
+		
+		joinTable1.getSelectionModel().clearSelection();
+		joinTable2.getSelectionModel().clearSelection();
+		joinAtt1.getSelectionModel().clearSelection();
+		joinAtt2.getSelectionModel().clearSelection();
+	}
+	
+	@FXML
+	public void joinAttRefresh() {
+		joinAtt1.getItems().clear();
+		joinAtt1.getItems().addAll(DBStructure.getAttributes(databaseName.getSelectionModel().getSelectedItem(), joinTable1.getSelectionModel().getSelectedItem()));
+	}
+	
+	@FXML
+	public void joinTableRefresh() {
+		joinTable1.getItems().clear();
+		joinTable1.getItems().add(tableName.getSelectionModel().getSelectedItem());
+		
+		for(int i = 0; i < joinList.size(); i++) {
+			joinTable1.getItems().add(joinList.get(i).getTable2());
+		}
+	}
+	
+	@FXML
+	public void joinTable2Refresh() {
+		joinTable2.getItems().clear();
+		joinTable2.getItems().addAll(DBStructure.getTables(databaseName.getSelectionModel().getSelectedItem()));
+	}
+	
+	@FXML
+	public void joinAtt2Refresh() {
+		joinAtt2.getItems().clear();
+		joinAtt2.getItems().addAll(DBStructure.getAttributes(databaseName.getSelectionModel().getSelectedItem(), joinTable2.getSelectionModel().getSelectedItem()));
+	}
+
 
 	public void setStage(Stage stage) {
 		this.stage = stage;
@@ -104,6 +143,7 @@ public class SelectCon implements Initializable {
 			selectList.add(row.get(0) + "#" + row.get(1));
 		}
 		
+		selectMessage.setJoins(joinList);
 		selectMessage.setSelectList(selectList);
 		Listener.sendRequest(selectMessage);
 		
@@ -117,17 +157,30 @@ public class SelectCon implements Initializable {
 			msg.setMsType(MessageType.GET_ALL_VALUES);
 			msg.setDBname(databaseName.getSelectionModel().getSelectedItem());
 			msg.setTbname(tableName.getSelectionModel().getSelectedItem());
-			currentTable = tableName.getSelectionModel().getSelectedItem(); /////// edit to make it loop-able for joins
 			Listener.sendRequest(msg);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		try {
+			Message msg = new Message();
+			msg.setMsType(MessageType.GET_ALL_VALUES);
+			msg.setDBname(databaseName.getSelectionModel().getSelectedItem());
+			for (int i = 0; i < joinList.size(); i++) {
+				msg.setTbname(joinList.get(i).getTable2());
+				Listener.sendRequest(msg);
+			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
 	
-	public void refreshValues(ArrayList<String> v) {
+	public void refreshValues(String tbName, ArrayList<String> v) {
+		columnTable.getItems().clear();
+		
 		for (int i = 0; i < v.size(); i++) {
 			ObservableList<String> row = FXCollections.observableArrayList();
-			row.add(currentTable);
+			row.add(tbName);
 			row.add(v.get(i));
 			columnTable.getItems().add(row);
 		}
@@ -138,7 +191,6 @@ public class SelectCon implements Initializable {
 	@FXML
 	public void selectAll() {
 		columnTable.getSelectionModel().selectAll();
-		System.out.println(columnTable.getSelectionModel().getSelectedItems());
 	}
 	
 	@FXML

@@ -10,6 +10,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Label;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -19,11 +20,13 @@ public class ResultCon implements Initializable {
 
 	private Stage stage;
 	@FXML private TableView<ObservableList<String>> resultTable;
+	@FXML private Label selectedRowsLabel;
 	private List<String> columnNames, values;
 	
 	public ResultCon(ArrayList<String> v) {
 		resultTable = new TableView<ObservableList<String>>();
 		values = v;
+		selectedRowsLabel = new Label();
 		System.out.println(values);
 	}
 
@@ -35,6 +38,7 @@ public class ResultCon implements Initializable {
 	public void initialize(URL arg0, ResourceBundle arg1) {
 		// Building table layout
 		columnNames = new ArrayList<String>();
+		columnNames.add("No.");
 		columnNames.add("Table");
 		columnNames.add("Name");
 		columnNames.add("Type");
@@ -56,6 +60,7 @@ public class ResultCon implements Initializable {
 		for (int i = 0; i < values.size(); i++) {
 			String[] aux = values.get(i).split("#");
 			ObservableList<String> row = FXCollections.observableArrayList();
+			row.add(String.valueOf(i));
 			for (int j = 0; j < aux.length; j++) {
 				row.add(aux[j]);
 				
@@ -71,6 +76,7 @@ public class ResultCon implements Initializable {
 
 		resultTable.setItems(data);
 		resultTable.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+		selectedRowsLabel.setText(String.valueOf(values.size()));
 	}
 	
 	@FXML

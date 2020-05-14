@@ -140,8 +140,8 @@ public class DBController implements Initializable {
 		instance.initValues(v);
 	}
 	
-	public void sendAllValues(ArrayList<String> v) {
-		selectInstance.refreshValues(v);
+	public void sendAllValues(String tableName, ArrayList<String> v) {
+		selectInstance.refreshValues(tableName, v);
 	}
 	
 	public void setUsernameLabel(String text) {

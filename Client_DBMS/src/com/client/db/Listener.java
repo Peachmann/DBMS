@@ -70,7 +70,7 @@ public class Listener implements Runnable {
                 		break;
                 		
                 	case GET_ALL_VALUES:
-                		controller.sendAllValues(message.getResp());
+                		controller.sendAllValues(message.getResponse(), message.getResp());
                 		break;
                 		
                 	case SELECT:
