@@ -56,11 +56,11 @@ public class ResultCon implements Initializable {
 	
 	public void fill() {
 		ObservableList<ObservableList<String>> data = FXCollections.observableArrayList();
-		int k = 0;
+		int k = 0, counter = 0;
 		for (int i = 0; i < values.size(); i++) {
 			String[] aux = values.get(i).split("#");
 			ObservableList<String> row = FXCollections.observableArrayList();
-			row.add(String.valueOf(i));
+			row.add(String.valueOf(counter++));
 			for (int j = 0; j < aux.length; j++) {
 				row.add(aux[j]);
 				
@@ -69,14 +69,16 @@ public class ResultCon implements Initializable {
 					data.add(row);
 					System.out.println(row);
 					row = FXCollections.observableArrayList();
+					row.add(String.valueOf(counter++));
 					k = 0;
 				}
 			}
+			counter--;
 		}
 
 		resultTable.setItems(data);
 		resultTable.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
-		selectedRowsLabel.setText(String.valueOf(values.size()));
+		selectedRowsLabel.setText(String.valueOf(counter));
 	}
 	
 	@FXML
