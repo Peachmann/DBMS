@@ -19,6 +19,7 @@ import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.MongoIterable;
 
 import message.Attribute;
+import message.JoinOn;
 import message.Operator;
 import message.Where;
 import structure.DBStructure;
@@ -354,147 +355,384 @@ public class MongoDBBridge {
 		return list;
 	}
 	
-	public ArrayList<String> mdbSelect(String dbname, ArrayList<String> selectList, ArrayList<Where> whereList) {
+	private HashSet<String> mdbgetJoinedSet(String dbname, HashSet<String> joined,JoinOn join, boolean first) {
+		
+		HashSet<String> newJoined = new HashSet<String>();
+		MongoDatabase database = mongoClient.getDatabase(dbname);
+		
+		if(first) {
+			if(!DBStructure.getIndexName(dbname, join.getTable1(), join.getAttribute1()).equals("#NO_INDEX#") ) {
+				String help = join.getTable1();
+				join.setTable1(join.getTable2());
+				join.setTable2(help);
+				help = join.getAttribute1();
+				join.setAttribute1(join.getAttribute2());
+				join.setAttribute2(help);
+			}
+			
+			MongoCollection<Document> table = database.getCollection(join.getTable1());
+			FindIterable<Document> docs = table.find();
+			String pk = DBStructure.getTablePK(dbname, join.getTable1());
+			
+			if(!DBStructure.getIndexName(dbname, join.getTable2(), join.getAttribute2()).equals("#NO_INDEX#")) {
+				//INL
+				for(Document doc : docs) {
+					String t1p = join.getTable1() + "#" + pk + "#" + DBStructure.getAttributeType(dbname, join.getTable1(), pk) + "#" + doc.get(pk).toString() + "#";
+					String indexName = DBStructure.getIndexName(dbname, join.getTable2(), join.getAttribute2());
+					MongoCollection<Document> index = database.getCollection(indexName);
+					String pv = "";
+					if(pk.equals(join.getAttribute1())) {
+						pv = doc.get(pk).toString();
+						String[] data = doc.get("#data#").toString().split("#");
+						for(int i = 0; i < data.length; i += 3) {
+							t1p += join.getTable1() + "#" + data[i] + "#" + data[i + 1] + "#" + data[i + 2] + "#";
+						}
+					} else {
+						String[] data = doc.get("#data#").toString().split("#");
+						for(int i = 0; i < data.length; i += 3) {
+							t1p += join.getTable1() + "#" + data[i] + "#" + data[i + 1] + "#" + data[i + 2] + "#";
+							if(data[i].equals(join.getAttribute1())) {
+								pv = data[i + 2];
+							}
+						}
+					}
+					MongoCollection<Document> table2 = database.getCollection(join.getTable2());
+					String pk2 = DBStructure.getTablePK(dbname, join.getTable2());
+					FindIterable<Document> connect = index.find(new Document(join.getAttribute2(), pv));
+					for(Document con : connect) { // 1 match
+						String[] ids = con.get("ID").toString().split("#");
+						for(String id : ids) {
+							FindIterable<Document> match = table2.find(new Document(pk2, id));
+							for(Document row : match) { // 1 match
+								String tp = t1p;
+								tp += join.getTable2() + "#" + pk2 + "#" + DBStructure.getAttributeType(dbname, join.getTable2(), pk2) + "#" + row.get(pk2) + "#";
+								String[] rowd = row.get("#data#").toString().split("#");
+								for(int j = 0; j < rowd.length; j += 3) {
+									tp += join.getTable2() + "#" + rowd[j] + "#" + rowd[j + 1] + "#" + rowd[j + 2] + "#";
+								}
+								newJoined.add(tp);
+							}
+						}
+					}
+				}
+			} else {
+				//NL
+				MongoCollection<Document> table2 = database.getCollection(join.getTable2());
+				FindIterable<Document> docs2 = table2.find();
+				
+				for(Document doc1 : docs) {
+					String pv = "";
+					String t1p = join.getTable1() + "#" + pk + "#" + DBStructure.getAttributeType(dbname, join.getTable1(), pk) + "#" + doc1.get(pk).toString() + "#";
+					
+					if(pk.equals(join.getAttribute1())) {
+						pv = doc1.get(pk).toString();
+						String[] data = doc1.get("#data#").toString().split("#");
+						for(int i = 0; i < data.length; i += 3) {
+							t1p += join.getTable1() + "#" + data[i] + "#" + data[i + 1] + "#" + data[i + 2] + "#";
+						}
+					} else {
+						String[] data = doc1.get("#data#").toString().split("#");
+						for(int i = 0; i < data.length; i += 3) {
+							t1p += join.getTable1() + "#" + data[i] + "#" + data[i + 1] + "#" + data[i + 2] + "#";
+							if(data[i].equals(join.getAttribute1())) {
+								pv = data[i + 2];
+							}
+						}
+					}
+					String pk2 = DBStructure.getTablePK(dbname, join.getTable2());
+					for(Document doc2 : docs2) {
+						String pv2 = "";
+						String t2p = join.getTable2() + "#" + pk2 + "#" + DBStructure.getAttributeType(dbname, join.getTable1(), pk2) + "#" + doc2.get(pk2).toString() + "#";
+						
+						if(pk2.equals(join.getAttribute2())) {
+							pv2 = doc2.get(pk2).toString();
+							if(!pv.equals(pv2)) {
+								continue;
+							}
+							String[] data = doc2.get("#data#").toString().split("#");
+							for(int i = 0; i < data.length; i += 3) {
+								t2p += join.getTable2() + "#" + data[i] + "#" + data[i + 1] + "#" + data[i + 2] + "#";
+							}
+						} else {
+							String[] data = doc2.get("#data#").toString().split("#");
+							for(int i = 0; i < data.length; i += 3) {
+								t1p += join.getTable2() + "#" + data[i] + "#" + data[i + 1] + "#" + data[i + 2] + "#";
+								if(data[i].equals(join.getAttribute2())) {
+									pv2 = data[i + 2];
+									if(!pv.equals(pv2)) {
+										break;
+									}
+								}
+							}
+						}
+						if(pv.equals(pv2)) {
+							newJoined.add(t1p + t2p);
+						}
+					}
+				}
+			}
+		} else {
+			
+			String pk2 = DBStructure.getTablePK(dbname, join.getTable2());
+			if(!DBStructure.getIndexName(dbname, join.getTable2(), join.getAttribute2()).equals("#NO_INDEX#")) {
+				//INL
+				String indexName = DBStructure.getIndexName(dbname, join.getTable2(), join.getAttribute2());
+				MongoCollection<Document> index = database.getCollection(indexName);
+				MongoCollection<Document> table2 = database.getCollection(join.getTable2());
+				
+				Iterator<String> rec = joined.iterator();
+				
+				while(rec.hasNext()) {
+					String row = rec.next();
+					String[] data = row.split("#");
+					for(int i = 0; i < data.length; i += 4) {
+						if(data[i].equals(join.getTable1()) && data[i + 1].equals(join.getAttribute1())) {
+							
+							FindIterable<Document> cons = index.find(new Document(join.getAttribute2(), data[i + 3]));
+							for(Document con : cons) { // 1 match
+								String[] ids = con.get("ID").toString().split("#");
+								for(String id : ids) {
+									FindIterable<Document> rowt2 = table2.find(new Document(pk2, id));
+									for(Document rowFin : rowt2) { // 1 match
+										String concat = join.getTable2() + "#" + pk2 + "#" + DBStructure.getAttributeType(dbname, join.getTable2(), pk2) + "#" + id + "#";
+										String[] rowData = rowFin.get("#data#").toString().split("#");
+										for(int j = 0; j < rowData.length; j += 3) {
+											concat += join.getTable2() + "#" + rowData[i] + "#" + rowData[i + 1] + "#" + rowData[i + 2] + "#";
+										}
+										newJoined.add(row + concat);
+									}
+								}
+							}
+							break;
+						}
+					}
+				}
+			} else {
+				//NL
+				MongoCollection<Document> table2 = database.getCollection(join.getTable2());
+				FindIterable<Document> table2Data = table2.find();
+				
+				Iterator<String> rec = joined.iterator();
+				
+				while(rec.hasNext()) {
+					String row = rec.next();
+					String[] data = row.split("#");
+					String pv = "";
+					for(int i = 0; i < data.length; i += 4) {
+						if(data[i].equals(join.getTable1()) && data[i+1].equals(join.getAttribute1())) {
+							pv = data[i+3];
+							break;
+						}
+					}
+					for(Document rowT2 : table2Data) {
+						if(pk2.equals(join.getAttribute2())) {
+							if(!rowT2.get(pk2).equals(pv)) {
+								continue;
+							}
+						}
+						String concat = join.getTable2() + "#" + pk2 + "#" + DBStructure.getAttributeType(dbname, join.getTable2(), pk2) + "#" + rowT2.get(pk2) + "#";
+						String[] rowData = rowT2.get("#data#").toString().split("#");
+						String pr = "";
+						for(int i = 0; i < rowData.length; i += 3) {
+							concat += join.getTable2() + "#" + data[i] + "#" + data[i+1] + "#" + data[i+2] + "#";
+							if(data[i].equals(join.getAttribute2())) {
+								if(!data[i].equals(pv)) {
+									pr = data[i];
+									break;
+								}
+							}
+						}
+						if(pv.equals(pr)) {
+							newJoined.add(row + concat);
+						}
+					}
+				}
+			}
+		}
+		
+		
+		return newJoined;
+	}
+	
+	public ArrayList<String> mdbSelect(String dbname, ArrayList<String> selectList, ArrayList<Where> whereList, ArrayList<JoinOn> joins) {
 		
 		MongoDatabase database = mongoClient.getDatabase(dbname);
 		HashSet<String> select = new HashSet<String>();
 		
-		//without join
-		if(whereList.size() == 0) {
-			//there are not where statements
-			ArrayList<String> indexNames = new ArrayList<String>();
-			for(String selected : selectList) {
-				String table = selected.substring(0, selected.indexOf('#'));
-				String attr = selected.substring(selected.indexOf('#') + 1);
-				String name = DBStructure.getIndexName(dbname, table, attr);
-				String pk = DBStructure.getTablePK(dbname, table);
-				if(name.equals("#NO_INDEX#") || attr.equals(pk)) {
-					break;
+		if(joins.size() == 0) {
+			//without join
+			if(whereList.size() == 0) {
+				//there are not where statements
+				ArrayList<String> indexNames = new ArrayList<String>();
+				for(String selected : selectList) {
+					String table = selected.substring(0, selected.indexOf('#'));
+					String attr = selected.substring(selected.indexOf('#') + 1);
+					String name = DBStructure.getIndexName(dbname, table, attr);
+					String pk = DBStructure.getTablePK(dbname, table);
+					if(name.equals("#NO_INDEX#") || attr.equals(pk)) {
+						break;
+					}
+					indexNames.add(name);
 				}
-				indexNames.add(name);
-			}
-			if(indexNames.size() == selectList.size()) {
-				
-				Hashtable<String, String> row = new Hashtable<String, String>();
-				for(int i = 0; i < indexNames.size(); i++) {
-					MongoCollection<Document> ind = database.getCollection(indexNames.get(i));
-					String table = selectList.get(i).substring(0, selectList.get(i).indexOf('#'));
-					String attr = selectList.get(i).substring(selectList.get(i).indexOf('#') + 1);
-					String type = DBStructure.getAttributeType(dbname, table, attr);
-					FindIterable<Document> docs = ind.find();
-					for(Document doc : docs) {
-						String[] data = doc.get("ID").toString().split("#");
-						for(String key : data) {
-							if(row.containsKey(key)) {
-								String rowData = row.get(key);
-								row.remove(key);
-								rowData += table + "#" + attr + "#" + type + "#" + doc.get(attr).toString() + "#";
-								row.put(key, rowData);
-							} else {
-								String pk = DBStructure.getTablePK(dbname, indexNames.get(i));
-								String rowData = "";
-								if(selectList.contains(indexNames.get(i) + "#" + pk)) {
-									rowData += table + "#" + pk + "#" + DBStructure.getAttributeType(dbname, indexNames.get(i), pk) + "#" + key + "#";
+				if(indexNames.size() == selectList.size()) {
+					
+					Hashtable<String, String> row = new Hashtable<String, String>();
+					for(int i = 0; i < indexNames.size(); i++) {
+						MongoCollection<Document> ind = database.getCollection(indexNames.get(i));
+						String table = selectList.get(i).substring(0, selectList.get(i).indexOf('#'));
+						String attr = selectList.get(i).substring(selectList.get(i).indexOf('#') + 1);
+						String type = DBStructure.getAttributeType(dbname, table, attr);
+						FindIterable<Document> docs = ind.find();
+						for(Document doc : docs) {
+							String[] data = doc.get("ID").toString().split("#");
+							for(String key : data) {
+								if(row.containsKey(key)) {
+									String rowData = row.get(key);
+									row.remove(key);
+									rowData += table + "#" + attr + "#" + type + "#" + doc.get(attr).toString() + "#";
+									row.put(key, rowData);
+								} else {
+									String pk = DBStructure.getTablePK(dbname, indexNames.get(i));
+									String rowData = "";
+									if(selectList.contains(indexNames.get(i) + "#" + pk)) {
+										rowData += table + "#" + pk + "#" + DBStructure.getAttributeType(dbname, indexNames.get(i), pk) + "#" + key + "#";
+									}
+									rowData += table + "#" + attr + "#" + type + "#" + doc.get(attr).toString() + "#";
+									row.put(key, rowData);
 								}
-								rowData += table + "#" + attr + "#" + type + "#" + doc.get(attr).toString() + "#";
-								row.put(key, rowData);
 							}
 						}
 					}
+					Set<String> keys = row.keySet();
+					for(String k : keys) {
+						select.add(row.get(k));
+					}
+					
+				} else {
+					String t = selectList.get(0).substring(0, selectList.get(0).indexOf("#"));
+					MongoCollection<Document> table = database.getCollection(t);
+					
+					FindIterable<Document> docs = table.find();
+					for(Document doc : docs) {
+						String[] data = doc.get("#data#").toString().split("#");
+						String sel = "";
+						for(int i = 0; i < data.length; i += 3) {
+							
+							if(selectList.contains(t + "#" + data[i])) {
+								sel += t + "#" + data[i] + "#" + data[i + 1] + "#" + data[i + 2]; 
+							}
+						}
+						String pk = DBStructure.getTablePK(dbname, t);
+						if(selectList.contains(t + "#" + pk)) {
+							sel = t + "#" + pk + "#" + DBStructure.getAttributeType(dbname, t, pk) + "#" + doc.get(pk).toString() + "#" + sel;
+						}
+						select.add(sel);
+					}
 				}
-				Set<String> keys = row.keySet();
-				for(String k : keys) {
-					select.add(row.get(k));
-				}
-				
 			} else {
-				String t = selectList.get(0).substring(0, selectList.get(0).indexOf("#"));
+				//there are where statements
+				Hashtable<String, String> all = new Hashtable<String, String>();
+				String t = selectList.get(0).substring(0, selectList.get(0).indexOf('#'));
+				String pk = DBStructure.getTablePK(dbname, t);
 				MongoCollection<Document> table = database.getCollection(t);
 				
 				FindIterable<Document> docs = table.find();
 				for(Document doc : docs) {
-					String[] data = doc.get("#data#").toString().split("#");
-					String sel = "";
-					for(int i = 0; i < data.length; i += 3) {
+					String id = doc.get(pk).toString();
+					String d = doc.get("#data#").toString();
+					d = pk + "#" + DBStructure.getAttributeType(dbname, t, pk) + "#" + id + "#" + d;
+					all.put(id, d);
+				}
+				
+				//my favourite part, Where, where, where????
+				for(Where where : whereList) {
+					String name = where.getField1().substring(where.getField1().indexOf('#') + 1);
+					String indexName = DBStructure.getIndexName(dbname, t, name);
+					String pk2 = DBStructure.getTablePK(dbname, t);
+					if(!indexName.equals("#NO_INDEX#") && !name.equals(pk2)) {
+						MongoCollection<Document> index = database.getCollection(indexName);
+						FindIterable<Document> ind = index.find();
+						for(Document doc : ind) {
+							String val = doc.get(name).toString();
+							String type = DBStructure.getAttributeType(dbname, t, name);
+							if(!mdbCompare(type, val, where.getField2(), where.getOp())) {
+								String[] data = doc.get("ID").toString().split("#"); //HIBA
+								for(String lost : data) {
+									all.remove(lost);
+								}
+							}
+						}
+					} else {
 						
+						Set<String> keys = all.keySet();
+						Hashtable<String, String> help = new Hashtable<String, String>();
+						for(String k : keys) {
+							System.out.println(k + " " +all.get(k));
+							String[] data = all.get(k).split("#");
+							for(int i = 0; i < data.length; i+=3) {
+								if(data[i].equals(name)) {
+									if(mdbCompare(data[i + 1], data[i + 2], where.getField2(), where.getOp())) {
+										help.put(k, all.get(k));
+									}
+									break;
+								}
+							}
+						}
+						all.clear();
+						all = help;
+					}
+				} 
+				
+				Set<String> keys = all.keySet();
+				for(String k : keys) {
+					String rowData = "";
+					/*if(selectList.contains(t + "#" + pk)) {
+						rowData += t + "#" + pk + "#" + DBStructure.getAttributeType(dbname, t, pk) + "#" + k + "#";
+					}*/
+					String[] data = all.get(k).split("#");
+					for(int i = 0; i < data.length; i += 3) {
 						if(selectList.contains(t + "#" + data[i])) {
-							sel += t + "#" + data[i] + "#" + data[i + 1] + "#" + data[i + 2]; 
+							rowData += t + "#" + data[i] + "#" + data[i + 1] + "#" + data[i + 2] + "#";
 						}
 					}
-					String pk = DBStructure.getTablePK(dbname, t);
-					if(selectList.contains(t + "#" + pk)) {
-						sel = t + "#" + pk + "#" + DBStructure.getAttributeType(dbname, t, pk) + "#" + doc.get(pk).toString() + "#" + sel;
-					}
-					select.add(sel);
+					select.add(rowData);
 				}
 			}
 		} else {
-			//there are where statements
-			Hashtable<String, String> all = new Hashtable<String, String>();
-			String t = selectList.get(0).substring(0, selectList.get(0).indexOf('#'));
-			String pk = DBStructure.getTablePK(dbname, t);
-			MongoCollection<Document> table = database.getCollection(t);
-			
-			FindIterable<Document> docs = table.find();
-			for(Document doc : docs) {
-				String id = doc.get(pk).toString();
-				String d = doc.get("#data#").toString();
-				d = pk + "#" + DBStructure.getAttributeType(dbname, t, pk) + "#" + id + "#" + d;
-				all.put(id, d);
+			HashSet<String> rows = this.mdbgetJoinedSet(dbname, null, joins.get(0), true);
+			for(int i = 1; i < joins.size(); i++) {
+				rows = this.mdbgetJoinedSet(dbname, rows, joins.get(i), false);
 			}
 			
-			//my favourite part, Where, where, where????
-			for(Where where : whereList) {
-				String name = where.getField1().substring(where.getField1().indexOf('#') + 1);
-				String indexName = DBStructure.getIndexName(dbname, t, name);
-				String pk2 = DBStructure.getTablePK(dbname, t);
-				if(!indexName.equals("#NO_INDEX#") && !name.equals(pk2)) {
-					MongoCollection<Document> index = database.getCollection(indexName);
-					FindIterable<Document> ind = index.find();
-					for(Document doc : ind) {
-						String val = doc.get(name).toString();
-						String type = DBStructure.getAttributeType(dbname, t, name);
-						if(!mdbCompare(type, val, where.getField2(), where.getOp())) {
-							String[] data = doc.get("ID").toString().split("#"); //HIBA
-							for(String lost : data) {
-								all.remove(lost);
-							}
-						}
-					}
-				} else {
-					
-					Set<String> keys = all.keySet();
-					Hashtable<String, String> help = new Hashtable<String, String>();
-					for(String k : keys) {
-						System.out.println(k + " " +all.get(k));
-						String[] data = all.get(k).split("#");
-						for(int i = 0; i < data.length; i+=3) {
-							if(data[i].equals(name)) {
-								if(mdbCompare(data[i + 1], data[i + 2], where.getField2(), where.getOp())) {
-									help.put(k, all.get(k));
-								}
+			Iterator<String> rec = rows.iterator();
+			
+			while(rec.hasNext()) {
+				String row = rec.next();
+				String[] data = row.split("#");
+				boolean match = true;
+				for(Where where : whereList) { // Where field1 - Table#Attr
+					String[] wd = where.getField1().split("#");
+					for(int i = 0; i < data.length; i += 4) {
+						if(data[i].equals(wd[0]) && data[i+1].equals(wd[1])) {
+							if(!mdbCompare(data[i + 1], data[i + 2], where.getField2(), where.getOp())) {
+								match = false;
 								break;
 							}
 						}
 					}
-					all.clear();
-					all = help;
-				}
-			}
-			
-			Set<String> keys = all.keySet();
-			for(String k : keys) {
-				String rowData = "";
-				/*if(selectList.contains(t + "#" + pk)) {
-					rowData += t + "#" + pk + "#" + DBStructure.getAttributeType(dbname, t, pk) + "#" + k + "#";
-				}*/
-				String[] data = all.get(k).split("#");
-				for(int i = 0; i < data.length; i += 3) {
-					if(selectList.contains(t + "#" + data[i])) {
-						rowData += t + "#" + data[i] + "#" + data[i + 1] + "#" + data[i + 2] + "#";
+					if(!match) {
+						break;
 					}
 				}
-				select.add(rowData);
+				if(match) {
+					String projRow = "";
+					for(int i = 0; i < data.length; i += 4) {
+						if(selectList.contains(data[i] + "#" + data[i+1])) {
+							projRow += data[i] + "#" + data[i+1] + "#" + data[i+2] + "#" + data[i+3] + "#";
+						}
+					}
+					select.add(projRow);
+				}
 			}
 		}
 		
