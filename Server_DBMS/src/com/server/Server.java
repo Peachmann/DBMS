@@ -249,13 +249,16 @@ public class Server {
 							break;
 							
 						case SELECT:
-							statementState = DML.checkWhere(inputMessage.getDBname(), inputMessage.getWhereList());
+							statementState = DML.checkWhere(inputMessage.getDBname(), inputMessage.getWhereList(), inputMessage.getJoins());
 							switch(statementState) {
 							case 0:
 								constructResponse(35, inputMessage);
 								break;
 							case -1:
 								constructResponse(36, inputMessage);
+								break;
+							case -2:
+								constructResponse(37, inputMessage);
 								break;
 							}
 							break;
@@ -473,6 +476,11 @@ public class Server {
 			case 36:
 				response.setMsType(MessageType.INSERT_VALUES); // just to print error message
 				response.setResponse("Error in where statement!");
+				break;
+				
+			case 37:
+				response.setMsType(MessageType.INSERT_VALUES); // just to print error message
+				response.setResponse("Join type mismatch!");
 				break;
 
 			case 99:

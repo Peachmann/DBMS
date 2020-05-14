@@ -16,6 +16,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import message.Attribute;
+import message.JoinOn;
 import message.Operator;
 import message.Where;
 import mongo.MongoDBBridge;
@@ -373,7 +374,12 @@ public final class DML {
 		return 0;
 	}
 	
-	public static int checkWhere(String dbname, ArrayList<Where> whereList) {
+	public static int checkWhere(String dbname, ArrayList<Where> whereList, ArrayList<JoinOn> joinList) {
+		
+		for (JoinOn i : joinList) {
+			if(!i.getAttribute1().split("#")[0].equals(i.getAttribute2().split("#")[0]))
+				return -2;
+		}
 		
 		for (Where i : whereList) {
 			String [] aux = i.getField1().split("#");
