@@ -15,7 +15,14 @@ public class Message implements Serializable {
 	private ArrayList<Where> whereList;
 	private ArrayList<JoinOn> joins;
 	private ArrayList<Aggregate> aggList;
+	private String groupby = "";
 
+	public String getGroupby() {
+		return groupby;
+	}
+	public void setGroupby(String groupby) {
+		this.groupby = groupby;
+	}
 	public ArrayList<Aggregate> getAggList() {
 		return aggList;
 	}

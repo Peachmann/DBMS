@@ -11,11 +11,18 @@ public class Message implements Serializable {
 	private ArrayList<Attribute> columns;
 	private String userGivenName;
 	private String response;
+	private String groupBy = "";
 	private ArrayList<String> resp, selectList;
 	private ArrayList<Where> whereList;
 	private ArrayList<JoinOn> joins;
 	private ArrayList<Aggregate> aggList;
-
+	
+	public String getGroupBy() {
+		return groupBy;
+	}
+	public void setGroupBy(String groupBy) {
+		this.groupBy = groupBy;
+	}
 	public ArrayList<Aggregate> getAggList() {
 		return aggList;
 	}
