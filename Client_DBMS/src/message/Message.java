@@ -11,23 +11,29 @@ public class Message implements Serializable {
 	private ArrayList<Attribute> columns;
 	private String userGivenName;
 	private String response;
+	private String groupBy = "";
 	private ArrayList<String> resp, selectList;
 	private ArrayList<Where> whereList;
 	private ArrayList<JoinOn> joins;
-	private ArrayList<Aggregate> aggList;
-	private String groupby = "";
-
-	public String getGroupby() {
-		return groupby;
+	private ArrayList<Aggregate> selectAgg, havingAgg;
+	
+	public ArrayList<Aggregate> getSelectAgg() {
+		return selectAgg;
 	}
-	public void setGroupby(String groupby) {
-		this.groupby = groupby;
+	public void setSelectAgg(ArrayList<Aggregate> selectAgg) {
+		this.selectAgg = selectAgg;
 	}
-	public ArrayList<Aggregate> getAggList() {
-		return aggList;
+	public ArrayList<Aggregate> getHavingAgg() {
+		return havingAgg;
 	}
-	public void setAggList(ArrayList<Aggregate> aggList) {
-		this.aggList = aggList;
+	public void setHavingAgg(ArrayList<Aggregate> havingAgg) {
+		this.havingAgg = havingAgg;
+	}
+	public String getGroupBy() {
+		return groupBy;
+	}
+	public void setGroupBy(String groupBy) {
+		this.groupBy = groupBy;
 	}
 	public ArrayList<String> getSelectList() {
 		return selectList;

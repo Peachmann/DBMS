@@ -11,6 +11,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TableColumn;
@@ -18,6 +19,8 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
+import message.Aggregate;
+import message.AggregateType;
 import message.JoinOn;
 import message.Message;
 import message.MessageType;
@@ -28,18 +31,21 @@ import structure.DBStructure;
 public class SelectCon implements Initializable {
 
 	private Stage stage;
-	@FXML private ComboBox<String> databaseName, tableName, columnBox, operatorBox, joinTable1, joinTable2, joinAtt1, joinAtt2;
-	@FXML private TextField compareField;
+	@FXML private ComboBox<String> databaseName, tableName, columnBox, operatorBox, joinTable1, joinTable2, joinAtt1, joinAtt2, havingColBox, havingOpBox, functionBox, groupbyBox;
+	@FXML private TextField compareField, havingCompareField;
 	@FXML private TableView<ObservableList<String>> columnTable;
-	@FXML private TextArea whereArea;
+	@FXML private TextArea whereArea, havingArea;
+	@FXML private CheckBox asSelectBox, groupbyCheck;
 	private List<String> columnNames;
 	private ArrayList<Where> whereList;
-	private Boolean empty;
+	private Boolean empty, empty2;
 	private ArrayList<JoinOn> joinList;
+	private ArrayList<Aggregate> havingAgg, selectAgg;
 	
 	public SelectCon() {
 		columnTable = new TableView<ObservableList<String>>();
 		empty = true;
+		empty2 = true;
 	}
 	
 	@Override
@@ -47,6 +53,7 @@ public class SelectCon implements Initializable {
 		databaseName.getItems().addAll(DBStructure.getDatabases());
 		whereList = new ArrayList<Where>();
 		joinList = new ArrayList<JoinOn>();
+		havingAgg = selectAgg = new ArrayList<Aggregate>();
 		
 		List<String> data1 = new ArrayList<String>();
 		data1.add("From Table");
@@ -71,7 +78,17 @@ public class SelectCon implements Initializable {
 		ops.add("<=");
 		ops.add("=");
 		ops.add("!=");
+		
+		ObservableList<String> aggs = FXCollections.observableArrayList();
+		aggs.add("SUM");
+		aggs.add("COUNT");
+		aggs.add("MIN");
+		aggs.add("MAX");
+		aggs.add("AVG");
+		
+		functionBox.setItems(aggs);
 		operatorBox.setItems(ops);
+		havingOpBox.setItems(ops);
 	}
 	
 	@FXML
@@ -117,7 +134,6 @@ public class SelectCon implements Initializable {
 		joinAtt2.getItems().addAll(DBStructure.getAttributes(databaseName.getSelectionModel().getSelectedItem(), joinTable2.getSelectionModel().getSelectedItem()));
 	}
 
-
 	public void setStage(Stage stage) {
 		this.stage = stage;
 	}
@@ -127,6 +143,14 @@ public class SelectCon implements Initializable {
 		whereArea.setText("WHERE");
 		whereList.clear();
 		empty = true;
+	}
+	
+	@FXML
+	public void resetHaving() {
+		havingArea.setText("HAVING");
+		havingAgg.clear();
+		selectAgg.clear();
+		empty2 = true;
 	}
 	
 	@FXML
@@ -143,6 +167,15 @@ public class SelectCon implements Initializable {
 			selectList.add(row.get(0) + "#" + row.get(1));
 		}
 		
+		if (groupbyCheck.isSelected()) {
+			String [] split = groupbyBox.getSelectionModel().getSelectedItem().split(" - ");
+			selectMessage.setGroupBy(split[0] + "#" + split[1]);
+		}
+		
+		System.out.println(selectMessage.getGroupBy());
+		
+		selectMessage.setHavingAgg(havingAgg);
+		selectMessage.setSelectAgg(selectAgg);
 		selectMessage.setJoins(joinList);
 		selectMessage.setSelectList(selectList);
 		Listener.sendRequest(selectMessage);
@@ -256,10 +289,130 @@ public class SelectCon implements Initializable {
 		empty = false;
 	}
 	
+	public void addHaving() {
+		
+		Aggregate aux = new Aggregate();
+		
+		if (asSelectBox.isSelected()) {
+			aux.setIsSelect(true);
+		}
+		
+		String opaux = "", aggaux = "";
+		
+		String [] helper = havingColBox.getSelectionModel().getSelectedItem().split(" - ");
+		aux.setColumnname(helper[0] + "#" + helper[1]);
+		aux.setComparevalue(havingCompareField.getText());
+		
+		switch (havingOpBox.getSelectionModel().getSelectedItem()) {
+		case ">":
+			opaux = ">";
+			aux.setOp(Operator.GT);
+			break;
+
+		case "<":
+			opaux = "<";
+			aux.setOp(Operator.LT);
+			break;
+			
+		case ">=":
+			opaux = ">=";
+			aux.setOp(Operator.GTE);
+			break;
+			
+		case "<=":
+			opaux = "<=";
+			aux.setOp(Operator.LTE);
+			break;
+			
+		case "=":
+			opaux = "=";
+			aux.setOp(Operator.EQ);
+			break;
+			
+		case "!=":
+			opaux = "!=";
+			aux.setOp(Operator.NEQ);
+			break;
+			
+		default:
+			break;
+		}
+		
+		switch (functionBox.getSelectionModel().getSelectedItem()) {
+		case "SUM":
+			aggaux = "SUM";
+			aux.setType(AggregateType.SUM);
+			break;
+
+		case "COUNT":
+			aggaux = "COUNT";
+			aux.setType(AggregateType.COUNT);
+			break;
+			
+		case "MIN":
+			aggaux = "MIN";
+			aux.setType(AggregateType.MIN);
+			break;
+			
+		case "MAX":
+			aggaux = "MAX";
+			aux.setType(AggregateType.MAX);
+			break;
+			
+		case "AVG":
+			aggaux = "AVG";
+			aux.setType(AggregateType.AVG);
+			break;
+			
+		default:
+			break;
+		}
+		
+		System.out.println(aggaux);
+		
+		if (!aux.getIsSelect()) {
+			if (empty2 == true)
+				havingArea.setText(havingArea.getText() + " " + aggaux + "(" + aux.getColumnname() + ") " + opaux + " " + aux.getComparevalue());
+			else
+				havingArea.setText(havingArea.getText() + " AND " + aggaux + "(" + aux.getColumnname() + ") " + opaux + " " + aux.getComparevalue());
+			
+			empty2 = false;
+			havingAgg.add(aux);
+		} else {
+			selectAgg.add(aux);
+		}
+		
+		havingColBox.getSelectionModel().clearSelection();
+		havingOpBox.getSelectionModel().clearSelection();
+		functionBox.getSelectionModel().clearSelection();
+		havingCompareField.setText("");
+	}
+	
+	public void fillGroupby() {
+		groupbyBox.getSelectionModel().clearSelection();
+		groupbyBox.getItems().clear();
+		
+		ObservableList<ObservableList<String>> allColumns = columnTable.getItems();
+		for(ObservableList<String> row : allColumns) {
+			groupbyBox.getItems().add(row.get(0) + " - " + row.get(1));
+		}
+	}
+	
+	public void fillHaving() {
+		havingColBox.getSelectionModel().clearSelection();
+		havingColBox.getItems().clear();
+		
+		ObservableList<ObservableList<String>> allColumns = columnTable.getItems();
+		for(ObservableList<String> row : allColumns) {
+			havingColBox.getItems().add(row.get(0) + " - " + row.get(1));
+		}
+	}
+	
 	@FXML
 	public void fillBox() {
 		columnBox.getSelectionModel().clearSelection();
 		columnBox.getItems().clear();
+
 		ObservableList<ObservableList<String>> allColumns = columnTable.getItems();
 		
 		for(ObservableList<String> row : allColumns) {

@@ -15,19 +15,25 @@ public class Message implements Serializable {
 	private ArrayList<String> resp, selectList;
 	private ArrayList<Where> whereList;
 	private ArrayList<JoinOn> joins;
-	private ArrayList<Aggregate> aggList;
+	private ArrayList<Aggregate> selectAgg, havingAgg;
 	
+	public ArrayList<Aggregate> getSelectAgg() {
+		return selectAgg;
+	}
+	public void setSelectAgg(ArrayList<Aggregate> selectAgg) {
+		this.selectAgg = selectAgg;
+	}
+	public ArrayList<Aggregate> getHavingAgg() {
+		return havingAgg;
+	}
+	public void setHavingAgg(ArrayList<Aggregate> havingAgg) {
+		this.havingAgg = havingAgg;
+	}
 	public String getGroupBy() {
 		return groupBy;
 	}
 	public void setGroupBy(String groupBy) {
 		this.groupBy = groupBy;
-	}
-	public ArrayList<Aggregate> getAggList() {
-		return aggList;
-	}
-	public void setAggList(ArrayList<Aggregate> aggList) {
-		this.aggList = aggList;
 	}
 	public ArrayList<String> getSelectList() {
 		return selectList;

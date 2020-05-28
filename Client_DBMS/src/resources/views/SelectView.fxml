@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TableView?>
@@ -16,14 +17,14 @@
 
 <BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="850.0" prefWidth="800.0" style="-fx-background-color: #4e546e;" stylesheets="@../css/select.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
    <top>
-      <Label style="-fx-translate-y: 10;" text="Select" textFill="WHITE" BorderPane.alignment="CENTER">
+      <Label style="-fx-translate-y: -5;" text="Select" textFill="WHITE" BorderPane.alignment="CENTER">
          <font>
             <Font size="32.0" />
          </font>
       </Label>
    </top>
    <center>
-      <VBox prefHeight="200.0" prefWidth="100.0" spacing="10.0" BorderPane.alignment="CENTER">
+      <VBox prefHeight="200.0" prefWidth="802.0" spacing="10.0" BorderPane.alignment="CENTER">
          <children>
             <HBox alignment="CENTER" prefHeight="63.0" prefWidth="800.0" spacing="10.0">
                <children>
@@ -99,59 +100,145 @@
                   <TableView fx:id="columnTable" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="200.0" prefWidth="752.0" style="-fx-background-color: #5f6686;" />
                </children>
             </VBox>
-            <VBox alignment="TOP_CENTER" prefHeight="271.0" prefWidth="800.0" spacing="10.0">
+            <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="10.0">
                <children>
-                  <Label text="Where" textFill="WHITE">
+                  <CheckBox fx:id="groupbyCheck" mnemonicParsing="false" text="Group by" textFill="WHITE">
                      <font>
-                        <Font size="20.0" />
+                        <Font size="17.0" />
                      </font>
-                  </Label>
-                  <GridPane alignment="CENTER" prefHeight="110.0" prefWidth="800.0">
-                    <columnConstraints>
-                      <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                      <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                    </columnConstraints>
-                    <rowConstraints>
-                      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                    </rowConstraints>
+                  </CheckBox>
+                  <ComboBox fx:id="groupbyBox" onMouseClicked="#fillGroupby" prefWidth="150.0" />
+               </children>
+            </HBox>
+            <HBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="199.0" prefWidth="802.0">
+               <children>
+                  <VBox alignment="TOP_CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="262.0" prefWidth="401.0" spacing="10.0">
                      <children>
-                        <Label text="Column" textFill="WHITE">
+                        <Label text="Where" textFill="WHITE">
                            <font>
-                              <Font size="18.0" />
+                              <Font size="20.0" />
                            </font>
                         </Label>
-                        <Label text="Operator" textFill="WHITE" GridPane.rowIndex="1">
-                           <font>
-                              <Font size="18.0" />
-                           </font>
-                        </Label>
-                        <Label text="Compare to" textFill="WHITE" GridPane.rowIndex="2">
-                           <font>
-                              <Font size="18.0" />
-                           </font>
-                        </Label>
-                        <ComboBox fx:id="columnBox" onMouseClicked="#fillBox" prefWidth="150.0" promptText="Select Column" GridPane.columnIndex="1" />
-                        <ComboBox fx:id="operatorBox" prefWidth="150.0" promptText="Select Operator" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                        <TextField fx:id="compareField" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="25.0" prefWidth="308.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                        <GridPane alignment="CENTER" prefHeight="110.0" prefWidth="800.0">
+                          <columnConstraints>
+                            <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                            <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                          </columnConstraints>
+                          <rowConstraints>
+                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                          </rowConstraints>
+                           <children>
+                              <Label text="Column" textFill="WHITE">
+                                 <font>
+                                    <Font size="18.0" />
+                                 </font>
+                              </Label>
+                              <Label text="Operator" textFill="WHITE" GridPane.rowIndex="1">
+                                 <font>
+                                    <Font size="18.0" />
+                                 </font>
+                              </Label>
+                              <Label text="Compare to" textFill="WHITE" GridPane.rowIndex="2">
+                                 <font>
+                                    <Font size="18.0" />
+                                 </font>
+                              </Label>
+                              <ComboBox fx:id="columnBox" onMouseClicked="#fillBox" prefWidth="150.0" promptText="Select Column" GridPane.columnIndex="1" />
+                              <ComboBox fx:id="operatorBox" prefWidth="150.0" promptText="Select Operator" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                              <TextField fx:id="compareField" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="25.0" prefWidth="148.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                           </children>
+                        </GridPane>
+                        <HBox alignment="CENTER" prefHeight="28.0" prefWidth="800.0" spacing="10.0">
+                           <children>
+                              <Button fx:id="whereButton" mnemonicParsing="false" onAction="#addWhere" text="Add &quot;WHERE&quot;" />
+                              <Button mnemonicParsing="false" onMouseClicked="#resetWhere" text="Reset &quot;WHERE&quot;" />
+                           </children>
+                        </HBox>
                      </children>
-                  </GridPane>
-                  <HBox alignment="CENTER" prefHeight="28.0" prefWidth="800.0" spacing="10.0">
+                  </VBox>
+                  <VBox alignment="TOP_CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="262.0" prefWidth="401.0" spacing="10.0">
                      <children>
-                        <Button fx:id="whereButton" mnemonicParsing="false" onAction="#addWhere" text="Add &quot;WHERE&quot;" />
-                        <Button mnemonicParsing="false" onMouseClicked="#resetWhere" text="Reset &quot;WHERE&quot;" />
+                        <HBox alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="30.0" prefWidth="200.0">
+                           <children>
+                              <Label text="Having (" textFill="WHITE">
+                                 <font>
+                                    <Font size="20.0" />
+                                 </font>
+                              </Label>
+                              <CheckBox fx:id="asSelectBox" mnemonicParsing="false" text="as Select" textFill="WHITE">
+                                 <font>
+                                    <Font size="13.0" />
+                                 </font>
+                              </CheckBox>
+                              <Label text=")" textFill="WHITE">
+                                 <font>
+                                    <Font size="20.0" />
+                                 </font>
+                              </Label>
+                           </children>
+                        </HBox>
+                        <GridPane alignment="CENTER" prefHeight="110.0" prefWidth="800.0">
+                           <columnConstraints>
+                              <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                              <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                           </columnConstraints>
+                           <rowConstraints>
+                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                           </rowConstraints>
+                           <children>
+                              <Label text="Column" textFill="WHITE" GridPane.rowIndex="1">
+                                 <font>
+                                    <Font size="18.0" />
+                                 </font>
+                              </Label>
+                              <Label text="Operator" textFill="WHITE" GridPane.rowIndex="2">
+                                 <font>
+                                    <Font size="18.0" />
+                                 </font>
+                              </Label>
+                              <Label text="Compare to" textFill="WHITE" GridPane.rowIndex="3">
+                                 <font>
+                                    <Font size="18.0" />
+                                 </font>
+                              </Label>
+                              <ComboBox fx:id="havingColBox" onMouseClicked="#fillHaving" prefWidth="150.0" promptText="Select Column" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                              <ComboBox fx:id="havingOpBox" prefWidth="150.0" promptText="Select Operator" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                              <TextField fx:id="havingCompareField" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="25.0" prefWidth="148.0" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                              <Label text="Function" textFill="WHITE">
+                                 <font>
+                                    <Font size="18.0" />
+                                 </font>
+                              </Label>
+                              <ComboBox fx:id="functionBox" prefWidth="150.0" promptText="Select Function" GridPane.columnIndex="1" />
+                           </children>
+                        </GridPane>
+                        <HBox alignment="CENTER" prefHeight="28.0" prefWidth="800.0" spacing="10.0">
+                           <children>
+                              <Button fx:id="havingButton" mnemonicParsing="false" onAction="#addHaving" text="Add &quot;HAVING&quot;" />
+                              <Button mnemonicParsing="false" onAction="#resetHaving" onMouseClicked="#resetWhere" text="Reset &quot;HAVING&quot;" />
+                           </children>
+                        </HBox>
                      </children>
-                  </HBox>
-                  <HBox alignment="CENTER" prefHeight="72.0" prefWidth="800.0" spacing="10.0">
-                     <children>
-                        <TextArea fx:id="whereArea" editable="false" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="45.0" prefWidth="712.0" text="WHERE">
-                           <font>
-                              <Font size="13.0" />
-                           </font>
-                        </TextArea>
-                     </children>
-                  </HBox>
+                  </VBox>
+               </children>
+            </HBox>
+            <VBox prefHeight="200.0" prefWidth="100.0">
+               <children>
+                  <TextArea fx:id="whereArea" editable="false" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="45.0" prefWidth="801.0" text="WHERE">
+                     <font>
+                        <Font size="13.0" />
+                     </font>
+                  </TextArea>
+                  <TextArea fx:id="havingArea" editable="false" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="45.0" prefWidth="798.0" text="HAVING">
+                     <font>
+                        <Font size="13.0" />
+                     </font>
+                  </TextArea>
                </children>
             </VBox>
          </children>

@@ -5,9 +5,22 @@ import java.io.Serializable;
 public class Aggregate implements Serializable {
 
 	private AggregateType type;
-	private String tablename, columnname;
-	Boolean isSelect = false;
+	private Operator op;
+	private String tablename, columnname, comparevalue;
+	private Boolean isSelect = false;
 	
+	public Operator getOp() {
+		return op;
+	}
+	public void setOp(Operator op) {
+		this.op = op;
+	}
+	public String getComparevalue() {
+		return comparevalue;
+	}
+	public void setComparevalue(String comparevalue) {
+		this.comparevalue = comparevalue;
+	}
 	public AggregateType getType() {
 		return type;
 	}
