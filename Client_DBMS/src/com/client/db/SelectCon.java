@@ -300,7 +300,8 @@ public class SelectCon implements Initializable {
 		String opaux = "", aggaux = "";
 		
 		String [] helper = havingColBox.getSelectionModel().getSelectedItem().split(" - ");
-		aux.setColumnname(helper[0] + "#" + helper[1]);
+		aux.setTablename(helper[0]);
+		aux.setColumnname(helper[1]);
 		aux.setComparevalue(havingCompareField.getText());
 		
 		switch (havingOpBox.getSelectionModel().getSelectedItem()) {

@@ -15,6 +15,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import message.Aggregate;
 import message.Attribute;
 import message.JoinOn;
 import message.Operator;
@@ -374,7 +375,7 @@ public final class DML {
 		return 0;
 	}
 	
-	public static int checkWhere(String dbname, ArrayList<Where> whereList, ArrayList<JoinOn> joinList) {
+	public static int checkWhere(String dbname, ArrayList<Where> whereList, ArrayList<JoinOn> joinList, ArrayList<Aggregate> havingAgg,  ArrayList<Aggregate> selectAgg, String groupbyValue, ArrayList<String> selectList) {
 		
 		for (JoinOn i : joinList) {
 			if(!i.getAttribute1().split("#")[0].equals(i.getAttribute2().split("#")[0]))
@@ -392,7 +393,58 @@ public final class DML {
 				if(!valueCheck(attType, i.getField2()))
 					return -1;
 			}
-			
+		}
+		
+		if (groupbyValue.equals("") && havingAgg.size() > 0)
+			return -3;
+		
+		for (int i = 0; i < havingAgg.size(); i++) {
+			String type = DBStructure.getAttributeType(dbname, havingAgg.get(i).getTablename(), havingAgg.get(i).getColumnname());
+			if (!type.equals("int") || !type.equals("float"))
+				return -4;
+		}
+		
+		if (groupbyValue.equals("") && selectAgg.size() > 0 && selectList.size() > 0)
+			return -5;
+		
+		if (!groupbyValue.equals("")) {
+			for(int i = 0; i < selectList.size(); i++) {
+				Boolean isGroup = false, isAgg = false;
+				String col = selectList.get(i).split("#")[1];
+				
+				if (groupbyValue.equals(col))
+					isGroup = true;
+				
+				for (int j = 0; j < selectAgg.size(); j++) {
+					if (selectAgg.get(j).getColumnname().equals(col)) {
+						isAgg = true;
+						break;
+					}
+				}
+				
+				for (int j = 0; j < havingAgg.size(); j++) {
+					if (havingAgg.get(j).getColumnname().equals(col)) {
+						isAgg = true;
+						break;
+					}
+				}
+				
+				if (!isGroup && !isAgg) {
+					return -6;
+				}
+			}
+		}
+		
+		for (int i = 0; i < havingAgg.size(); i++) {
+			Boolean isAgg = false;
+			String col = havingAgg.get(i).getColumnname();
+			for(int j = 0; j < selectList.size(); j++) {
+				if(col.equals(selectList.get(j).split("#")[1])) {
+					isAgg = true;
+				}
+			}
+			if (!isAgg)
+				return -7;
 		}
 		
 		return 0;

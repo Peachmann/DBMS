@@ -249,7 +249,8 @@ public class Server {
 							break;
 							
 						case SELECT:
-							statementState = DML.checkWhere(inputMessage.getDBname(), inputMessage.getWhereList(), inputMessage.getJoins());
+							statementState = DML.checkWhere(inputMessage.getDBname(), inputMessage.getWhereList(), inputMessage.getJoins(), inputMessage.getHavingAgg(),
+									inputMessage.getSelectAgg(), inputMessage.getGroupBy(), inputMessage.getSelectList());
 							switch(statementState) {
 							case 0:
 								constructResponse(35, inputMessage);
@@ -259,6 +260,21 @@ public class Server {
 								break;
 							case -2:
 								constructResponse(37, inputMessage);
+								break;
+							case -3:
+								constructResponse(38, inputMessage);
+								break;
+							case -4:
+								constructResponse(39, inputMessage);
+								break;
+							case -5:
+								constructResponse(40, inputMessage);
+								break;
+							case -6:
+								constructResponse(41, inputMessage);
+								break;
+							case -7:
+								constructResponse(42, inputMessage);
 								break;
 							}
 							break;
@@ -482,7 +498,32 @@ public class Server {
 				response.setMsType(MessageType.INSERT_VALUES); // just to print error message
 				response.setResponse("Join type mismatch!");
 				break;
+				
+			case 38:
+				response.setMsType(MessageType.INSERT_VALUES); // just to print error message
+				response.setResponse("No group by present with having!");
+				break;
+				
+			case 39:
+				response.setMsType(MessageType.INSERT_VALUES); // just to print error message
+				response.setResponse("Aggregate function incorrect type!");
+				break;
 
+			case 40:
+				response.setMsType(MessageType.INSERT_VALUES); // just to print error message
+				response.setResponse("No GROUP BY but select or aggregates not empty!");
+				break;
+				
+			case 41:
+				response.setMsType(MessageType.INSERT_VALUES); // just to print error message
+				response.setResponse("Columns in select must be in group by or in an aggregate!");
+				break;
+				
+			case 42:
+				response.setMsType(MessageType.INSERT_VALUES); // just to print error message
+				response.setResponse("Columns in having must be in select as well!");
+				break;
+				
 			case 99:
 				response.setMsType(MessageType.CONNECTED);
 				response.setDBname(absPath + "\\databases\\");
