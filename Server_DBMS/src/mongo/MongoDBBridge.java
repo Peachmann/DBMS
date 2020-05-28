@@ -643,12 +643,12 @@ public class MongoDBBridge {
 								for(int i = 0; i < data.length; i += 3) {
 									
 									if(selectList.contains(t + "#" + data[i])) {
-										sel += t + "#" + data[i] + "#" + data[i + 1] + "#" + data[i + 2]; 
+										sel += t + "#" + data[i] + "#" + data[i + 1] + "#" + data[i + 2] + "#"; 
 									}
 								}
 								String pk = DBStructure.getTablePK(dbname, t);
 								if(selectList.contains(t + "#" + pk)) {
-									sel = t + "#" + pk + "#" + DBStructure.getAttributeType(dbname, t, pk) + "#" + doc.get(pk).toString() + "#" + sel;
+									sel = t + "#" + pk + "#" + DBStructure.getAttributeType(dbname, t, pk) + "#" + doc.get(pk).toString() + "#" + sel + "#";
 								}
 								select.add(sel);
 							}
@@ -1296,7 +1296,7 @@ public class MongoDBBridge {
 									
 								if(isAg.contains(t + "#" + data[i])) {
 									if(gba.containsKey(t + "#" + gbval + "#" + data[i])) {
-										GBcounts gb = gba.get(t + "#" + data[i]);
+										GBcounts gb = gba.get(t + "#" + gbval + "#" + data[i]);
 										gb.add();
 										gb.mmChange(Double.parseDouble(data[i + 2]));
 										gb.sumAdd(Double.parseDouble(data[i + 2]));
@@ -1331,9 +1331,13 @@ public class MongoDBBridge {
 							}
 						}
 						
-						for(Aggregate ag : selag) {
-							for(String gbv : groups) {
-								String sel = "";
+						for(String gbv : groups) {
+							String sel = "";
+							boolean isGood = true;
+							if(selectList.contains(groupBy)) {
+								sel = groupBy + "#" + DBStructure.getAttributeType(dbname, groupBy.substring(0, groupBy.indexOf("#")), group)+ "#" + gbv + "#";
+							}
+							for(Aggregate ag : selag) {
 								GBcounts gb = gba.get(ag.getTablename() + "#" + gbv + "#" + ag.getColumnname());
 								sel += ag.getTablename() + "#";
 								double val = 0;
@@ -1361,7 +1365,6 @@ public class MongoDBBridge {
 								default:
 									break;
 								}
-								boolean isGood = true;
 								for(Aggregate agh : having) {
 									if(agh.getTablename().equals(ag.getTablename()) && agh.getColumnname().equals(ag.getColumnname())) {
 										if(!mdbCompare("float",val + "",agh.getComparevalue(),agh.getOp())) {
@@ -1371,9 +1374,9 @@ public class MongoDBBridge {
 										break;
 									}
 								}
-								if(isGood) {
-									select.add(sel);
-								}
+							}
+							if(isGood) {
+								select.add(sel);
 							}
 						}
 						
@@ -1467,9 +1470,13 @@ public class MongoDBBridge {
 							}
 						}
 						
-						for(Aggregate ag : selag) {
-							for(String gbv : groups) {
-								String sel = "";
+						for(String gbv : groups) {
+							String sel = "";
+							boolean isGood = true;
+							if(selectList.contains(groupBy)) {
+								sel = groupBy + "#" + DBStructure.getAttributeType(dbname, groupBy.substring(0, groupBy.indexOf("#")), group)+ "#" + gbv + "#";
+							}
+							for(Aggregate ag : selag) {
 								GBcounts gb = gba.get(ag.getTablename() + "#" + gbv + "#" + ag.getColumnname());
 								sel += ag.getTablename() + "#";
 								double val = 0;
@@ -1497,7 +1504,6 @@ public class MongoDBBridge {
 								default:
 									break;
 								}
-								boolean isGood = true;
 								for(Aggregate agh : having) {
 									if(agh.getTablename().equals(ag.getTablename()) && agh.getColumnname().equals(ag.getColumnname())) {
 										if(!mdbCompare("float",val + "",agh.getComparevalue(),agh.getOp())) {
@@ -1507,9 +1513,9 @@ public class MongoDBBridge {
 										break;
 									}
 								}
-								if(isGood) {
-									select.add(sel);
-								}
+							}
+							if(isGood) {
+								select.add(sel);
 							}
 						}
 					}
@@ -1548,9 +1554,13 @@ public class MongoDBBridge {
 								if(data[i].equals(groupt) && data[i+1].equals(group)) {
 									
 									gbval = data[i+3];
+									if(!groups.contains(gbval)) {
+										groups.add(gbval);
+									}
 									break;
 								}
 							}
+							
 							for(int i = 0; i < data.length; i += 4) {
 								if(isAg.contains(data[i] + "#" + data[i+1])) {
 									if(gba.containsKey(data[i] + "#" + gbval + "#" + data[i+1])) {
@@ -1573,9 +1583,13 @@ public class MongoDBBridge {
 						}
 					}
 					
-					for(Aggregate ag : selag) {
-						for(String gbv : groups) {
-							String sel = "";
+					for(String gbv : groups) {
+						String sel = "";
+						boolean isGood = true;
+						if(selectList.contains(groupBy)) {
+							sel = groupBy + "#" + DBStructure.getAttributeType(dbname, groupt, group)+ "#" + gbv + "#";
+						}
+						for(Aggregate ag : selag) {
 							GBcounts gb = gba.get(ag.getTablename() + "#" + gbv + "#" + ag.getColumnname());
 							sel += ag.getTablename() + "#";
 							double val = 0;
@@ -1603,9 +1617,17 @@ public class MongoDBBridge {
 							default:
 								break;
 							}
-							boolean isGood = true;
+							for(Aggregate agh : selag) {
+								System.out.println(agh.getColumnname() + " " + agh.getOp() + " " + agh.getType() + " " + agh.getComparevalue());
+							}
+							System.out.println("NOOOOOOOOOOOOOOOOOOOO");
 							for(Aggregate agh : having) {
+								System.out.println(agh.getColumnname() + " " + agh.getOp() + " " + agh.getType() + " " + agh.getComparevalue());
+							}
+							for(Aggregate agh : having) {
+								System.out.println(agh.getColumnname() + " " + val + " " + agh.getComparevalue() + " " + agh.getIsSelect() + " " + agh.getOp() + " " + agh.getType());
 								if(agh.getTablename().equals(ag.getTablename()) && agh.getColumnname().equals(ag.getColumnname())) {
+									
 									if(!mdbCompare("float",val + "",agh.getComparevalue(),agh.getOp())) {
 										isGood = false;
 										break;
@@ -1613,9 +1635,9 @@ public class MongoDBBridge {
 									break;
 								}
 							}
-							if(isGood) {
-								select.add(sel);
-							}
+						}
+						if(isGood) {
+							select.add(sel);
 						}
 					}
 				}

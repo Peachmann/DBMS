@@ -400,14 +400,14 @@ public final class DML {
 		
 		for (int i = 0; i < havingAgg.size(); i++) {
 			String type = DBStructure.getAttributeType(dbname, havingAgg.get(i).getTablename(), havingAgg.get(i).getColumnname());
-			if (!type.equals("int") || !type.equals("float"))
+			if (!type.equals("int") && !type.equals("float"))
 				return -4;
 		}
 		
 		if (groupbyValue.equals("") && selectAgg.size() > 0 && selectList.size() > 0)
 			return -5;
 		
-		if (!groupbyValue.equals("")) {
+		/*if (!groupbyValue.equals("")) {
 			for(int i = 0; i < selectList.size(); i++) {
 				Boolean isGroup = false, isAgg = false;
 				String col = selectList.get(i).split("#")[1];
@@ -445,7 +445,7 @@ public final class DML {
 			}
 			if (!isAgg)
 				return -7;
-		}
+		}*/
 		
 		return 0;
 	}
