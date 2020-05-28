@@ -18,6 +18,7 @@ import com.mongodb.client.MongoCursor;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.MongoIterable;
 
+import message.Aggregate;
 import message.Attribute;
 import message.JoinOn;
 import message.Operator;
@@ -575,184 +576,1048 @@ public class MongoDBBridge {
 		return newJoined;
 	}
 	
-	public ArrayList<String> mdbSelect(String dbname, ArrayList<String> selectList, ArrayList<Where> whereList, ArrayList<JoinOn> joins) {
+	public ArrayList<String> mdbSelect(String dbname, ArrayList<String> selectList, ArrayList<Where> whereList, ArrayList<JoinOn> joins, String groupBy, ArrayList<Aggregate> selag, ArrayList<Aggregate> having) {
 		
 		MongoDatabase database = mongoClient.getDatabase(dbname);
 		HashSet<String> select = new HashSet<String>();
 		
-		if(joins.size() == 0) {
-			//without join
-			if(whereList.size() == 0) {
-				//there are not where statements
-				ArrayList<String> indexNames = new ArrayList<String>();
-				for(String selected : selectList) {
-					String table = selected.substring(0, selected.indexOf('#'));
-					String attr = selected.substring(selected.indexOf('#') + 1);
-					String name = DBStructure.getIndexName(dbname, table, attr);
-					String pk = DBStructure.getTablePK(dbname, table);
-					if(name.equals("#NO_INDEX#") || attr.equals(pk)) {
-						break;
-					}
-					indexNames.add(name);
-				}
-				if(indexNames.size() == selectList.size()) {
-					
-					Hashtable<String, String> row = new Hashtable<String, String>();
-					for(int i = 0; i < indexNames.size(); i++) {
-						MongoCollection<Document> ind = database.getCollection(indexNames.get(i));
-						String table = selectList.get(i).substring(0, selectList.get(i).indexOf('#'));
-						String attr = selectList.get(i).substring(selectList.get(i).indexOf('#') + 1);
-						String type = DBStructure.getAttributeType(dbname, table, attr);
-						FindIterable<Document> docs = ind.find();
-						for(Document doc : docs) {
-							String[] data = doc.get("ID").toString().split("#");
-							for(String key : data) {
-								if(row.containsKey(key)) {
-									String rowData = row.get(key);
-									row.remove(key);
-									rowData += table + "#" + attr + "#" + type + "#" + doc.get(attr).toString() + "#";
-									row.put(key, rowData);
-								} else {
-									String pk = DBStructure.getTablePK(dbname, indexNames.get(i));
-									String rowData = "";
-									if(selectList.contains(indexNames.get(i) + "#" + pk)) {
-										rowData += table + "#" + pk + "#" + DBStructure.getAttributeType(dbname, indexNames.get(i), pk) + "#" + key + "#";
-									}
-									rowData += table + "#" + attr + "#" + type + "#" + doc.get(attr).toString() + "#";
-									row.put(key, rowData);
-								}
+		if(groupBy.isEmpty()) {
+			if(selag.size() == 0) {
+				if(joins.size() == 0) {
+					//without join
+					if(whereList.size() == 0) {
+						//there are not where statements
+						ArrayList<String> indexNames = new ArrayList<String>();
+						for(String selected : selectList) {
+							String table = selected.substring(0, selected.indexOf('#'));
+							String attr = selected.substring(selected.indexOf('#') + 1);
+							String name = DBStructure.getIndexName(dbname, table, attr);
+							String pk = DBStructure.getTablePK(dbname, table);
+							if(name.equals("#NO_INDEX#") || attr.equals(pk)) {
+								break;
 							}
+							indexNames.add(name);
 						}
-					}
-					Set<String> keys = row.keySet();
-					for(String k : keys) {
-						select.add(row.get(k));
-					}
-					
-				} else {
-					String t = selectList.get(0).substring(0, selectList.get(0).indexOf("#"));
-					MongoCollection<Document> table = database.getCollection(t);
-					
-					FindIterable<Document> docs = table.find();
-					for(Document doc : docs) {
-						String[] data = doc.get("#data#").toString().split("#");
-						String sel = "";
-						for(int i = 0; i < data.length; i += 3) {
+						if(indexNames.size() == selectList.size()) {
 							
-							if(selectList.contains(t + "#" + data[i])) {
-								sel += t + "#" + data[i] + "#" + data[i + 1] + "#" + data[i + 2]; 
-							}
-						}
-						String pk = DBStructure.getTablePK(dbname, t);
-						if(selectList.contains(t + "#" + pk)) {
-							sel = t + "#" + pk + "#" + DBStructure.getAttributeType(dbname, t, pk) + "#" + doc.get(pk).toString() + "#" + sel;
-						}
-						select.add(sel);
-					}
-				}
-			} else {
-				//there are where statements
-				Hashtable<String, String> all = new Hashtable<String, String>();
-				String t = selectList.get(0).substring(0, selectList.get(0).indexOf('#'));
-				String pk = DBStructure.getTablePK(dbname, t);
-				MongoCollection<Document> table = database.getCollection(t);
-				
-				FindIterable<Document> docs = table.find();
-				for(Document doc : docs) {
-					String id = doc.get(pk).toString();
-					String d = doc.get("#data#").toString();
-					d = pk + "#" + DBStructure.getAttributeType(dbname, t, pk) + "#" + id + "#" + d;
-					all.put(id, d);
-				}
-				
-				//my favourite part, Where, where, where????
-				for(Where where : whereList) {
-					String name = where.getField1().substring(where.getField1().indexOf('#') + 1);
-					String indexName = DBStructure.getIndexName(dbname, t, name);
-					String pk2 = DBStructure.getTablePK(dbname, t);
-					if(!indexName.equals("#NO_INDEX#") && !name.equals(pk2)) {
-						MongoCollection<Document> index = database.getCollection(indexName);
-						FindIterable<Document> ind = index.find();
-						for(Document doc : ind) {
-							String val = doc.get(name).toString();
-							String type = DBStructure.getAttributeType(dbname, t, name);
-							if(!mdbCompare(type, val, where.getField2(), where.getOp())) {
-								String[] data = doc.get("ID").toString().split("#"); //HIBA
-								for(String lost : data) {
-									all.remove(lost);
+							Hashtable<String, String> row = new Hashtable<String, String>();
+							for(int i = 0; i < indexNames.size(); i++) {
+								MongoCollection<Document> ind = database.getCollection(indexNames.get(i));
+								String table = selectList.get(i).substring(0, selectList.get(i).indexOf('#'));
+								String attr = selectList.get(i).substring(selectList.get(i).indexOf('#') + 1);
+								String type = DBStructure.getAttributeType(dbname, table, attr);
+								FindIterable<Document> docs = ind.find();
+								for(Document doc : docs) {
+									String[] data = doc.get("ID").toString().split("#");
+									for(String key : data) {
+										if(row.containsKey(key)) {
+											String rowData = row.get(key);
+											row.remove(key);
+											rowData += table + "#" + attr + "#" + type + "#" + doc.get(attr).toString() + "#";
+											row.put(key, rowData);
+										} else {
+											String pk = DBStructure.getTablePK(dbname, indexNames.get(i));
+											String rowData = "";
+											if(selectList.contains(indexNames.get(i) + "#" + pk)) {
+												rowData += table + "#" + pk + "#" + DBStructure.getAttributeType(dbname, indexNames.get(i), pk) + "#" + key + "#";
+											}
+											rowData += table + "#" + attr + "#" + type + "#" + doc.get(attr).toString() + "#";
+											row.put(key, rowData);
+										}
+									}
 								}
+							}
+							Set<String> keys = row.keySet();
+							for(String k : keys) {
+								select.add(row.get(k));
+							}
+							
+						} else {
+							String t = selectList.get(0).substring(0, selectList.get(0).indexOf("#"));
+							MongoCollection<Document> table = database.getCollection(t);
+							
+							FindIterable<Document> docs = table.find();
+							for(Document doc : docs) {
+								String[] data = doc.get("#data#").toString().split("#");
+								String sel = "";
+								for(int i = 0; i < data.length; i += 3) {
+									
+									if(selectList.contains(t + "#" + data[i])) {
+										sel += t + "#" + data[i] + "#" + data[i + 1] + "#" + data[i + 2]; 
+									}
+								}
+								String pk = DBStructure.getTablePK(dbname, t);
+								if(selectList.contains(t + "#" + pk)) {
+									sel = t + "#" + pk + "#" + DBStructure.getAttributeType(dbname, t, pk) + "#" + doc.get(pk).toString() + "#" + sel;
+								}
+								select.add(sel);
 							}
 						}
 					} else {
+						//there are where statements
+						Hashtable<String, String> all = new Hashtable<String, String>();
+						String t = selectList.get(0).substring(0, selectList.get(0).indexOf('#'));
+						String pk = DBStructure.getTablePK(dbname, t);
+						MongoCollection<Document> table = database.getCollection(t);
+						
+						FindIterable<Document> docs = table.find();
+						for(Document doc : docs) {
+							String id = doc.get(pk).toString();
+							String d = doc.get("#data#").toString();
+							d = pk + "#" + DBStructure.getAttributeType(dbname, t, pk) + "#" + id + "#" + d;
+							all.put(id, d);
+						}
+						
+						//my favourite part, Where, where, where????
+						for(Where where : whereList) {
+							String name = where.getField1().substring(where.getField1().indexOf('#') + 1);
+							String indexName = DBStructure.getIndexName(dbname, t, name);
+							String pk2 = DBStructure.getTablePK(dbname, t);
+							if(!indexName.equals("#NO_INDEX#") && !name.equals(pk2)) {
+								MongoCollection<Document> index = database.getCollection(indexName);
+								FindIterable<Document> ind = index.find();
+								for(Document doc : ind) {
+									String val = doc.get(name).toString();
+									String type = DBStructure.getAttributeType(dbname, t, name);
+									if(!mdbCompare(type, val, where.getField2(), where.getOp())) {
+										String[] data = doc.get("ID").toString().split("#"); //HIBA
+										for(String lost : data) {
+											all.remove(lost);
+										}
+									}
+								}
+							} else {
+								
+								Set<String> keys = all.keySet();
+								Hashtable<String, String> help = new Hashtable<String, String>();
+								for(String k : keys) {
+									//System.out.println(k + " " +all.get(k));
+									String[] data = all.get(k).split("#");
+									for(int i = 0; i < data.length; i+=3) {
+										if(data[i].equals(name)) {
+											if(mdbCompare(data[i + 1], data[i + 2], where.getField2(), where.getOp())) {
+												help.put(k, all.get(k));
+											}
+											break;
+										}
+									}
+								}
+								all.clear();
+								all = help;
+							}
+						} 
 						
 						Set<String> keys = all.keySet();
-						Hashtable<String, String> help = new Hashtable<String, String>();
 						for(String k : keys) {
-							//System.out.println(k + " " +all.get(k));
+							String rowData = "";
+							/*if(selectList.contains(t + "#" + pk)) {
+								rowData += t + "#" + pk + "#" + DBStructure.getAttributeType(dbname, t, pk) + "#" + k + "#";
+							}*/
 							String[] data = all.get(k).split("#");
-							for(int i = 0; i < data.length; i+=3) {
-								if(data[i].equals(name)) {
-									if(mdbCompare(data[i + 1], data[i + 2], where.getField2(), where.getOp())) {
-										help.put(k, all.get(k));
+							for(int i = 0; i < data.length; i += 3) {
+								if(selectList.contains(t + "#" + data[i])) {
+									rowData += t + "#" + data[i] + "#" + data[i + 1] + "#" + data[i + 2] + "#";
+								}
+							}
+							select.add(rowData);
+						}
+					}
+				} else {
+					HashSet<String> rows = this.mdbgetJoinedSet(dbname, null, joins.get(0), true);
+					for(int i = 1; i < joins.size(); i++) {
+						rows = this.mdbgetJoinedSet(dbname, rows, joins.get(i), false);
+					}
+					
+					Iterator<String> rec = rows.iterator();
+					
+					while(rec.hasNext()) {
+						String row = rec.next();
+						String[] data = row.split("#");
+						boolean match = true;
+						for(Where where : whereList) { // Where field1 - Table#Attr
+							String[] wd = where.getField1().split("#");
+							for(int i = 0; i < data.length; i += 4) {
+								if(data[i].equals(wd[0]) && data[i+1].equals(wd[1])) {
+									if(!mdbCompare(data[i + 2], data[i + 3], where.getField2(), where.getOp())) {
+										match = false;
+										break;
+									}
+								}
+							}
+							if(!match) {
+								break;
+							}
+						}
+						if(match) {
+							String projRow = "";
+							for(int i = 0; i < data.length; i += 4) {
+								if(selectList.contains(data[i] + "#" + data[i+1])) {
+									projRow += data[i] + "#" + data[i+1] + "#" + data[i+2] + "#" + data[i+3] + "#";
+								}
+							}
+							select.add(projRow);
+						}
+					}
+				}
+			} else {
+				// no group by but has aggregate functions
+
+				ArrayList<String> isAg = new ArrayList<String>();
+				for(Aggregate ag : selag) {
+					isAg.add(ag.getTablename() + "#" + ag.getColumnname());
+				}
+
+				Hashtable<String, GBcounts> gba = new Hashtable<String, GBcounts>();
+				
+				if(joins.size() == 0) {
+					//without join
+					if(whereList.size() == 0) {
+						//there are not where statements
+						String t = selag.get(0).getTablename();
+						MongoCollection<Document> table = database.getCollection(t);
+							
+						FindIterable<Document> docs = table.find();
+						for(Document doc : docs) {
+							String[] data = doc.get("#data#").toString().split("#");
+							String sel = "";
+							for(int i = 0; i < data.length; i += 3) {
+									
+								if(isAg.contains(t + "#" + data[i])) {
+									if(gba.containsKey(t + "#" + data[i])) {
+										GBcounts gb = gba.get(t + "#" + data[i]);
+										gb.add();
+										gb.mmChange(Double.parseDouble(data[i + 2]));
+										gb.sumAdd(Double.parseDouble(data[i + 2]));
+										gba.remove(t + "#" + data[i]);
+										gba.put(t + "#" + data[i], gb);
+									} else {
+										GBcounts gb = new GBcounts(t + "#" + data[i]);
+										gb.add();
+										gb.mmChange(Double.parseDouble(data[i + 2]));
+										gb.sumAdd(Double.parseDouble(data[i + 2]));
+										gba.put(t + "#" + data[i], gb);
+									}
+								}
+							}
+							String pk = DBStructure.getTablePK(dbname, t);
+							if(isAg.contains(t + "#" + pk)) {
+								if(gba.containsKey(t + "#" + pk)) {
+									GBcounts gb = gba.get(t + "#" + pk);
+									gb.add();
+									gb.mmChange(Double.parseDouble(doc.get(pk).toString()));
+									gb.sumAdd(Double.parseDouble(doc.get(pk).toString()));
+									gba.remove(t + "#" + pk);
+									gba.put(t + "#" + pk, gb);
+								} else {
+									GBcounts gb = new GBcounts(t + "#" + pk);
+									gb.add();
+									gb.mmChange(Double.parseDouble(doc.get(pk).toString()));
+									gb.sumAdd(Double.parseDouble(doc.get(pk).toString()));
+									gba.put(t + "#" + pk, gb);
+								}
+							}
+						}
+						
+						for(Aggregate ag : selag) {
+							String sel = "";
+							GBcounts gb = gba.get(ag.getTablename() + "#" + ag.getColumnname());
+							sel += ag.getTablename() + "#";
+							double val = 0;
+							switch(ag.getType()) {
+							case COUNT:
+								val = gb.getCount();
+								sel += "Count(" + ag.getColumnname() + ")#float#" + gb.getCount() + "#"; 
+								break;
+							case AVG:
+								val = (gb.getSum() / gb.getCount());
+								sel += "Avg(" + ag.getColumnname() + ")#float#" +  val + "#";
+								break;
+							case MIN:
+								val = gb.getMin();
+								sel += "Min(" + ag.getColumnname() + ")#float#" + gb.getMin() + "#";
+								break;
+							case MAX:
+								val = gb.getMax();
+								sel += "Max(" + ag.getColumnname() + ")#float#" + gb.getMax() + "#";
+								break;
+							case SUM:
+								val = gb.getSum();
+								sel += "Sum(" + ag.getColumnname() + ")#float#" + gb.getSum() + "#";
+								break;
+							default:
+								break;
+							}
+							boolean isGood = true;
+							for(Aggregate agh : having) {
+								if(agh.getTablename().equals(ag.getTablename()) && agh.getColumnname().equals(ag.getColumnname())) {
+									if(!mdbCompare("float",val + "",agh.getComparevalue(),agh.getOp())) {
+										isGood = false;
+										break;
 									}
 									break;
 								}
 							}
+							if(isGood) {
+								select.add(sel);
+							}
 						}
-						all.clear();
-						all = help;
-					}
-				} 
-				
-				Set<String> keys = all.keySet();
-				for(String k : keys) {
-					String rowData = "";
-					/*if(selectList.contains(t + "#" + pk)) {
-						rowData += t + "#" + pk + "#" + DBStructure.getAttributeType(dbname, t, pk) + "#" + k + "#";
-					}*/
-					String[] data = all.get(k).split("#");
-					for(int i = 0; i < data.length; i += 3) {
-						if(selectList.contains(t + "#" + data[i])) {
-							rowData += t + "#" + data[i] + "#" + data[i + 1] + "#" + data[i + 2] + "#";
+						
+						
+					} else {
+						
+						//there are where statements
+						Hashtable<String, String> all = new Hashtable<String, String>();
+						String t = selag.get(0).getTablename();
+						String pk = DBStructure.getTablePK(dbname, t);
+						MongoCollection<Document> table = database.getCollection(t);
+						
+						FindIterable<Document> docs = table.find();
+						for(Document doc : docs) {
+							String id = doc.get(pk).toString();
+							String d = doc.get("#data#").toString();
+							d = pk + "#" + DBStructure.getAttributeType(dbname, t, pk) + "#" + id + "#" + d;
+							all.put(id, d);
 						}
-					}
-					select.add(rowData);
-				}
-			}
-		} else {
-			HashSet<String> rows = this.mdbgetJoinedSet(dbname, null, joins.get(0), true);
-			for(int i = 1; i < joins.size(); i++) {
-				rows = this.mdbgetJoinedSet(dbname, rows, joins.get(i), false);
-			}
-			
-			Iterator<String> rec = rows.iterator();
-			
-			while(rec.hasNext()) {
-				String row = rec.next();
-				String[] data = row.split("#");
-				boolean match = true;
-				for(Where where : whereList) { // Where field1 - Table#Attr
-					String[] wd = where.getField1().split("#");
-					for(int i = 0; i < data.length; i += 4) {
-						if(data[i].equals(wd[0]) && data[i+1].equals(wd[1])) {
-							if(!mdbCompare(data[i + 2], data[i + 3], where.getField2(), where.getOp())) {
-								match = false;
+						
+						//my favourite part, Where, where, where????
+						for(Where where : whereList) {
+							String name = where.getField1().substring(where.getField1().indexOf('#') + 1);
+							String indexName = DBStructure.getIndexName(dbname, t, name);
+							String pk2 = DBStructure.getTablePK(dbname, t);
+							if(!indexName.equals("#NO_INDEX#") && !name.equals(pk2)) {
+								MongoCollection<Document> index = database.getCollection(indexName);
+								FindIterable<Document> ind = index.find();
+								for(Document doc : ind) {
+									String val = doc.get(name).toString();
+									String type = DBStructure.getAttributeType(dbname, t, name);
+									if(!mdbCompare(type, val, where.getField2(), where.getOp())) {
+										String[] data = doc.get("ID").toString().split("#"); //HIBA
+										for(String lost : data) {
+											all.remove(lost);
+										}
+									}
+								}
+							} else {
+								
+								Set<String> keys = all.keySet();
+								Hashtable<String, String> help = new Hashtable<String, String>();
+								for(String k : keys) {
+									//System.out.println(k + " " +all.get(k));
+									String[] data = all.get(k).split("#");
+									for(int i = 0; i < data.length; i+=3) {
+										if(data[i].equals(name)) {
+											if(mdbCompare(data[i + 1], data[i + 2], where.getField2(), where.getOp())) {
+												help.put(k, all.get(k));
+											}
+											break;
+										}
+									}
+								}
+								all.clear();
+								all = help;
+							}
+						} 
+						//NANANNANANAN
+						Set<String> keys = all.keySet();
+						for(String k : keys) {
+							String[] data = all.get(k).split("#");
+							for(int i = 0; i < data.length; i += 3) {
+								if(isAg.contains(t + "#" + data[i])) {
+									if(gba.containsKey(t + "#" + data[i])) {
+										GBcounts gb = gba.get(t + "#" + data[i]);
+										gb.add();
+										gb.mmChange(Double.parseDouble(data[i + 2]));
+										gb.sumAdd(Double.parseDouble(data[i + 2]));
+										gba.remove(t + "#" + data[i]);
+										gba.put(t + "#" + data[i], gb);
+									} else {
+										GBcounts gb = new GBcounts(t + "#" + data[i]);
+										gb.add();
+										gb.mmChange(Double.parseDouble(data[i + 2]));
+										gb.sumAdd(Double.parseDouble(data[i + 2]));
+										gba.put(t + "#" + data[i], gb);
+									}
+								}
+							}
+						}
+						
+						for(Aggregate ag : selag) {
+							String sel = "";
+							GBcounts gb = gba.get(ag.getTablename() + "#" + ag.getColumnname());
+							sel += ag.getTablename() + "#";
+							double val = 0;
+							switch(ag.getType()) {
+							case COUNT:
+								val = gb.getCount();
+								sel += "Count(" + ag.getColumnname() + ")#float#" + gb.getCount() + "#"; 
 								break;
+							case AVG:
+								val = (gb.getSum() / gb.getCount());
+								sel += "Avg(" + ag.getColumnname() + ")#float#" +  val + "#";
+								break;
+							case MIN:
+								val = gb.getMin();
+								sel += "Min(" + ag.getColumnname() + ")#float#" + gb.getMin() + "#";
+								break;
+							case MAX:
+								val = gb.getMax();
+								sel += "Max(" + ag.getColumnname() + ")#float#" + gb.getMax() + "#";
+								break;
+							case SUM:
+								val = gb.getSum();
+								sel += "Sum(" + ag.getColumnname() + ")#float#" + gb.getSum() + "#";
+								break;
+							default:
+								break;
+							}
+							boolean isGood = true;
+							for(Aggregate agh : having) {
+								if(agh.getTablename().equals(ag.getTablename()) && agh.getColumnname().equals(ag.getColumnname())) {
+									if(!mdbCompare("float",val + "",agh.getComparevalue(),agh.getOp())) {
+										isGood = false;
+										break;
+									}
+									break;
+								}
+							}
+							if(isGood) {
+								select.add(sel);
 							}
 						}
 					}
-					if(!match) {
-						break;
+				} else {
+					HashSet<String> rows = this.mdbgetJoinedSet(dbname, null, joins.get(0), true);
+					for(int i = 1; i < joins.size(); i++) {
+						rows = this.mdbgetJoinedSet(dbname, rows, joins.get(i), false);
 					}
-				}
-				if(match) {
-					String projRow = "";
-					for(int i = 0; i < data.length; i += 4) {
-						if(selectList.contains(data[i] + "#" + data[i+1])) {
-							projRow += data[i] + "#" + data[i+1] + "#" + data[i+2] + "#" + data[i+3] + "#";
+					
+					Iterator<String> rec = rows.iterator();
+					
+					while(rec.hasNext()) {
+						String row = rec.next();
+						String[] data = row.split("#");
+						boolean match = true;
+						for(Where where : whereList) { // Where field1 - Table#Attr
+							String[] wd = where.getField1().split("#");
+							for(int i = 0; i < data.length; i += 4) {
+								if(data[i].equals(wd[0]) && data[i+1].equals(wd[1])) {
+									if(!mdbCompare(data[i + 2], data[i + 3], where.getField2(), where.getOp())) {
+										match = false;
+										break;
+									}
+								}
+							}
+							if(!match) {
+								break;
+							}
+						}
+						//NANANANANNANNANANNA
+						if(match) {
+							String projRow = "";
+							for(int i = 0; i < data.length; i += 4) {
+								if(isAg.contains(data[i] + "#" + data[i+1])) {
+									if(gba.containsKey(data[i] + "#" + data[i+1])) {
+										GBcounts gb = gba.get(data[i] + "#" + data[i+1]);
+										gb.add();
+										gb.mmChange(Double.parseDouble(data[i + 3]));
+										gb.sumAdd(Double.parseDouble(data[i + 3]));
+										gba.remove(data[i] + "#" + data[i+1]);
+										gba.put(data[i] + "#" + data[i+1], gb);
+									} else {
+										GBcounts gb = new GBcounts(data[i] + "#" + data[i+1]);
+										gb.add();
+										gb.mmChange(Double.parseDouble(data[i + 3]));
+										gb.sumAdd(Double.parseDouble(data[i + 3]));
+										gba.put(data[i] + "#" + data[i+1], gb);
+									}
+								}
+							}
 						}
 					}
-					select.add(projRow);
+					
+					for(Aggregate ag : selag) {
+						String sel = "";
+						GBcounts gb = gba.get(ag.getTablename() + "#" + ag.getColumnname());
+						sel += ag.getTablename() + "#";
+						double val = 0;
+						switch(ag.getType()) {
+						case COUNT:
+							val = gb.getCount();
+							sel += "Count(" + ag.getColumnname() + ")#float#" + gb.getCount() + "#"; 
+							break;
+						case AVG:
+							val = (gb.getSum() / gb.getCount());
+							sel += "Avg(" + ag.getColumnname() + ")#float#" +  val + "#";
+							break;
+						case MIN:
+							val = gb.getMin();
+							sel += "Min(" + ag.getColumnname() + ")#float#" + gb.getMin() + "#";
+							break;
+						case MAX:
+							val = gb.getMax();
+							sel += "Max(" + ag.getColumnname() + ")#float#" + gb.getMax() + "#";
+							break;
+						case SUM:
+							val = gb.getSum();
+							sel += "Sum(" + ag.getColumnname() + ")#float#" + gb.getSum() + "#";
+							break;
+						default:
+							break;
+						}
+						boolean isGood = true;
+						for(Aggregate agh : having) {
+							if(agh.getTablename().equals(ag.getTablename()) && agh.getColumnname().equals(ag.getColumnname())) {
+								if(!mdbCompare("float",val + "",agh.getComparevalue(),agh.getOp())) {
+									isGood = false;
+									break;
+								}
+								break;
+							}
+						}
+						if(isGood) {
+							select.add(sel);
+						}
+					}
+				}
+			}
+		} else {
+			//with group by
+			
+			if(selag.size() == 0) {
+				if(joins.size() == 0) {
+					//without join
+					if(whereList.size() == 0) {
+						//there are not where statements
+						ArrayList<String> indexNames = new ArrayList<String>();
+						for(String selected : selectList) {
+							String table = selected.substring(0, selected.indexOf('#'));
+							String attr = selected.substring(selected.indexOf('#') + 1);
+							String name = DBStructure.getIndexName(dbname, table, attr);
+							String pk = DBStructure.getTablePK(dbname, table);
+							if(name.equals("#NO_INDEX#") || attr.equals(pk)) {
+								break;
+							}
+							indexNames.add(name);
+						}
+						if(indexNames.size() == selectList.size()) {
+							
+							Hashtable<String, String> row = new Hashtable<String, String>();
+							for(int i = 0; i < indexNames.size(); i++) {
+								MongoCollection<Document> ind = database.getCollection(indexNames.get(i));
+								String table = selectList.get(i).substring(0, selectList.get(i).indexOf('#'));
+								String attr = selectList.get(i).substring(selectList.get(i).indexOf('#') + 1);
+								String type = DBStructure.getAttributeType(dbname, table, attr);
+								FindIterable<Document> docs = ind.find();
+								for(Document doc : docs) {
+									String[] data = doc.get("ID").toString().split("#");
+									for(String key : data) {
+										if(row.containsKey(key)) {
+											String rowData = row.get(key);
+											row.remove(key);
+											rowData += table + "#" + attr + "#" + type + "#" + doc.get(attr).toString() + "#";
+											row.put(key, rowData);
+										} else {
+											String pk = DBStructure.getTablePK(dbname, indexNames.get(i));
+											String rowData = "";
+											if(selectList.contains(indexNames.get(i) + "#" + pk)) {
+												rowData += table + "#" + pk + "#" + DBStructure.getAttributeType(dbname, indexNames.get(i), pk) + "#" + key + "#";
+											}
+											rowData += table + "#" + attr + "#" + type + "#" + doc.get(attr).toString() + "#";
+											row.put(key, rowData);
+										}
+									}
+								}
+							}
+							Set<String> keys = row.keySet();
+							for(String k : keys) {
+								select.add(row.get(k));
+							}
+							
+						} else {
+							String t = selectList.get(0).substring(0, selectList.get(0).indexOf("#"));
+							MongoCollection<Document> table = database.getCollection(t);
+							
+							FindIterable<Document> docs = table.find();
+							for(Document doc : docs) {
+								String[] data = doc.get("#data#").toString().split("#");
+								String sel = "";
+								for(int i = 0; i < data.length; i += 3) {
+									
+									if(selectList.contains(t + "#" + data[i])) {
+										sel += t + "#" + data[i] + "#" + data[i + 1] + "#" + data[i + 2]; 
+									}
+								}
+								String pk = DBStructure.getTablePK(dbname, t);
+								if(selectList.contains(t + "#" + pk)) {
+									sel = t + "#" + pk + "#" + DBStructure.getAttributeType(dbname, t, pk) + "#" + doc.get(pk).toString() + "#" + sel;
+								}
+								select.add(sel);
+							}
+						}
+					} else {
+						//there are where statements
+						Hashtable<String, String> all = new Hashtable<String, String>();
+						String t = selectList.get(0).substring(0, selectList.get(0).indexOf('#'));
+						String pk = DBStructure.getTablePK(dbname, t);
+						MongoCollection<Document> table = database.getCollection(t);
+						
+						FindIterable<Document> docs = table.find();
+						for(Document doc : docs) {
+							String id = doc.get(pk).toString();
+							String d = doc.get("#data#").toString();
+							d = pk + "#" + DBStructure.getAttributeType(dbname, t, pk) + "#" + id + "#" + d;
+							all.put(id, d);
+						}
+						
+						//my favourite part, Where, where, where????
+						for(Where where : whereList) {
+							String name = where.getField1().substring(where.getField1().indexOf('#') + 1);
+							String indexName = DBStructure.getIndexName(dbname, t, name);
+							String pk2 = DBStructure.getTablePK(dbname, t);
+							if(!indexName.equals("#NO_INDEX#") && !name.equals(pk2)) {
+								MongoCollection<Document> index = database.getCollection(indexName);
+								FindIterable<Document> ind = index.find();
+								for(Document doc : ind) {
+									String val = doc.get(name).toString();
+									String type = DBStructure.getAttributeType(dbname, t, name);
+									if(!mdbCompare(type, val, where.getField2(), where.getOp())) {
+										String[] data = doc.get("ID").toString().split("#"); //HIBA
+										for(String lost : data) {
+											all.remove(lost);
+										}
+									}
+								}
+							} else {
+								
+								Set<String> keys = all.keySet();
+								Hashtable<String, String> help = new Hashtable<String, String>();
+								for(String k : keys) {
+									//System.out.println(k + " " +all.get(k));
+									String[] data = all.get(k).split("#");
+									for(int i = 0; i < data.length; i+=3) {
+										if(data[i].equals(name)) {
+											if(mdbCompare(data[i + 1], data[i + 2], where.getField2(), where.getOp())) {
+												help.put(k, all.get(k));
+											}
+											break;
+										}
+									}
+								}
+								all.clear();
+								all = help;
+							}
+						} 
+						
+						Set<String> keys = all.keySet();
+						for(String k : keys) {
+							String rowData = "";
+							/*if(selectList.contains(t + "#" + pk)) {
+								rowData += t + "#" + pk + "#" + DBStructure.getAttributeType(dbname, t, pk) + "#" + k + "#";
+							}*/
+							String[] data = all.get(k).split("#");
+							for(int i = 0; i < data.length; i += 3) {
+								if(selectList.contains(t + "#" + data[i])) {
+									rowData += t + "#" + data[i] + "#" + data[i + 1] + "#" + data[i + 2] + "#";
+								}
+							}
+							select.add(rowData);
+						}
+					}
+				} else {
+					HashSet<String> rows = this.mdbgetJoinedSet(dbname, null, joins.get(0), true);
+					for(int i = 1; i < joins.size(); i++) {
+						rows = this.mdbgetJoinedSet(dbname, rows, joins.get(i), false);
+					}
+					
+					Iterator<String> rec = rows.iterator();
+					
+					while(rec.hasNext()) {
+						String row = rec.next();
+						String[] data = row.split("#");
+						boolean match = true;
+						for(Where where : whereList) { // Where field1 - Table#Attr
+							String[] wd = where.getField1().split("#");
+							for(int i = 0; i < data.length; i += 4) {
+								if(data[i].equals(wd[0]) && data[i+1].equals(wd[1])) {
+									if(!mdbCompare(data[i + 2], data[i + 3], where.getField2(), where.getOp())) {
+										match = false;
+										break;
+									}
+								}
+							}
+							if(!match) {
+								break;
+							}
+						}
+						if(match) {
+							String projRow = "";
+							for(int i = 0; i < data.length; i += 4) {
+								if(selectList.contains(data[i] + "#" + data[i+1])) {
+									projRow += data[i] + "#" + data[i+1] + "#" + data[i+2] + "#" + data[i+3] + "#";
+								}
+							}
+							select.add(projRow);
+						}
+					}
+				}
+			} else {
+				// no group by + aggregate functions
+				
+				ArrayList<String> isAg = new ArrayList<String>();
+				for(Aggregate ag : selag) {
+					isAg.add(ag.getTablename() + "#" + ag.getColumnname());
+				}
+
+				Hashtable<String, GBcounts> gba = new Hashtable<String, GBcounts>();
+				ArrayList<String> groups = new ArrayList<String>();
+				String group = groupBy.substring(groupBy.indexOf("#") + 1);
+				if(joins.size() == 0) {
+					//without join
+					if(whereList.size() == 0) {
+						//there are not where statements
+						String t = selag.get(0).getTablename();
+						MongoCollection<Document> table = database.getCollection(t);
+							
+						FindIterable<Document> docs = table.find();
+						for(Document doc : docs) {
+							String[] data = doc.get("#data#").toString().split("#");
+							String gbval = "";
+							for(int i = 0; i < data.length; i += 3) {
+								if(data[i].equals(group)) {
+									gbval = data[i+2];
+									break;
+								}
+							}
+							if(!groups.contains(gbval)) {
+								groups.add(gbval);
+							}
+							String sel = "";
+							for(int i = 0; i < data.length; i += 3) {
+									
+								if(isAg.contains(t + "#" + data[i])) {
+									if(gba.containsKey(t + "#" + gbval + "#" + data[i])) {
+										GBcounts gb = gba.get(t + "#" + data[i]);
+										gb.add();
+										gb.mmChange(Double.parseDouble(data[i + 2]));
+										gb.sumAdd(Double.parseDouble(data[i + 2]));
+										gba.remove(t + "#" + gbval + "#" + data[i]);
+										gba.put(t + "#" + gbval + "#" + data[i], gb);
+									} else {
+										GBcounts gb = new GBcounts(t + "#" + gbval + "#" + data[i]);
+										gb.add();
+										gb.mmChange(Double.parseDouble(data[i + 2]));
+										gb.sumAdd(Double.parseDouble(data[i + 2]));
+										gba.put(t + "#" + gbval + "#" + data[i], gb);
+									}
+								}
+							}
+							String pk = DBStructure.getTablePK(dbname, t);
+							if(isAg.contains(t + "#" + pk)) {
+								if(gba.containsKey(t + "#" + gbval + "#" + pk)) {
+									GBcounts gb = gba.get(t + "#" + gbval + "#" + pk);
+									gb.add();
+									gb.mmChange(Double.parseDouble(doc.get(pk).toString()));
+									gb.sumAdd(Double.parseDouble(doc.get(pk).toString()));
+									gba.remove(t + "#" + gbval + "#" + pk);
+									gba.put(t + "#" + gbval + "#" + pk, gb);
+								} else {
+									GBcounts gb = new GBcounts(t + "#" + gbval + "#" + pk);
+									gb.add();
+									gb.mmChange(Double.parseDouble(doc.get(pk).toString()));
+									gb.sumAdd(Double.parseDouble(doc.get(pk).toString()));
+									gba.remove(t + "#" + gbval + "#" + pk);
+									gba.put(t + "#" + gbval + "#" + pk, gb);
+								}
+							}
+						}
+						
+						for(Aggregate ag : selag) {
+							for(String gbv : groups) {
+								String sel = "";
+								GBcounts gb = gba.get(ag.getTablename() + "#" + gbv + "#" + ag.getColumnname());
+								sel += ag.getTablename() + "#";
+								double val = 0;
+								switch(ag.getType()) {
+								case COUNT:
+									val = gb.getCount();
+									sel += "Count(" + ag.getColumnname() + ")#float#" + gb.getCount() + "#"; 
+									break;
+								case AVG:
+									val = (gb.getSum() / gb.getCount());
+									sel += "Avg(" + ag.getColumnname() + ")#float#" +  val + "#";
+									break;
+								case MIN:
+									val = gb.getMin();
+									sel += "Min(" + ag.getColumnname() + ")#float#" + gb.getMin() + "#";
+									break;
+								case MAX:
+									val = gb.getMax();
+									sel += "Max(" + ag.getColumnname() + ")#float#" + gb.getMax() + "#";
+									break;
+								case SUM:
+									val = gb.getSum();
+									sel += "Sum(" + ag.getColumnname() + ")#float#" + gb.getSum() + "#";
+									break;
+								default:
+									break;
+								}
+								boolean isGood = true;
+								for(Aggregate agh : having) {
+									if(agh.getTablename().equals(ag.getTablename()) && agh.getColumnname().equals(ag.getColumnname())) {
+										if(!mdbCompare("float",val + "",agh.getComparevalue(),agh.getOp())) {
+											isGood = false;
+											break;
+										}
+										break;
+									}
+								}
+								if(isGood) {
+									select.add(sel);
+								}
+							}
+						}
+						
+						
+					} else {
+						
+						//there are where statements
+						Hashtable<String, String> all = new Hashtable<String, String>();
+						String t = selag.get(0).getTablename();
+						String pk = DBStructure.getTablePK(dbname, t);
+						MongoCollection<Document> table = database.getCollection(t);
+						
+						FindIterable<Document> docs = table.find();
+						for(Document doc : docs) {
+							String id = doc.get(pk).toString();
+							String d = doc.get("#data#").toString();
+							d = pk + "#" + DBStructure.getAttributeType(dbname, t, pk) + "#" + id + "#" + d;
+							all.put(id, d);
+						}
+						
+						//my favourite part, Where, where, where????
+						for(Where where : whereList) {
+							String name = where.getField1().substring(where.getField1().indexOf('#') + 1);
+							String indexName = DBStructure.getIndexName(dbname, t, name);
+							String pk2 = DBStructure.getTablePK(dbname, t);
+							if(!indexName.equals("#NO_INDEX#") && !name.equals(pk2)) {
+								MongoCollection<Document> index = database.getCollection(indexName);
+								FindIterable<Document> ind = index.find();
+								for(Document doc : ind) {
+									String val = doc.get(name).toString();
+									String type = DBStructure.getAttributeType(dbname, t, name);
+									if(!mdbCompare(type, val, where.getField2(), where.getOp())) {
+										String[] data = doc.get("ID").toString().split("#"); //HIBA
+										for(String lost : data) {
+											all.remove(lost);
+										}
+									}
+								}
+							} else {
+								
+								Set<String> keys = all.keySet();
+								Hashtable<String, String> help = new Hashtable<String, String>();
+								for(String k : keys) {
+									//System.out.println(k + " " +all.get(k));
+									String[] data = all.get(k).split("#");
+									for(int i = 0; i < data.length; i+=3) {
+										if(data[i].equals(name)) {
+											if(mdbCompare(data[i + 1], data[i + 2], where.getField2(), where.getOp())) {
+												help.put(k, all.get(k));
+											}
+											break;
+										}
+									}
+								}
+								all.clear();
+								all = help;
+							}
+						} 
+						//NANANNANANAN
+						Set<String> keys = all.keySet();
+						for(String k : keys) {
+							String[] data = all.get(k).split("#");
+							String gbval = "";
+							for(int i = 0; i < data.length; i += 3) {
+								if(data[i].equals(group)) {
+									gbval = data[i+2];
+									break;
+								}
+							}
+							if(!groups.contains(gbval)) {
+								groups.add(gbval);
+							} // HEREEEEEEEEEEEEEEEEEEEEE
+							for(int i = 0; i < data.length; i += 3) {
+								
+								if(isAg.contains(t + "#" + data[i])) {
+									if(gba.containsKey(t + "#" + gbval + "#" + data[i])) {
+										GBcounts gb = gba.get(t + "#" + data[i]);
+										gb.add();
+										gb.mmChange(Double.parseDouble(data[i + 2]));
+										gb.sumAdd(Double.parseDouble(data[i + 2]));
+										gba.remove(t + "#" + gbval + "#" + data[i]);
+										gba.put(t + "#" + gbval + "#" + data[i], gb);
+									} else {
+										GBcounts gb = new GBcounts(t + "#" + gbval + "#" + data[i]);
+										gb.add();
+										gb.mmChange(Double.parseDouble(data[i + 2]));
+										gb.sumAdd(Double.parseDouble(data[i + 2]));
+										gba.put(t + "#" + gbval + "#" + data[i], gb);
+									}
+								}
+							}
+						}
+						
+						for(Aggregate ag : selag) {
+							for(String gbv : groups) {
+								String sel = "";
+								GBcounts gb = gba.get(ag.getTablename() + "#" + gbv + "#" + ag.getColumnname());
+								sel += ag.getTablename() + "#";
+								double val = 0;
+								switch(ag.getType()) {
+								case COUNT:
+									val = gb.getCount();
+									sel += "Count(" + ag.getColumnname() + ")#float#" + gb.getCount() + "#"; 
+									break;
+								case AVG:
+									val = (gb.getSum() / gb.getCount());
+									sel += "Avg(" + ag.getColumnname() + ")#float#" +  val + "#";
+									break;
+								case MIN:
+									val = gb.getMin();
+									sel += "Min(" + ag.getColumnname() + ")#float#" + gb.getMin() + "#";
+									break;
+								case MAX:
+									val = gb.getMax();
+									sel += "Max(" + ag.getColumnname() + ")#float#" + gb.getMax() + "#";
+									break;
+								case SUM:
+									val = gb.getSum();
+									sel += "Sum(" + ag.getColumnname() + ")#float#" + gb.getSum() + "#";
+									break;
+								default:
+									break;
+								}
+								boolean isGood = true;
+								for(Aggregate agh : having) {
+									if(agh.getTablename().equals(ag.getTablename()) && agh.getColumnname().equals(ag.getColumnname())) {
+										if(!mdbCompare("float",val + "",agh.getComparevalue(),agh.getOp())) {
+											isGood = false;
+											break;
+										}
+										break;
+									}
+								}
+								if(isGood) {
+									select.add(sel);
+								}
+							}
+						}
+					}
+				} else {
+					HashSet<String> rows = this.mdbgetJoinedSet(dbname, null, joins.get(0), true);
+					for(int i = 1; i < joins.size(); i++) {
+						rows = this.mdbgetJoinedSet(dbname, rows, joins.get(i), false);
+					}
+					
+					Iterator<String> rec = rows.iterator();
+					
+					String groupt = groupBy.substring(0,groupBy.indexOf("#"));
+					
+					while(rec.hasNext()) {
+						String row = rec.next();
+						String[] data = row.split("#");
+						boolean match = true;
+						for(Where where : whereList) { // Where field1 - Table#Attr
+							String[] wd = where.getField1().split("#");
+							for(int i = 0; i < data.length; i += 4) {
+								if(data[i].equals(wd[0]) && data[i+1].equals(wd[1])) {
+									if(!mdbCompare(data[i + 2], data[i + 3], where.getField2(), where.getOp())) {
+										match = false;
+										break;
+									}
+								}
+							}
+							if(!match) {
+								break;
+							}
+						}
+						//NANANANANNANNANANNA
+						if(match) {
+							String gbval = "";
+							for(int i = 0; i < data.length; i += 4) {
+								if(data[i].equals(groupt) && data[i+1].equals(group)) {
+									
+									gbval = data[i+3];
+									break;
+								}
+							}
+							for(int i = 0; i < data.length; i += 4) {
+								if(isAg.contains(data[i] + "#" + data[i+1])) {
+									if(gba.containsKey(data[i] + "#" + gbval + "#" + data[i+1])) {
+										GBcounts gb = gba.get(data[i] + "#" + gbval + "#" + data[i+1]);
+										gb.add();
+										gb.mmChange(Double.parseDouble(data[i + 3]));
+										gb.sumAdd(Double.parseDouble(data[i + 3]));
+										gba.remove(data[i] + "#" + gbval + "#" + data[i+1]);
+										gba.put(data[i] + "#" + gbval + "#" + data[i+1], gb);
+									} else {
+										GBcounts gb = new GBcounts(data[i] + "#" + gbval + "#" + data[i+1]);
+										gb.add();
+										gb.mmChange(Double.parseDouble(data[i + 3]));
+										gb.sumAdd(Double.parseDouble(data[i + 3]));
+										gba.remove(data[i] + "#" + gbval + "#" + data[i+1]);
+										gba.put(data[i] + "#" + gbval + "#" + data[i+1], gb);
+									}
+								}
+							}
+						}
+					}
+					
+					for(Aggregate ag : selag) {
+						for(String gbv : groups) {
+							String sel = "";
+							GBcounts gb = gba.get(ag.getTablename() + "#" + gbv + "#" + ag.getColumnname());
+							sel += ag.getTablename() + "#";
+							double val = 0;
+							switch(ag.getType()) {
+							case COUNT:
+								val = gb.getCount();
+								sel += "Count(" + ag.getColumnname() + ")#float#" + gb.getCount() + "#"; 
+								break;
+							case AVG:
+								val = (gb.getSum() / gb.getCount());
+								sel += "Avg(" + ag.getColumnname() + ")#float#" +  val + "#";
+								break;
+							case MIN:
+								val = gb.getMin();
+								sel += "Min(" + ag.getColumnname() + ")#float#" + gb.getMin() + "#";
+								break;
+							case MAX:
+								val = gb.getMax();
+								sel += "Max(" + ag.getColumnname() + ")#float#" + gb.getMax() + "#";
+								break;
+							case SUM:
+								val = gb.getSum();
+								sel += "Sum(" + ag.getColumnname() + ")#float#" + gb.getSum() + "#";
+								break;
+							default:
+								break;
+							}
+							boolean isGood = true;
+							for(Aggregate agh : having) {
+								if(agh.getTablename().equals(ag.getTablename()) && agh.getColumnname().equals(ag.getColumnname())) {
+									if(!mdbCompare("float",val + "",agh.getComparevalue(),agh.getOp())) {
+										isGood = false;
+										break;
+									}
+									break;
+								}
+							}
+							if(isGood) {
+								select.add(sel);
+							}
+						}
+					}
 				}
 			}
 		}

@@ -485,7 +485,7 @@ public class Server {
 				
 			case 35:
 				response.setMsType(MessageType.SELECT);
-				ArrayList<String> select = mongo.mdbSelect(inputMessage.getDBname(), inputMessage.getSelectList(), inputMessage.getWhereList(), inputMessage.getJoins());
+				ArrayList<String> select = mongo.mdbSelect(inputMessage.getDBname(), inputMessage.getSelectList(), inputMessage.getWhereList(), inputMessage.getJoins(), inputMessage.getGroupBy(), inputMessage.getSelectAgg(), inputMessage.getHavingAgg());
 				response.setResp(select);
 				break;
 				
