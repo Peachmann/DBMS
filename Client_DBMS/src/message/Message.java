@@ -14,7 +14,14 @@ public class Message implements Serializable {
 	private ArrayList<String> resp, selectList;
 	private ArrayList<Where> whereList;
 	private ArrayList<JoinOn> joins;
+	private ArrayList<Aggregate> aggList;
 
+	public ArrayList<Aggregate> getAggList() {
+		return aggList;
+	}
+	public void setAggList(ArrayList<Aggregate> aggList) {
+		this.aggList = aggList;
+	}
 	public ArrayList<String> getSelectList() {
 		return selectList;
 	}
