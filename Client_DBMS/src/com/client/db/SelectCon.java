@@ -53,7 +53,8 @@ public class SelectCon implements Initializable {
 		databaseName.getItems().addAll(DBStructure.getDatabases());
 		whereList = new ArrayList<Where>();
 		joinList = new ArrayList<JoinOn>();
-		havingAgg = selectAgg = new ArrayList<Aggregate>();
+		havingAgg = new ArrayList<Aggregate>();
+		selectAgg = new ArrayList<Aggregate>();
 		
 		List<String> data1 = new ArrayList<String>();
 		data1.add("From Table");

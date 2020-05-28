@@ -1617,17 +1617,8 @@ public class MongoDBBridge {
 							default:
 								break;
 							}
-							for(Aggregate agh : selag) {
-								System.out.println(agh.getColumnname() + " " + agh.getOp() + " " + agh.getType() + " " + agh.getComparevalue());
-							}
-							System.out.println("NOOOOOOOOOOOOOOOOOOOO");
 							for(Aggregate agh : having) {
-								System.out.println(agh.getColumnname() + " " + agh.getOp() + " " + agh.getType() + " " + agh.getComparevalue());
-							}
-							for(Aggregate agh : having) {
-								System.out.println(agh.getColumnname() + " " + val + " " + agh.getComparevalue() + " " + agh.getIsSelect() + " " + agh.getOp() + " " + agh.getType());
 								if(agh.getTablename().equals(ag.getTablename()) && agh.getColumnname().equals(ag.getColumnname())) {
-									
 									if(!mdbCompare("float",val + "",agh.getComparevalue(),agh.getOp())) {
 										isGood = false;
 										break;
